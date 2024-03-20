@@ -1,3 +1,115 @@
-.game {
-    margin: 20px;
+:root {
+    --blue: #7CB9E8;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    margin: 30px auto;
+}
+
+#games-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+#games-wrapper .round {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#games-wrapper .round .game.played {
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+}
+
+
+#games-wrapper .round .game .team {
+    display: flex; 
+    gap: 5px;
+    padding: 4px;
+}   
+
+.round .team label {
+    font-weight: bold;
+}
+
+.round .team input {
+    width: 50px;
+}
+
+#games-wrapper .game.played:hover {
+    background-color: #e0e0e0;
+}
+
+
+
+#standings-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+#standings-table thead tr {
+    background-color: var(--blue);
+    color: #ffffff;
+    text-align: left;
+}
+
+#standings-table th,
+#standings-table td {
+    padding: 12px 15px;
+}
+
+#standings-table th:nth-child(2),
+#standings-table td:nth-child(2) {
+    width: 100px;
+}
+
+#standings-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+#standings-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+#standings-table tbody tr:last-of-type {
+    border-bottom: 2px solid var(--blue);
+}
+
+#standings-table tbody tr:hover {
+    font-weight: bold;
+    color: var(--blue);
+}
+
+#standings-table tbody tr.winner {
+    position: relative;
+}
+#standings-table tbody tr.winner::after {
+    content: '';
+    position: absolute;
+    background-image: url('https://icons.veryicon.com/png/o/business/business-style-icon/trophy-18.png');
+    background-size: cover;
+    height: 30px;
+    width: 30px;
+    top: 50%; /* Adjust the top position */
+    left: -35px;
+    transform: translateY(-50%);
+}
+
+@media (max-width: 550px) {
+    #standings-table th:nth-last-child(-2n + 2),
+    #standings-table td:nth-last-child(-2n + 2) {
+        display: none;
+    }
 }
