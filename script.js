@@ -2,6 +2,11 @@ const gamesForm = document.getElementById('games-wrapper')
 const container = document.querySelector('.container')
 const table = document.querySelector('#standings-table')
 
+const WIN_POINTS = 3
+const DRAW_POINTS = 1
+const LOSE_POINTS = 0
+const ROUNDS = 2
+
 // is praddziu ne 0 o tuscias inputas ir lentele tuscia. Inputus isskirt kurie zaisti P
 // abu inputai ivesti pazymet kad suzaistas P
 
@@ -9,7 +14,7 @@ const table = document.querySelector('#standings-table')
 // kada komanda uzsitikrinus cempiono varda. Prie komandos ikonele P
 
 // kuri komanda uztikrintai paskutine.
-
+// jeigu nutrini abu inputus played = false
 
 class Team {
     constructor(team) {
@@ -57,7 +62,6 @@ function generateGames(teams) {
     if (savedGamesData && savedTeamsData) {
         games = savedGamesData
         teams = savedTeamsData
-        console.log(table, games);
         changeTable(table, games, teams)
     } else {
         for (let i = 0; i < teams.length; i++) {
@@ -87,6 +91,7 @@ function generateGames(teams) {
     return games
 }
 
+
 function generateElements(games, form) {
     const round1 = document.createElement('div')
     round1.className = 'round'
@@ -95,18 +100,25 @@ function generateElements(games, form) {
 
     for (let i = 0; i < games.length; i++) {
         const game = games[i];
-        let gameEl = document.createElement('div')
+        const gameWrapper = document.createElement('div')
+        gameWrapper.classList.add('game-wrapper')
+
+        const gameNumber = document.createElement('p')
+
+        const gameEl = document.createElement('div')
         gameEl.classList.add('game')
 
-        game.played && gameEl.classList.add('played')
+        gameWrapper.append(gameNumber, gameEl)
+        game.played && gameWrapper.classList.add('played')
 
         gameEl.dataset.gameId = i + 1
-        form.append(round1, round2)
 
         if (i < 6) {
-            round1.append(gameEl)
+            round1.append(gameWrapper)
+            gameNumber.textContent = `${i + 1}.`
         } else {
-            round2.append(gameEl)
+            round2.append(gameWrapper)
+            gameNumber.textContent = `${i + 1 - 6}.`
         }
 
         for (let team in game) {
@@ -135,6 +147,8 @@ function generateElements(games, form) {
             }
         }
     }
+
+    form.append(round1, round2)
 }
 generateElements(games, gamesForm)
 
@@ -148,12 +162,15 @@ gamesForm.addEventListener('change', (e) => {
     const homeTeamScored = Number(homeTeamInput.value)
     const awayTeamScored = Number(awayTeamInput.value)
 
-    !homeTeamScored && (homeTeamInput.value = 0)
-    !awayTeamScored && (awayTeamInput.value = 0)
-
     const currentGame = games[gameEl.dataset.gameId-1]
-    currentGame.played = true
-    gameEl.classList.add('played')
+
+    if (homeTeamInput.value && awayTeamInput.value) {
+        currentGame.played = true
+        gameEl.parentElement.classList.add('played')
+    } else {
+        currentGame.played = false
+        gameEl.parentElement.classList.remove('played')
+    }
 
     const gameHomeTeamData = currentGame.homeTeam
     const gameAwayTeamData = currentGame.awayTeam
@@ -162,7 +179,6 @@ gamesForm.addEventListener('change', (e) => {
     gameAwayTeamData.goals = awayTeamScored
 
     localStorage.setItem('games-data', JSON.stringify(games))
-
     updateTeamsData(table, games, teams)
 })
 
@@ -218,8 +234,8 @@ function updateTeamsData(table, games, teams) {
             }
     
                     
-            homeTeamData.points = homeTeamData.wins*3 + homeTeamData.draws
-            awayTeamData.points = awayTeamData.wins*3 + awayTeamData.draws
+            homeTeamData.points = homeTeamData.wins*WIN_POINTS + homeTeamData.draws*DRAW_POINTS
+            awayTeamData.points = awayTeamData.wins*WIN_POINTS + awayTeamData.draws*DRAW_POINTS
         }
     })
 
@@ -239,7 +255,9 @@ function compareGamesData(teams, games) {
     const teamsData = {}
     
     teams.forEach(team => {
+        // PAZIURETI 
         const teamGames = teamsGamesData.filter(game => game.homeTeam.team === team.team || game.awayTeam.team === team.team);
+        
 
         let points = 0
         let goalsScored = 0
@@ -251,18 +269,18 @@ function compareGamesData(teams, games) {
                 goalsMissed += game.awayTeam.goals
 
                 if (game.homeTeam.goals > game.awayTeam.goals) {
-                    points += 3
+                    points += WIN_POINTS
                 } else if (game.homeTeam.goals === game.awayTeam.goals) {
-                    points += 1
+                    points += DRAW_POINTS
                 }
             } else  if (game.awayTeam.team === team.team) {
                 goalsScored += game.awayTeam.goals
                 goalsMissed += game.homeTeam.goals
 
                 if (game.awayTeam.goals > game.homeTeam.goals) {
-                    points += 3
+                    points += WIN_POINTS
                 } else if (game.awayTeam.goals === game.homeTeam.goals) {
-                    points += 1
+                    points += DRAW_POINTS
                 }
             }
 
@@ -278,32 +296,65 @@ function compareGamesData(teams, games) {
 }
 
 
-function checkIfWon(firstPlaceTeam, otherTeams, games) {
+function checkIfWon(firstPlaceTeam, lastPlaceTeam, otherTeams, games) {
     const secondPlacePoints = otherTeams[0].points
-    const competingTeams = []
 
-    for (let team of otherTeams) {
-        if (team.points === secondPlacePoints) {
-            competingTeams.push(team)
-        }
-    }
     // const leftGames = games.filter(game => (game.homeTeam.team === firstPlaceTeam.team || game.awayTeam.team === firstPlaceTeam.team) && !game.played)
+    // const firstPlaceTeamData = {team: firstPlaceTeam, maxPoints: leftGames.length*WIN_POINTS + firstPlaceTeam.points}
 
-    const competingTeamsLeftGames = []
-    competingTeams.forEach(competingTeam => {
-        let game = games.filter(game => (game.homeTeam.team === competingTeam.team || game.awayTeam.team === competingTeam.team) && !game.played)
-        competingTeamsLeftGames.push({team: competingTeam, leftGames: game})
+    const competingTeamsData = []
+    otherTeams.forEach(competingTeam => {
+        let leftGames = games.filter(game => (game.homeTeam.team === competingTeam.team || game.awayTeam.team === competingTeam.team) && !game.played)
+
+        const playedGames = games.filter(game => (game.homeTeam.team === competingTeam.team || game.awayTeam.team === competingTeam.team) && game.played) 
+
+        competingTeamsData.push({team: competingTeam, leftGames, playedGames, maxPoints: leftGames.length*WIN_POINTS + competingTeam.points})
     })
 
-    if (competingTeams.length === 0) {
-        firstPlaceTeam.winner = true
-    } else {
-        competingTeamsLeftGames.forEach(competingTeamData => {
-            console.log(competingTeamData.leftGames.length * 3, firstPlaceTeam.points);
-            if (competingTeamData.leftGames.length * 3 + competingTeamData.team.points < firstPlaceTeam.points) {
-                firstPlaceTeam.winner = true
-            } else {
 
+    const allLowerPoinsts = competingTeamsData.every(competingTeamData => competingTeamData.maxPoints < firstPlaceTeam.points)
+
+    if (allLowerPoinsts) {
+        firstPlaceTeam.winner = true
+    }
+    
+    const higherMaxPointsTeamsData = competingTeamsData.filter(competingTeamData => competingTeamData.maxPoints > firstPlaceTeam.points)
+
+    const samePointsTeamsData = competingTeamsData.filter(competingTeamData => competingTeamData.maxPoints === firstPlaceTeam.points)
+
+
+    if (higherMaxPointsTeamsData.length > 0) {
+        firstPlaceTeam.winner = false
+    } else if (samePointsTeamsData.length > 0) {
+        samePointsTeamsData.forEach(teamData => {
+            const playedTogetherGames = games.filter(game => {
+                const together = (game.homeTeam.team === teamData.team.team && game.awayTeam.team === firstPlaceTeam.team) || (game.awayTeam.team === teamData.team.team && game.homeTeam.team === firstPlaceTeam.team)
+
+                return together && game.played
+            })
+
+            
+            if (playedTogetherGames.length > 0) {
+                console.log(playedTogetherGames);
+
+                const teamsData = compareGamesData([firstPlaceTeam, teamData.team], playedTogetherGames)
+                console.log(teamData, teamsData);
+                const firstTeam = teamsData[firstPlaceTeam.team]
+                const otherTeam = teamsData[teamData.team.team]
+
+                if (firstTeam.points > otherTeam.points) {
+                    firstPlaceTeam.winner = true
+                } else if (firstTeam.points < otherTeam.points) {
+                    firstPlaceTeam.winner = false
+                } else if (firstTeam.goalDifference > otherTeam.goalDifference) {
+                    firstPlaceTeam.winner = true
+                } else if (firstTeam.goalDifference < otherTeam.goalDifference) {
+                    firstPlaceTeam.winner = false
+                } else if (firstTeam.goalsScored > otherTeam.goalsScored) {
+                    firstPlaceTeam.winner = true
+                } else if (firstTeam.goalsScored < otherTeam.goalsScored) {
+                    firstPlaceTeam.winner = false
+                }
             }
         })
     }
@@ -332,14 +383,15 @@ function changeTable(table, games, teams) {
 
     headItems.forEach(item => {
         const th = document.createElement('th')
-        th.textContent = item.text
-        item.title && th.setAttribute('title', item.title)
+        // th.textContent = item.title || item.text
+        // item.title && th.setAttribute('title', item.title)
         th.setAttribute('scope', 'col')
+        th.dataset.title = item.title || item.text
+        th.dataset.smallTitle = item.text
 
         tHeadRow.append(th)
     })
     tableHead.append(tHeadRow)
-
     const samePointsTeams = []
 
     const sortedTeams = teams.sort((a, b) => {
@@ -351,7 +403,6 @@ function changeTable(table, games, teams) {
             !samePointsTeams.includes(a) && samePointsTeams.push(a)
             !samePointsTeams.includes(b) && samePointsTeams.push(b)
             const teamsGameData = compareGamesData(samePointsTeams, games);
-            console.log(teamsGameData);
 
             if (teamsGameData[a.team].points > teamsGameData[b.team].points) {
                 return -1
@@ -412,7 +463,8 @@ function changeTable(table, games, teams) {
 
         return 0
     })
-    checkIfWon(sortedTeams[0], sortedTeams.filter(team => sortedTeams[0] !== team), games)
+
+    checkIfWon(sortedTeams[0], sortedTeams[sortedTeams.length - 1], sortedTeams.filter(team => sortedTeams[0] !== team), games)
 
     /*/ jei lygus taskai
         TARPUSAVIO varzybose
@@ -451,6 +503,6 @@ function changeTable(table, games, teams) {
         tableBody.append(row)
         
     }
-    
+
     table.append(tableHead, tableBody)
 }

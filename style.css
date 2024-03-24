@@ -22,12 +22,22 @@
 #games-wrapper .round {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    justify-content: center;
+    flex: 1;
+    gap: 15px;
 }
 
-#games-wrapper .round .game.played {
+#games-wrapper .game-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px;
+}
+
+#games-wrapper .round .game-wrapper.played {
     background-color: #f7f7f7;
     border: 1px solid #ddd;
+    border-radius: 3px;
 }
 
 
@@ -72,7 +82,7 @@
 
 #standings-table th:nth-child(2),
 #standings-table td:nth-child(2) {
-    width: 100px;
+    width: 150px;
 }
 
 #standings-table tbody tr {
@@ -107,9 +117,25 @@
     transform: translateY(-50%);
 }
 
+#standings-table th::before {
+    content: attr(data-title)
+}
+
 @media (max-width: 550px) {
-    #standings-table th:nth-last-child(-2n + 2),
-    #standings-table td:nth-last-child(-2n + 2) {
+    #standings-table th:nth-last-child(2),
+    #standings-table td:nth-last-child(2) {
         display: none;
+    }
+}
+
+
+@media (max-width: 1100px) {
+    #standings-table th::before {
+        content: attr(data-small-title);
+    }
+
+    #standings-table th:nth-child(2),
+    #standings-table td:nth-child(2) {
+        width: 100px;
     }
 }
