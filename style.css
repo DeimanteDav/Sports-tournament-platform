@@ -61,7 +61,7 @@
 
 
 
-#standings-table {
+.table {
     border-collapse: collapse;
     margin: 25px 0;
     font-family: sans-serif;
@@ -69,35 +69,35 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-#standings-table thead tr {
+.table thead tr {
     background-color: var(--blue);
     color: #ffffff;
     text-align: left;
 }
 
-#standings-table th,
-#standings-table td {
+.table th,
+.table td {
     padding: 12px 15px;
 }
 
-#standings-table th:nth-child(2),
-#standings-table td:nth-child(2) {
+.table th:nth-child(2),
+.table td:nth-child(2) {
     width: 150px;
 }
 
-#standings-table tbody tr {
+.table tbody tr {
     border-bottom: 1px solid #dddddd;
 }
 
-#standings-table tbody tr:nth-of-type(even) {
+.table tbody tr:nth-of-type(even) {
     background-color: #f3f3f3;
 }
 
-#standings-table tbody tr:last-of-type {
+.table tbody tr:last-of-type {
     border-bottom: 2px solid var(--blue);
 }
 
-#standings-table tbody tr:hover {
+.table tbody tr:hover {
     font-weight: bold;
     color: var(--blue);
 }
