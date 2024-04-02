@@ -116,7 +116,7 @@ function teamsAmountForm(container) {
     
         if (amount) {
             form.remove()
-            teamNamesForm(container, amount)
+            teamNamesForm(container, Number(amount))
         }
     })
 }
@@ -124,7 +124,41 @@ function teamsAmountForm(container) {
 
 function teamNamesForm(container, teamsAmount) {
     const form = document.createElement('form')
-    const wrapper = document.createElement('div')
+    
+    const text = document.createElement('p')
+    text.textContent = `Set Teams' names`
+
+    const namesWrapper = document.createElement('div')
+
+    const generateWrapper = document.createElement('div')
+    const select = document.createElement('select')
+    const options = [
+        {
+            title: 'Alphabetized',
+            value: 1
+        }, 
+        {
+            title: 'Numbered',
+            value: 2,
+        }
+    ]
+
+
+    for (let i = 0; i < options.length; i++) {
+        const option = options[i];
+        const optionElement = document.createElement('option')
+        optionElement.textContent = option.title
+        optionElement.value = option.value
+
+        select.append(optionElement)
+    }
+
+    const generateNamesBtn = document.createElement('button')
+    generateNamesBtn.type = 'button'
+    generateNamesBtn.textContent = 'Generate'
+
+    generateWrapper.append(select, generateNamesBtn)
+
     const submitBtn = document.createElement('button')
     submitBtn.type = 'submit'
     submitBtn.textContent = 'OK'
@@ -138,13 +172,33 @@ function teamNamesForm(container, teamsAmount) {
         input.required = true
 
         div.append(number, input)
-        wrapper.append(div)
+        namesWrapper.append(div)
     }
 
 
-    form.append(wrapper, submitBtn)
+    form.append(text, generateWrapper, namesWrapper, submitBtn)
     container.append(form)
 
+    generateNamesBtn.addEventListener('click', (e) => {
+        const optionValue = select.value
+        const inputs = [...namesWrapper.querySelectorAll('input')]
+
+        if (optionValue === '1') {
+            const alphabet = Array.from({ length: teamsAmount }, (_, i) => String.fromCharCode(65 + i))
+
+            alphabet.forEach((letter, i) => {
+                inputs[i].value = letter
+            })
+        } else {
+            const numbers = Array.from({ length: teamsAmount }, (_, i) => i + 1)
+
+            numbers.forEach((number, i) => {
+                inputs[i].value = number
+            })
+        }
+    })
+
+    
     form.addEventListener('submit', (e) => {
         e.preventDefault()
 
@@ -289,6 +343,15 @@ function tournamentForm(container, games, teams) {
         const currentGame = games[gameEl.dataset.gameId-1]
     
     
+  
+    
+        const gameHomeTeamData = currentGame.homeTeam
+        const gameAwayTeamData = currentGame.awayTeam
+    
+        gameHomeTeamData.goals = homeTeamScored
+        gameAwayTeamData.goals = awayTeamScored
+
+
         if (homeTeamInput.value && awayTeamInput.value) {
             currentGame.played = true
             gameEl.parentElement.classList.add('played')
@@ -296,16 +359,10 @@ function tournamentForm(container, games, teams) {
             currentGame.played = false
             gameEl.parentElement.classList.remove('played')
         }
-    
-        const gameHomeTeamData = currentGame.homeTeam
-        const gameAwayTeamData = currentGame.awayTeam
-    
-        gameHomeTeamData.goals = homeTeamScored
-        gameAwayTeamData.goals = awayTeamScored
-    
+
+        updateTeamsData(games, teams)
     
         localStorage.setItem('games-data', JSON.stringify(games))
-        updateTeamsData(games, teams)
     })
 
     const resetBtn = document.createElement('button')
@@ -404,10 +461,9 @@ function updateTeamsData(games, teams) {
             awayTeamData.points = awayTeamData.wins*WIN_POINTS + awayTeamData.draws*DRAW_POINTS
         }
     })
-
-    localStorage.setItem('teams-data', JSON.stringify(teams))
-
+    
     changeTable(container, teams, games)
+    localStorage.setItem('teams-data', JSON.stringify(teams))
 }
 
 
@@ -425,7 +481,9 @@ function changeTable(container, teams, games) {
     // })
 
     // if (competingTeams.length > 0) {
-        checkTeamPosition(sortedTeams, games)
+        if (games.some(game => game.played)) {
+            checkTeamPosition(sortedTeams, games)
+        }
     // }
 
     /*/ jei lygus taskai
@@ -655,8 +713,8 @@ function checkTeamPosition(teams, games) {
             otherTeam.minPlace = otherTeam.currentPlace
 
             if (canSucceed) {
-                team.minPlace+= 1
-                otherTeam.maxPlace-= 1
+                team.minPlace += 1
+                otherTeam.maxPlace -= 1
             } else if (equalPoints) {
                 const inbetweenGames = getInbetweenTeamsGames([otherTeam, team], games)
 
@@ -671,8 +729,8 @@ function checkTeamPosition(teams, games) {
                     })
 
                     if (otherTeamGamesWon.lenght > Math.round(ROUNDS/2)) {
-                        team.minPlace = team.currentPlace+= 1
-                        otherTeam.maxPlace = otherTeam.currentPlace-=1
+                        team.minPlace += 1
+                        otherTeam.maxPlace -=1
                     } 
                 }
             }
@@ -680,29 +738,10 @@ function checkTeamPosition(teams, games) {
 
     }
 
-
-
-    // const inbetweenGamesPlayed = getInbetweenTeamsGames(otherTeams, games, {allGames: false})
-    // const inbetweenGamesAll = getInbetweenTeamsGames(otherTeams, games, {allGames: true})
-
-
-    // if (inbetweenGamesAll.length === inbetweenGamesPlayed.length) {
-    //     if (otherTeams.every(otherTeam => otherTeam.maxPotentialPoints < team.points)) {
-    //         team.minPlace = 1
-    //         team.maxPlace = 1
-    //     } else {
-    //         team.minPlace = team.currentPlace + otherTeams.length
-    //         team.maxPlace = team.currentPlace
-    //     }
-    // } else {
-
-    // }
-
     // patikrtinti ar suzaidusios visus zaidimus tarpusavy
     // jei suzaidusios naudoti maxpotentialPoints
     // jei nesuzaidusios tikrinti tas komandas kartu ir prideti
     // kad rast max min place
-
 }
 
 
@@ -820,7 +859,7 @@ function createTable(container, tableId, teams, games, params = {}) {
         row.append(place)
 
         
-        if (team.currentPlace === 1 && team.minPlace === team.maxPlace) {
+        if (team.maxPlace === 1 && team.minPlace === 1) {
             row.classList.add('winner')
         }
 
