@@ -1,15 +1,16 @@
 const container = document.querySelector('.container')
-const resetDataBtn = document.getElementById('reset-data-btn')
 
 const WIN_POINTS = 3
 const DRAW_POINTS = 1
 const LOSE_POINTS = 0
+const TEAM_NAMES = ['Bears', 'Lions', 'Eagles', 'Jaguars', 'Hawks', 'Falcons', 'Ravens', 'Wolves', 'Sharks', 'Cobras']
 
 
-// PASIRINKTI ROUNDS GALIMA.
 // PADARYTI LENTELE. PAZYMETI H IR A PRIE REZULTATU. PAKEISTI TA LENTELE I SITA
 
-// atkrentamoji lentele playoffs
+// atkrentamoji lentele playoffs.
+
+// VIETOJ SKAICIU IDET TEAM NAMES gal
 
 class Team {
     constructor(team, totalGames, minPlace) {
@@ -67,15 +68,10 @@ class Game {
 function getLocalStorageData(container) {
     const teamsData = localStorage.getItem('teams-data') ? JSON.parse(localStorage.getItem('teams-data')) : null
     const gamesData = localStorage.getItem('games-data') ? JSON.parse(localStorage.getItem('games-data')) : null
-    const comparingTeams = JSON.parse(localStorage.getItem('comparing-teams'))
 
     if (teamsData && gamesData) {
         tournamentForm(container, gamesData, teamsData)
         changeTable(container, teamsData, gamesData)
-
-        if (comparingTeams) {
-            compareTeamsTable(container, comparingTeams, gamesData)
-        }
     } else {
         teamsAmountForm(container)
     }
@@ -193,12 +189,8 @@ function teamNamesForm(container, teamsAmount) {
                 inputs[i].value = number
             })
         } else {
-            const animals = ['Bears', 'Lions', 'Eagles', 'Jaguars', 'Hawks', 'Falcons', 'Ravens', 'Wolves', 'Sharks', 'Cobras']
-
-            const randomIndex = Math.floor(Math.random() * (animals.length-teamsAmount))
-
-            animals.sort(() => Math.random() - 0.5).slice(randomIndex, randomIndex + teamsAmount).forEach((animal, i) => {
-                inputs[i].value = animal
+            TEAM_NAMES.sort(() => Math.random() - 0.5).slice(0,teamsAmount).forEach((name, i) => {
+                inputs[i].value = name
             })
         }
     })
@@ -347,8 +339,9 @@ function tournamentForm(container, games, teams) {
                 const label = document.createElement('label')
                 const input = document.createElement('input')               
                 input.type = 'number'
+                input.id = `${game.id}-${team.team}`
                 input.dataset.team = game[team].team
-                label.htmlFor = input.id
+                label.htmlFor = `${game.id}-${team.team}`
                 label.textContent = game[team].team
                 input.classList.add('result-input')
                 input.value = game.played ? game[team].goals : ''           
@@ -395,23 +388,41 @@ function tournamentForm(container, games, teams) {
 
 
     const resetBtn = document.createElement('button')
-    resetBtn.textContent = 'RESET'
+    resetBtn.textContent = 'RESET all data'
     resetBtn.id = 'reset-btn'
 
-    gamesForm.after(resetBtn)
 
     resetBtn.addEventListener('click', (e) => {
-        localStorage.removeItem('team-names')
-        localStorage.removeItem('total-games')
-        localStorage.removeItem('teams-data')
-        localStorage.removeItem('games-names')
-        localStorage.removeItem('comparing-teams')
-        localStorage.removeItem('rounds-amount')
-    
+        // localStorage.removeItem('team-names')
+        // localStorage.removeItem('total-games')
+        // localStorage.removeItem('teams-data')
+        // localStorage.removeItem('games-names')
+        // localStorage.removeItem('comparing-teams')
+        // localStorage.removeItem('rounds-amount')
+        localStorage.clear()
         container.innerHTML = ''
         
         teamsAmountForm(container)
     })
+
+    const changeTableBtn = document.createElement('button')
+    changeTableBtn.textContent = 'Change Table View'
+
+    changeTableBtn.addEventListener('click', (e) => {
+        const prevTableType = localStorage.getItem('table-type')
+
+        if (prevTableType === 'modern' || !prevTableType) {
+            localStorage.setItem('table-type', 'old')
+            changeTable(container, teams, games)
+        } else {
+            localStorage.setItem('table-type', 'modern')
+            changeTable(container, teams, games)
+        }
+    })
+
+    gamesForm.before(resetBtn)
+    gamesForm.after(changeTableBtn)
+
 }
 
 
@@ -530,70 +541,39 @@ function changeTable(container, teams, games) {
         - daugiau away laimejimu
     /*/
 
-    let standingsTableWrapper = document.querySelector('.table-wrapper')
-    let tableChangeBtn
-
-    if (standingsTableWrapper) {
-        standingsTableWrapper = document.querySelector('.table-wrapper')
-        tableChangeBtn = standingsTableWrapper.querySelector('.table-change-btn')
-
+    let prevTableWrapper = document.querySelector('.table-wrapper')
+    let tableWrapper
+    
+    if (prevTableWrapper) {
+        prevTableWrapper.innerHTML = ''
+        tableWrapper = prevTableWrapper
     } else {
-        standingsTableWrapper = document.createElement('div')
-        standingsTableWrapper.classList.add('table-wrapper')
-
-        tableChangeBtn = document.createElement('button')
-        tableChangeBtn.type = 'button'
-        tableChangeBtn.textContent = 'change table'
-        tableChangeBtn.classList.add('table-change-btn')
-
-        standingsTableWrapper.append(tableChangeBtn)
-        container.append(standingsTableWrapper)
+        tableWrapper = document.createElement('div')
+        tableWrapper.classList.add('table-wrapper')
+        container.append(tableWrapper)
     }
 
+    const tableType = localStorage.getItem('table-type')
 
-    let table = standingsTableWrapper.querySelector('table')
-    console.log(standingsTableWrapper);
-    if (table) {
-        if (table.id === 'standings-table') {
-            table.innerHTML = ''
-            table = createTable(container, 'standings-table', sortedTeams, games, {addComparinsonBtn: true, position: true})
-        } else {
-            table.innerHTML = ''
-            table = createOtherTable(teams, games)
-        }
-    } else {
-        table = createTable(container, 'standings-table', sortedTeams, games, {addComparinsonBtn: true, position: true})
-        standingsTableWrapper.append(table)
-    }
-
-
-
-    tableChangeBtn.addEventListener('click', (e) => {
-        let table = standingsTableWrapper.querySelector('table')
-
-        if (table.id === 'standings-table') {
-            table.remove()
-            let newTable = createOtherTable(teams, games)
-            standingsTableWrapper.append(newTable)
-        } else {
-            table.remove()
-            let newTable = createTable(container, 'standings-table', sortedTeams, games, {addComparinsonBtn: true, position: true})
-            standingsTableWrapper.append(newTable)
-        }
-    })
-    
-    standingsTableWrapper.append(table)
-    
-
+    let table
     const comparingTeams = JSON.parse(localStorage.getItem('comparing-teams'))
-    if (comparingTeams) {
+
+    if (tableType === 'old') {
+        table = createOldTable(tableWrapper, teams, games, {comparinsonBtn: true})
+    } else {
+        table = createModernTable(tableWrapper, sortedTeams, games, {comparinsonBtn: true, position: true})
+    }
+    tableWrapper.prepend(table)
+
+    if (comparingTeams?.length > 0) {
         const updatedTeams = comparingTeams.map(oldTeam => {
             const updatedTeam = teams.find(team => team.team === oldTeam.team)
 
             return updatedTeam
         })
         localStorage.setItem('comparing-teams', JSON.stringify(updatedTeams))
-        compareTeamsTable(container, updatedTeams, games)
+
+        tableWrapper.append(compareTeamsTable(tableWrapper, updatedTeams, games, tableType))
     }
 }
 
@@ -752,6 +732,7 @@ function compareGamesData(teams, games) {
                 goalsMissed,
                 goalDifference: goals - goalsMissed,
                 points,
+                currentPlace: team.currentPlace
                 // points,
                 // goalDifference: goals - goalsMissed,
                 // goals
@@ -824,7 +805,6 @@ function checkTeamPosition(teams, games) {
 
 function getInbetweenTeamsGames(teams, games, params = {}) {
     const {allGames} = params
-
     const inbetweenGames = []
     games.forEach(game => {
         if (teams.some(team => team.team === game.homeTeam.team) && teams.some(team => team.team === game.awayTeam.team)) {
@@ -857,7 +837,7 @@ function getTeamGames(team, games, params = {}) {
 }
 
 
-function compareTeamsTable(container, teams, games) {
+function compareTeamsTable(wrapper, teams, games, tableType) {
     const teamsGamesDataObject = compareGamesData(teams, games)
 
     const teamsData = Object.entries(teamsGamesDataObject).map(([team, stats]) => ({
@@ -866,9 +846,11 @@ function compareTeamsTable(container, teams, games) {
     }));
     const sortedTeams = sortTeams(teamsData)
 
+    let updatedTeams
+    let table
 
     if (sortedTeams.length > 0) {
-        container.append(createTable(container, 'comparing-table', sortedTeams))
+        updatedTeams = sortedTeams
     } else if (teams.length === 1) {
         const team = {...teams[0]}
         for (const [key, value] of Object.entries(team)) {
@@ -879,26 +861,26 @@ function compareTeamsTable(container, teams, games) {
             }
         }
         
-        container.append(createTable('comparing-table', [team]))
-    } else {
-        document.getElementById('comparing-table') && document.getElementById('comparing-table').remove()
+        updatedTeams = [team]
     }
+
+    if (tableType === 'old') {
+        table = createOldTable(wrapper, updatedTeams, games)
+    } else {
+        table = createModernTable(wrapper, updatedTeams, games)
+    }
+    table.id = 'comparing-table'
+
+    return table
 }
 
 
-function createTable(container, tableId, teams, games, params = {}) {
-    const {addComparinsonBtn, position} = params
-    const oldTable = document.getElementById(tableId)
+function createModernTable(wrapper, teams, games, params = {}) {
+    const {comparinsonBtn, position} = params
 
-    let table
-    if (oldTable) {
-        oldTable.innerHTML = ''
-        table = oldTable
-    } else {
-        table = document.createElement('table')
-        table.id = tableId
-        table.classList.add('table')
-    }
+    const table = document.createElement('table')
+    table.classList.add('table', 'modern-table')
+
 
     const tableHead = document.createElement('thead')
     const tableBody = document.createElement('tbody')
@@ -948,62 +930,31 @@ function createTable(container, tableId, teams, games, params = {}) {
             cell.textContent = item
             row.append(cell)
 
-            if (addComparinsonBtn && i === 0) {
-                let comparingTeams = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams')) : []
-
-                cell.dataset.teamName = team.team
-                let btn = document.createElement('button')
-                cell.append(btn)
-                
-                btn.textContent = comparingTeams.some(comparingTeam => comparingTeam.team === team.team) ? '-' : '+'
-
-                btn.addEventListener('click', (e) => {  
-                    comparingTeams = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams')) : []
-
-                    if (comparingTeams.some(comparingTeam => comparingTeam.team === team.team)) {
-                        comparingTeams = comparingTeams.filter(comparingTeam => comparingTeam.team !== team.team)
-                        btn.textContent = '+'
-                    } else {
-                        comparingTeams.push(team)
-                        btn.textContent = '-'
-                    }
-
-                    localStorage.setItem('comparing-teams', JSON.stringify(comparingTeams))
-                    compareTeamsTable(container, comparingTeams, games)                    
-                })
-
-                btn.type = 'button'
+            if (comparinsonBtn && i === 0) {
+               compareTeamsButtonHandler(wrapper, team, games, cell, 'modern')
             }
         })
         tableBody.append(row)
     }
     table.append(tableHead, tableBody)
 
-    // const comparisonTable = document.getElementById('comparing-table');
-
-    // if (tableId === 'standings-table' && comparisonTable) {
-    //     table.insertAdjacentElement('afterend', comparisonTable);
-    // } else {
-    //     container.append(table)
-    // }
-
     return table
 }
 
 
-function createOtherTable(teams, games) {
-    const oldTable = document.getElementById('tournament-table')
+function createOldTable(wrapper, teams, games, params = {}) {
+    const {comparinsonBtn} = params
 
-    let table
-    if (oldTable) {
-        oldTable.innerHTML = ''
-        table = oldTable
-    } else {
-        table = document.createElement('table')
-        table.id = 'tournament-table'
-    }
+    const table = document.createElement('table')
+    table.classList.add('table', 'old-table')
 
-    const tableHead = document.createElement('tr')
+    const expandAllBtn = document.createElement('button')
+    expandAllBtn.type = 'button'
+    expandAllBtn.textContent = 'Expand All'
+
+    const tableHead = document.createElement('thead')
+    const tableBody = document.createElement('tbody')
+    const tr = document.createElement('tr')
 
     const queueNum = document.createElement('th')
     queueNum.setAttribute('scope', 'col')
@@ -1013,14 +964,13 @@ function createOtherTable(teams, games) {
     teamTitleTh.setAttribute('scope', 'col')
     teamTitleTh.textContent = 'Team'
 
-    tableHead.append(queueNum, teamTitleTh)
+    tr.append(queueNum, teamTitleTh)
 
     teams.forEach((_, i) => {
         const th = document.createElement('th')
         th.textContent = i + 1
         th.setAttribute('scope', 'col')
-        tableHead.append(th)
-        th.style.padding = '10px'
+        tr.append(th)
     })
 
 
@@ -1035,14 +985,13 @@ function createOtherTable(teams, games) {
         th.textContent = item.text
         th.setAttribute('scope', 'col')
 
-        tableHead.append(th)
-        th.style.padding = '10px'
-
-
-        const cell = document.createElement('td')
-        cell.style.padding = '10px'
+        tr.append(th)
     })
+    tableHead.append(tr)
 
+    const roundsAmount = Number(localStorage.getItem('rounds-amount'))
+
+        
     teams.forEach((team, i) => {
         const row = document.createElement('tr')
 
@@ -1054,31 +1003,50 @@ function createOtherTable(teams, games) {
         const teamTitleEl = document.createElement('th')
         teamTitleEl.setAttribute('scope', 'row')
         teamTitleEl.textContent = team.team
-        teamTitleEl.style.padding = '10px'
 
+        if (comparinsonBtn) {
+            compareTeamsButtonHandler(wrapper, team, games, teamTitleEl, 'old')
+        }
+
+        if (team.maxPlace === 1 && team.minPlace === 1) {
+            row.classList.add('winner')
+        }
         row.append(teamIndexEl, teamTitleEl)
 
-        teams.forEach((otherTeam, j) => {
-            const cell = document.createElement('td')
-            cell.style.padding = '10px'
+        const roundsData = document.createElement('td')
+        roundsData.setAttribute('colspan', teams.length)
+        roundsData.classList.add('rounds-data')
 
-            if (i === j) {
-                cell.textContent = ''
-                cell.classList.add('empty-cell')
-            } else {
-                const inbetweenGames = getInbetweenTeamsGames([team, otherTeam], games, {allGames: true})
+        const innerTable = document.createElement('table')
+        innerTable.classList.add('inner-table')
 
-                inbetweenGames.forEach(game => {
-                    const teamGoals = game.homeTeam.team === team.team ? game.homeTeam.goals : game.awayTeam.goals
+        const innerTableBody = document.createElement('tbody')
+        innerTableBody.id = 'rounds-info'
+        innerTableBody.classList.add('hidden')
+        const innerTableFoot = document.createElement('tfoot')
+        const footPointsRow = document.createElement('tr')
+        const footGoalsRow = document.createElement('tr')
+
+
+        for (let m = 0; m < roundsAmount; m++)  {
+            const innerRow = document.createElement('tr') 
+
+            teams.forEach((otherTeam, j) => {
+                const innerCell = document.createElement('td')
+
+                if (i === j) {
+                    innerCell.classList.add('empty-cell')
+                } else {
+                    const inbetweenGames = getInbetweenTeamsGames([team, otherTeam], games, {allGames: true})
     
-                    const otherTeamGoals = game.homeTeam.team === otherTeam.team ? game.homeTeam.goals : game.awayTeam.goals
+                    const teamGoals = inbetweenGames[m].homeTeam.team === team.team ? inbetweenGames[m].homeTeam.goals : inbetweenGames[m].awayTeam.goals
+    
+                    const otherTeamGoals = inbetweenGames[m].homeTeam.team === otherTeam.team ? inbetweenGames[m].homeTeam.goals : inbetweenGames[m].awayTeam.goals
 
                     const scoresEl = document.createElement('p')
-                    scoresEl.style.margin = '5px 0'
                     const earnedPointsEl = document.createElement('p')
-                    earnedPointsEl.style.margin = '5px 0'
 
-                    if (game.played) {
+                    if (inbetweenGames[m].played) {
                         scoresEl.textContent = `${teamGoals}:${otherTeamGoals}`
 
                         if (teamGoals === otherTeamGoals) {
@@ -1089,29 +1057,128 @@ function createOtherTable(teams, games) {
                             earnedPointsEl.textContent = 0
                         }
                     } else {
-                        cell.textContent = 'Not Played'
+                        scoresEl.textContent = 'X'
                     }
-                    cell.append(scoresEl, earnedPointsEl)             
+
+                    innerCell.append(scoresEl, earnedPointsEl)  
+                }          
+                innerRow.append(innerCell)
+
+           
+            })
+
+            innerTableBody.append(innerRow)    
+        }
+
+
+        teams.forEach((otherTeam, j) => {
+            const poinstCell = document.createElement('td')
+            const goalDiffCell = document.createElement('td')
+
+            const inbetweenGames = getInbetweenTeamsGames([team, otherTeam], games, {allGames: true})
+            
+            let pointsSum = 0
+            let goalDiff = 0
+
+            if (i === j) {
+                poinstCell.classList.add('empty-cell')
+                goalDiffCell.classList.add('empty-cell')
+            } else {
+                inbetweenGames.forEach(game => {
+                    const teamGoals = game.homeTeam.team === team.team ? game.homeTeam.goals : game.awayTeam.goals
+            
+                    const otherTeamGoals = game.homeTeam.team === otherTeam.team ? game.homeTeam.goals : game.awayTeam.goals
+    
+                    if (game.played) {
+                        if (teamGoals === otherTeamGoals) {
+                            pointsSum+= DRAW_POINTS
+                        } else if (teamGoals > otherTeamGoals) {
+                            pointsSum+= WIN_POINTS
+                        } else {
+                            pointsSum+=0
+                        }
+    
+                        goalDiff+=teamGoals-otherTeamGoals
+    
+                        poinstCell.textContent = `Points: ${pointsSum}`
+                        goalDiffCell.textContent = `Goal diff.: ${goalDiff}`
+                    }
                 })
             }
 
-            row.append(cell)
+            footPointsRow.append(poinstCell)
+            footGoalsRow.append(goalDiffCell)
+
         })
+
+        innerTableFoot.append(footPointsRow, footGoalsRow)
+        innerTable.append(innerTableBody, innerTableFoot)
+        roundsData.append(innerTable)
+        row.append(roundsData)
 
         gamesData.forEach(item => {
             const cell = document.createElement('td')
-            cell.style.padding = '10px'
             
             cell.textContent = team[item.property]
 
             row.append(cell)
         })
 
-        table.append(row)
+        tableBody.append(row)
     })
 
+    expandAllBtn.addEventListener('click', (e) => {
+        const innerTableBodies = [...tableBody.querySelectorAll('#rounds-info')]
 
-    table.prepend(tableHead)
+        if (expandAllBtn.textContent === 'Hide All') {
+            innerTableBodies.forEach(item => {
+                item.className = 'hidden'
+            })
+            expandAllBtn.textContent = 'Expand All'
+        } else {
+            innerTableBodies.forEach(item => {
+                item.className = 'expanded'
+            })
+    
+            expandAllBtn.textContent = 'Hide All'
+        }
+    })
+
+    table.append(tableHead, tableBody, expandAllBtn)
 
     return table
+}
+
+
+function compareTeamsButtonHandler(wrapper, team, games, cell, tableType) {
+    let comparingTeams = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams')) : []
+
+    let btn = document.createElement('button')
+    cell.append(btn)
+    
+    btn.textContent = comparingTeams.some(comparingTeam => comparingTeam.team === team.team) ? '-' : '+'
+
+    btn.addEventListener('click', (e) => {  
+        comparingTeams = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams')) : []
+
+        if (comparingTeams.some(comparingTeam => comparingTeam.team === team.team)) {
+            comparingTeams = comparingTeams.filter(comparingTeam => comparingTeam.team !== team.team)
+            btn.textContent = '+'
+        } else {
+            comparingTeams.push(team)
+            btn.textContent = '-'
+        }
+
+        localStorage.setItem('comparing-teams', JSON.stringify(comparingTeams))
+        
+        
+        document.getElementById('comparing-table') && document.getElementById('comparing-table').remove()
+        
+        if (comparingTeams.length > 0) {
+            let teamsTable = compareTeamsTable(wrapper, comparingTeams, games, tableType)
+            wrapper.append(teamsTable)
+        }
+    })
+
+    btn.type = 'button'
 }
