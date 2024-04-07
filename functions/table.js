@@ -1,0 +1,315 @@
+import { DRAW_POINTS, WIN_POINTS } from "../config.js"
+import { compareTeamsTable } from "../script.js"
+import getInbetweenTeamsGames from "./getInbetweenTeamsGames.js"
+
+export function createModernTable(wrapper, teams, games, params = {}) {
+    const {comparinsonBtn, position} = params
+
+    const table = document.createElement('table')
+    table.classList.add('table', 'modern-table')
+
+
+    const tableHead = document.createElement('thead')
+    const tableBody = document.createElement('tbody')
+    const tHeadRow = document.createElement('tr')
+
+    const headItems = [
+        { text: '#',  title: null },
+        { text: 'Team', title: null },
+        ...(position ? [{ text: 'Highest', title: null }, { text: 'Lowest', title: null }] : []),
+        { text: 'PL', title: 'Played Matches' },
+        { text: 'W', title: 'Wins' },
+        { text: 'D', title: 'Draws' },
+        { text: 'L', title: 'Losses' },
+        { text: 'F', title: 'Goals For' },
+        { text: 'A', title: 'Goals Against' },
+        { text: 'GD', title: 'Goal Difference' },
+        { text: 'P', title: 'Points' },
+    ]
+
+    headItems.forEach(item => {
+        const th = document.createElement('th')
+        th.textContent = item.text
+        item.title && th.setAttribute('title', item.title)
+        th.setAttribute('scope', 'col')
+
+        tHeadRow.append(th)
+    })
+    tableHead.append(tHeadRow)
+
+    for (let i = 0; i < teams.length; i++) {
+        const team = teams[i];
+
+        const row = document.createElement('tr')
+        const place = document.createElement('td')
+        place.textContent = i + 1
+        row.append(place)
+
+        
+        if (team.maxPlace === 1 && team.minPlace === 1) {
+            row.classList.add('winner')
+        }
+
+        if (teams.length > 5 && team.maxPlace === teams.length && team.maxPlace === team.minPlace) {
+            row.classList.add('loser')
+        }
+
+        const rowItems = [team.team, ...(position ? [team.maxPlace, team.minPlace] : []),, team.playedGames, team.wins, team.draws, team.losses, team.goals, team.goalsMissed, team.goalDifference, team.points]
+
+        rowItems.forEach((item, i) => {
+            const cell = document.createElement('td')
+            cell.textContent = item
+            row.append(cell)
+
+            if (comparinsonBtn && i === 0) {
+               compareTeamsButtonHandler(wrapper, team, games, cell, 'modern')
+            }
+        })
+        tableBody.append(row)
+    }
+    table.append(tableHead, tableBody)
+
+    return table
+}
+
+
+export function createOldTable(wrapper, teams, games, params = {}) {
+    const {comparinsonBtn} = params
+
+    const table = document.createElement('table')
+    table.classList.add('table', 'old-table')
+
+    const expandAllBtn = document.createElement('button')
+    expandAllBtn.type = 'button'
+    expandAllBtn.textContent = 'Expand All'
+
+    const tableHead = document.createElement('thead')
+    const tableBody = document.createElement('tbody')
+    const tr = document.createElement('tr')
+
+    const queueNum = document.createElement('th')
+    queueNum.setAttribute('scope', 'col')
+    queueNum.textContent = 'Queue No.'
+    
+    const teamTitleTh = document.createElement('th')
+    teamTitleTh.setAttribute('scope', 'col')
+    teamTitleTh.textContent = 'Team'
+
+    tr.append(queueNum, teamTitleTh)
+
+    teams.forEach((_, i) => {
+        const th = document.createElement('th')
+        th.textContent = i + 1
+        th.setAttribute('scope', 'col')
+        tr.append(th)
+    })
+
+
+    const gamesData = [
+        {text: 'Points', property: 'points'},
+        {text: 'Goal diff.', property: 'goalDifference'}, 
+        {text: 'Place', property: 'currentPlace'}
+    ]  
+
+    gamesData.forEach(item => {
+        const th = document.createElement('th')
+        th.textContent = item.text
+        th.setAttribute('scope', 'col')
+
+        tr.append(th)
+    })
+    tableHead.append(tr)
+
+    const roundsAmount = Number(localStorage.getItem('rounds-amount'))
+
+        
+    teams.forEach((team, i) => {
+        const row = document.createElement('tr')
+
+        const teamIndexEl = document.createElement('th')
+        teamIndexEl.setAttribute('scope', 'row')
+        teamIndexEl.textContent = i + 1
+        teamIndexEl.style.padding = '10px'
+
+        const teamTitleEl = document.createElement('th')
+        teamTitleEl.setAttribute('scope', 'row')
+        teamTitleEl.textContent = team.team
+
+        if (comparinsonBtn) {
+            compareTeamsButtonHandler(wrapper, team, games, teamTitleEl, 'old')
+        }
+
+        if (team.maxPlace === 1 && team.minPlace === 1) {
+            row.classList.add('winner')
+        }
+        row.append(teamIndexEl, teamTitleEl)
+
+        const roundsData = document.createElement('td')
+        roundsData.setAttribute('colspan', teams.length)
+        roundsData.classList.add('rounds-data')
+
+        const innerTable = document.createElement('table')
+        innerTable.classList.add('inner-table')
+
+        const innerTableBody = document.createElement('tbody')
+        innerTableBody.id = 'rounds-info'
+        innerTableBody.classList.add('hidden')
+        const innerTableFoot = document.createElement('tfoot')
+        const footPointsRow = document.createElement('tr')
+        const footGoalsRow = document.createElement('tr')
+
+
+        for (let m = 0; m < roundsAmount; m++)  {
+            const innerRow = document.createElement('tr') 
+
+            teams.forEach((otherTeam, j) => {
+                const innerCell = document.createElement('td')
+
+                if (i === j) {
+                    innerCell.classList.add('empty-cell')
+                } else {
+                    const inbetweenGames = getInbetweenTeamsGames([team, otherTeam], games, {allGames: true})
+    
+                    const teamGoals = inbetweenGames[m].homeTeam.team === team.team ? inbetweenGames[m].homeTeam.goals : inbetweenGames[m].awayTeam.goals
+    
+                    const otherTeamGoals = inbetweenGames[m].homeTeam.team === otherTeam.team ? inbetweenGames[m].homeTeam.goals : inbetweenGames[m].awayTeam.goals
+
+                    const scoresEl = document.createElement('p')
+                    const earnedPointsEl = document.createElement('p')
+
+                    if (inbetweenGames[m].played) {
+                        scoresEl.textContent = `${teamGoals}:${otherTeamGoals}`
+
+                        if (teamGoals === otherTeamGoals) {
+                            earnedPointsEl.textContent = DRAW_POINTS
+                        } else if (teamGoals > otherTeamGoals) {
+                            earnedPointsEl.textContent = WIN_POINTS
+                        } else {
+                            earnedPointsEl.textContent = 0
+                        }
+                    } else {
+                        scoresEl.textContent = 'X'
+                    }
+
+                    innerCell.append(scoresEl, earnedPointsEl)  
+                }          
+                innerRow.append(innerCell)
+
+           
+            })
+
+            innerTableBody.append(innerRow)    
+        }
+
+
+        teams.forEach((otherTeam, j) => {
+            const poinstCell = document.createElement('td')
+            const goalDiffCell = document.createElement('td')
+
+            const inbetweenGames = getInbetweenTeamsGames([team, otherTeam], games, {allGames: true})
+            
+            let pointsSum = 0
+            let goalDiff = 0
+
+            if (i === j) {
+                poinstCell.classList.add('empty-cell')
+                goalDiffCell.classList.add('empty-cell')
+            } else {
+                inbetweenGames.forEach(game => {
+                    const teamGoals = game.homeTeam.team === team.team ? game.homeTeam.goals : game.awayTeam.goals
+            
+                    const otherTeamGoals = game.homeTeam.team === otherTeam.team ? game.homeTeam.goals : game.awayTeam.goals
+    
+                    if (game.played) {
+                        if (teamGoals === otherTeamGoals) {
+                            pointsSum+= DRAW_POINTS
+                        } else if (teamGoals > otherTeamGoals) {
+                            pointsSum+= WIN_POINTS
+                        } else {
+                            pointsSum+=0
+                        }
+    
+                        goalDiff+=teamGoals-otherTeamGoals
+    
+                        poinstCell.textContent = `Points: ${pointsSum}`
+                        goalDiffCell.textContent = `Goal diff.: ${goalDiff}`
+                    }
+                })
+            }
+
+            footPointsRow.append(poinstCell)
+            footGoalsRow.append(goalDiffCell)
+
+        })
+
+        innerTableFoot.append(footPointsRow, footGoalsRow)
+        innerTable.append(innerTableBody, innerTableFoot)
+        roundsData.append(innerTable)
+        row.append(roundsData)
+
+        gamesData.forEach(item => {
+            const cell = document.createElement('td')
+            
+            cell.textContent = team[item.property]
+
+            row.append(cell)
+        })
+
+        tableBody.append(row)
+    })
+
+    expandAllBtn.addEventListener('click', (e) => {
+        const innerTableBodies = [...tableBody.querySelectorAll('#rounds-info')]
+
+        if (expandAllBtn.textContent === 'Hide All') {
+            innerTableBodies.forEach(item => {
+                item.className = 'hidden'
+            })
+            expandAllBtn.textContent = 'Expand All'
+        } else {
+            innerTableBodies.forEach(item => {
+                item.className = 'expanded'
+            })
+    
+            expandAllBtn.textContent = 'Hide All'
+        }
+    })
+
+    table.append(tableHead, tableBody, expandAllBtn)
+
+    return table
+}
+
+
+function compareTeamsButtonHandler(wrapper, team, games, cell, tableType) {
+    let comparingTeams = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams')) : []
+
+    let btn = document.createElement('button')
+    cell.append(btn)
+    
+    btn.textContent = comparingTeams.some(comparingTeam => comparingTeam.team === team.team) ? '-' : '+'
+
+    btn.addEventListener('click', (e) => {  
+        comparingTeams = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams')) : []
+
+        if (comparingTeams.some(comparingTeam => comparingTeam.team === team.team)) {
+            comparingTeams = comparingTeams.filter(comparingTeam => comparingTeam.team !== team.team)
+            btn.textContent = '+'
+        } else {
+            comparingTeams.push(team)
+            btn.textContent = '-'
+        }
+
+        localStorage.setItem('comparing-teams', JSON.stringify(comparingTeams))
+        
+        
+        document.getElementById('comparing-table') && document.getElementById('comparing-table').remove()
+        
+        if (comparingTeams.length > 0) {
+            let teamsTable = compareTeamsTable(wrapper, comparingTeams, games, tableType)
+            wrapper.append(teamsTable)
+        }
+    })
+
+    btn.type = 'button'
+}
