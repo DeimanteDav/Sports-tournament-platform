@@ -8,9 +8,24 @@ import Game from "./classes/Game.js"
 
 const container = document.querySelector('.container')
 
-// PADARYTI LENTELE. PAZYMETI H IR A PRIE REZULTATU. PAKEISTI TA LENTELE I SITA
 
-// atkrentamoji lentele playoffs.
+// Ar yra playoffai
+// kiek playoffuose komandu zais.
+// Ar reikia del 3 vietos ar ne
+// single game ar two games knockout round.
+// finalas is dvieju ar is dvieju rungtyniu
+
+
+// points (goal diff.) skaiciais tik
+// kai tk viena prideda parasyti kad pridet daugiau o ne lentele
+// hover fono spalva pakeisti eilutes ir stulpelio o ne teksta
+
+// generate scores
+
+// playoffs po du roundus padaryti (vietom sukeisti) 
+// playoffs porom zaidimus isskaidyti
+// playoffs grida padaryti
+// del 3 vietos padaryti
 
 function getLocalStorageData(container) {
     const teamsData = localStorage.getItem('teams-data') ? JSON.parse(localStorage.getItem('teams-data')) : null
@@ -26,6 +41,7 @@ function getLocalStorageData(container) {
 getLocalStorageData(container)
 
 
+// faila pasidaryti
 export function tournamentForm(container, games, teams) {
     const gamesForm = document.createElement('form')
     gamesForm.id = 'games-wrapper'
@@ -456,6 +472,7 @@ function playoffsTable(container, teams) {
 
         round1Game && round1Games.push(round1Game)
     }
+
     const leftWrapper = document.createElement('div')
     const rightWrapper = document.createElement('div')
     leftWrapper.classList.add('left-side')

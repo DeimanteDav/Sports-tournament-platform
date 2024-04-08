@@ -104,7 +104,6 @@ export function createOldTable(wrapper, teams, games, params = {}) {
         tr.append(th)
     })
 
-
     const gamesData = [
         {text: 'Points', property: 'points'},
         {text: 'Goal diff.', property: 'goalDifference'}, 
@@ -133,15 +132,13 @@ export function createOldTable(wrapper, teams, games, params = {}) {
 
         const teamTitleEl = document.createElement('th')
         teamTitleEl.setAttribute('scope', 'row')
-        teamTitleEl.textContent = team.team
+        teamTitleEl.textContent = team.team     
 
-        if (comparinsonBtn) {
-            compareTeamsButtonHandler(wrapper, team, games, teamTitleEl, 'old')
-        }
 
         if (team.maxPlace === 1 && team.minPlace === 1) {
             row.classList.add('winner')
         }
+
         row.append(teamIndexEl, teamTitleEl)
 
         const roundsData = document.createElement('td')
@@ -154,9 +151,36 @@ export function createOldTable(wrapper, teams, games, params = {}) {
         const innerTableBody = document.createElement('tbody')
         innerTableBody.id = 'rounds-info'
         innerTableBody.classList.add('hidden')
+
         const innerTableFoot = document.createElement('tfoot')
         const footPointsRow = document.createElement('tr')
         const footGoalsRow = document.createElement('tr')
+           
+
+        const buttonWrapper = document.createElement('div')
+        buttonWrapper.classList.add('btn-wrapper')
+        teamTitleEl.append(buttonWrapper)
+
+        if (comparinsonBtn) {
+            compareTeamsButtonHandler(wrapper, team, games, buttonWrapper, 'old')
+        }
+
+        const expandTeamDataBtn = document.createElement('button')
+        expandTeamDataBtn.classList.add('expand-btn')
+        expandTeamDataBtn.type = 'button'
+        expandTeamDataBtn.textContent = 'Expand'
+        
+        expandTeamDataBtn.addEventListener('click', (e) => {
+            if ([...innerTableBody.classList].includes('expanded')) {
+                innerTableBody.className = 'hidden'
+                expandTeamDataBtn.textContent = 'Expand'
+            } else {
+                innerTableBody.className = 'expanded'
+                expandTeamDataBtn.textContent = 'Hide'
+            }
+        })
+
+        buttonWrapper.append(expandTeamDataBtn)
 
 
         for (let m = 0; m < roundsAmount; m++)  {
@@ -171,6 +195,7 @@ export function createOldTable(wrapper, teams, games, params = {}) {
                     const inbetweenGames = getInbetweenTeamsGames([team, otherTeam], games, {allGames: true})
     
                     const teamGoals = inbetweenGames[m].homeTeam.team === team.team ? inbetweenGames[m].homeTeam.goals : inbetweenGames[m].awayTeam.goals
+                    const playedIn = inbetweenGames[m].homeTeam.team === team.team ? 'H' : 'A'
     
                     const otherTeamGoals = inbetweenGames[m].homeTeam.team === otherTeam.team ? inbetweenGames[m].homeTeam.goals : inbetweenGames[m].awayTeam.goals
 
@@ -178,7 +203,7 @@ export function createOldTable(wrapper, teams, games, params = {}) {
                     const earnedPointsEl = document.createElement('p')
 
                     if (inbetweenGames[m].played) {
-                        scoresEl.textContent = `${teamGoals}:${otherTeamGoals}`
+                        scoresEl.textContent = `${playedIn} ${teamGoals}:${otherTeamGoals}`
 
                         if (teamGoals === otherTeamGoals) {
                             earnedPointsEl.textContent = DRAW_POINTS
@@ -260,14 +285,20 @@ export function createOldTable(wrapper, teams, games, params = {}) {
 
     expandAllBtn.addEventListener('click', (e) => {
         const innerTableBodies = [...tableBody.querySelectorAll('#rounds-info')]
+        const teamExpandBtns = [...tableBody.querySelectorAll('.expand-btn')]
+        console.log(teamExpandBtns);
+
 
         if (expandAllBtn.textContent === 'Hide All') {
-            innerTableBodies.forEach(item => {
+            innerTableBodies.forEach((item, i) => {
+                teamExpandBtns[i].textContent = 'Expand'
                 item.className = 'hidden'
             })
+
             expandAllBtn.textContent = 'Expand All'
         } else {
-            innerTableBodies.forEach(item => {
+            innerTableBodies.forEach((item, i) => {
+                teamExpandBtns[i].textContent = 'Hide'
                 item.className = 'expanded'
             })
     
@@ -281,11 +312,12 @@ export function createOldTable(wrapper, teams, games, params = {}) {
 }
 
 
-function compareTeamsButtonHandler(wrapper, team, games, cell, tableType) {
+function compareTeamsButtonHandler(wrapper, team, games, btnWrapper, tableType) {
     let comparingTeams = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams')) : []
 
     let btn = document.createElement('button')
-    cell.append(btn)
+    btn.classList.add('comparison-btn')
+    btnWrapper.append(btn)
     
     btn.textContent = comparingTeams.some(comparingTeam => comparingTeam.team === team.team) ? '-' : '+'
 

@@ -161,7 +161,7 @@ table {
     transform: translateY(-50%);
 }
 
-.table button {
+.table .comparison-btn {
     width: 20px;
     height: 20px;
     padding: 0;
@@ -271,6 +271,18 @@ table {
     border: none ;
 }
 
+.old-table tbody .btn-wrapper {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    gap: 5px;
+    margin: 10px 2px;
+}
+
+.old-table tbody .expand-btn {
+    padding: 4px;
+}
 
 
 .playoffs {
