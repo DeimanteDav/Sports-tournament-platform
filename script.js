@@ -433,6 +433,11 @@ function playoffsTable(container, teams) {
     const playoffsWrapper = document.createElement('div')
     playoffsWrapper.classList.add('playoffs')
 
+    playoffsWrapper.style.display = 'grid'
+    playoffsWrapper.style.gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr 1fr 1fr'
+    // playoffsWrapper.style.gridTemplateColumns = 'repeat(auto-fit, minmax(100px, 1fr))'
+
+    playoffsWrapper.style.gap = '80px'
 
     const sortedTeams = [...teams].sort((a, b) => a.currentPlace - b.currentPlace)
 
@@ -485,7 +490,6 @@ function playoffsTable(container, teams) {
 
         const leftPairWrappers = playoffsWrapper.querySelectorAll('.left-pair-wrapper')
         const rightPairWrappers = playoffsWrapper.querySelectorAll('.right-pair-wrapper')
-        console.log(leftPairWrappers, rightPairWrappers);
 
         for (let team in game) {
             if (team == 'homeTeam' || team === 'awayTeam') {
@@ -519,6 +523,184 @@ function playoffsTable(container, teams) {
             rightPairWrappers[Math.floor(rightGamesAmount/2)].append(gameWrapper)
             rightGamesAmount++
         }
+    }
+
+    // i am creating other rounds by hand but it 
+
+    const left2 = document.createElement('div')
+    const right2 = document.createElement('div')
+    let leftGamesAmount2 = 0
+    let rightGamesAmount2 = 0
+
+    for (let i = 0; i < round1Games.length/4; i++) {
+        const leftPairWrapper = document.createElement('div')
+        leftPairWrapper.className = 'left-pair-wrapper2'
+        const rightPairWrapper = document.createElement('div')
+        rightPairWrapper.className = 'right-pair-wrapper2'
+
+        if (i < round1Games.length/8) {
+            left2.append(leftPairWrapper)
+        } else {
+            right2.append(rightPairWrapper)
+        }
+
+        leftWrapper.after(left2, right2)
+    }
+
+
+    for (let i = 0; i < round1Games.length/2; i++) {
+        const game = round1Games[i];
+        const gameWrapper = document.createElement('div')
+        gameWrapper.classList.add('game-wrapper')
+
+        const leftPairWrappers = playoffsWrapper.querySelectorAll('.left-pair-wrapper2')
+        const rightPairWrappers = playoffsWrapper.querySelectorAll('.right-pair-wrapper2')
+        console.log(leftPairWrappers, rightPairWrappers);
+
+        for (let team in game) {
+            if (team == 'homeTeam' || team === 'awayTeam') {
+                const teamWrapper = document.createElement('div')
+                teamWrapper.classList.add('team')
+    
+                if (team === 'homeTeam') {
+                    teamWrapper.classList.add('home-team')
+                } else {
+                    teamWrapper.classList.add('away-team')
+                }
+                const label = document.createElement('label')
+                const input = document.createElement('input')               
+                input.type = 'number'
+                input.id = `Playoffs-${i+1}-${game[team].team}`
+                input.dataset.team = game[team].team
+                label.htmlFor = input.id
+                // label.textContent = game[team].team
+                // input.value = game.played ? game[team].goals : ''           
+                
+                teamWrapper.append(label, input)
+
+                gameWrapper.append(teamWrapper) 
+            }
+        }
+
+        if (i === 0 || rightGamesAmount2 >= round1Games.length/4) {
+            leftPairWrappers[Math.floor(leftGamesAmount2/4)].append(gameWrapper)
+            leftGamesAmount2++
+        } else {
+            rightPairWrappers[Math.floor(rightGamesAmount2/4)].append(gameWrapper)
+            rightGamesAmount2++
+        }
+    }
+
+
+
+    // this is for semifinal (that is why i <= round1Games.length/8) but it should be dynamic
+    const left3 = document.createElement('div')
+    const right3 = document.createElement('div')
+    let leftGamesAmount3 = 0
+    let rightGamesAmount3 = 0
+
+    for (let i = 0; i <= round1Games.length/8; i++) {
+        const leftPairWrapper = document.createElement('div')
+        leftPairWrapper.className = 'left-pair-wrapper3'
+        const rightPairWrapper = document.createElement('div')
+        rightPairWrapper.className = 'right-pair-wrapper3'
+
+        if (i < round1Games.length/8) {
+            left3.append(leftPairWrapper)
+            console.log(i);
+        } else {
+            console.log(i);
+            right3.append(rightPairWrapper)
+        }
+
+        left2.after(left3, right3)
+    }
+
+
+
+    for (let i = 0; i < round1Games.length/4; i++) {
+        const game = round1Games[i];
+        const gameWrapper = document.createElement('div')
+        gameWrapper.classList.add('game-wrapper')
+
+        const leftPairWrappers = playoffsWrapper.querySelectorAll('.left-pair-wrapper3')
+        const rightPairWrappers = playoffsWrapper.querySelectorAll('.right-pair-wrapper3')
+
+        console.log(leftPairWrappers, rightPairWrappers);
+
+        for (let team in game) {
+            if (team == 'homeTeam' || team === 'awayTeam') {
+                const teamWrapper = document.createElement('div')
+                teamWrapper.classList.add('team')
+    
+                // if (team === 'homeTeam') {
+                //     teamWrapper.classList.add('home-team')
+                // } else {
+                //     teamWrapper.classList.add('away-team')
+                // }
+                const label = document.createElement('label')
+                const input = document.createElement('input')               
+                input.type = 'number'
+                input.id = `Playoffs-${i+1}-${game[team].team}`
+                // input.dataset.team = game[team].team
+                label.htmlFor = input.id
+                // label.textContent = game[team].team
+                input.value = game.played ? game[team].goals : ''           
+                
+                teamWrapper.append(label, input)
+
+                gameWrapper.append(teamWrapper) 
+            }
+        }
+
+        if (i === 0 || rightGamesAmount3 >= round1Games.length/8) {
+            leftPairWrappers[Math.floor(leftGamesAmount3/8)].append(gameWrapper)
+            leftGamesAmount3++
+        } else {
+            rightPairWrappers[Math.floor(rightGamesAmount3/8)].append(gameWrapper)
+            rightGamesAmount3++
+        }
+    }
+
+
+
+    // this is for final round and it should be dynamic as well because if the teams amount changes this code won't work
+    const finalRoundWrapper = document.createElement('div')
+    left3.after(finalRoundWrapper)
+
+    for (let i = 0; i < round1Games.length/8; i++) {
+        const game = round1Games[i];
+        const gameWrapper = document.createElement('div')
+        gameWrapper.classList.add('game-wrapper')
+
+
+
+        for (let team in game) {
+            if (team == 'homeTeam' || team === 'awayTeam') {
+                const teamWrapper = document.createElement('div')
+                teamWrapper.classList.add('team')
+    
+                if (team === 'homeTeam') {
+                    teamWrapper.classList.add('home-team')
+                } else {
+                    teamWrapper.classList.add('away-team')
+                }
+                const label = document.createElement('label')
+                const input = document.createElement('input')               
+                input.type = 'number'
+                input.id = `Playoffs-${i+1}-${game[team].team}`
+                input.dataset.team = game[team].team
+                label.htmlFor = input.id
+                // label.textContent = game[team].team
+                // input.value = game.played ? game[team].goals : ''           
+                
+                teamWrapper.append(label, input)
+
+                gameWrapper.append(teamWrapper) 
+            }
+        }
+
+        finalRoundWrapper.append(gameWrapper)
     }
 
     container.append(playoffsWrapper)
