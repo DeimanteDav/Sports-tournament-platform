@@ -2,6 +2,7 @@
     --blue: #2176b6;
     --border-color: #dddddd;
     --text-color: #ffffff; 
+    --table-hover-color: #f3f3f3
 }
 
 *, *::before, *::after {
@@ -83,7 +84,7 @@
     width: 50px;
 }
 
-#games-wrapper .game.played:hover {
+#games-wrapper .game-wrapper.played:hover {
     background-color: #e0e0e0;
 }
 
@@ -118,10 +119,8 @@ table {
     border: 1px solid var(--border-color);
 }
 
-
 .table tbody tr:hover {
-    font-weight: bold;
-    color: var(--blue);
+    background-color: var(--table-hover-color);
 }
 
 .table tbody tr.winner {
@@ -175,7 +174,6 @@ table {
 
 
 .modern-table tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3;
 }
 
 .modern-table tbody tr:last-of-type {

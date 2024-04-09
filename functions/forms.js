@@ -10,7 +10,7 @@ export function teamsAmountForm(container) {
     input.name = 'amount'
     input.type = 'number'
     input.min = 2
-    input.max = 10
+    input.max = 40
 
     wrapper.append(text, input)
     

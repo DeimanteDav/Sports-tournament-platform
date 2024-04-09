@@ -153,7 +153,7 @@ export function createOldTable(wrapper, teams, games, params = {}) {
         innerTableBody.classList.add('hidden')
 
         const innerTableFoot = document.createElement('tfoot')
-        const footPointsRow = document.createElement('tr')
+        const footRow = document.createElement('tr')
         const footGoalsRow = document.createElement('tr')
            
 
@@ -228,8 +228,7 @@ export function createOldTable(wrapper, teams, games, params = {}) {
 
 
         teams.forEach((otherTeam, j) => {
-            const poinstCell = document.createElement('td')
-            const goalDiffCell = document.createElement('td')
+            const cell = document.createElement('td')
 
             const inbetweenGames = getInbetweenTeamsGames([team, otherTeam], games, {allGames: true})
             
@@ -237,8 +236,7 @@ export function createOldTable(wrapper, teams, games, params = {}) {
             let goalDiff = 0
 
             if (i === j) {
-                poinstCell.classList.add('empty-cell')
-                goalDiffCell.classList.add('empty-cell')
+                cell.classList.add('empty-cell')
             } else {
                 inbetweenGames.forEach(game => {
                     const teamGoals = game.homeTeam.team === team.team ? game.homeTeam.goals : game.awayTeam.goals
@@ -256,18 +254,15 @@ export function createOldTable(wrapper, teams, games, params = {}) {
     
                         goalDiff+=teamGoals-otherTeamGoals
     
-                        poinstCell.textContent = `Points: ${pointsSum}`
-                        goalDiffCell.textContent = `Goal diff.: ${goalDiff}`
+                        cell.textContent = `${pointsSum}(${goalDiff})`
                     }
                 })
             }
 
-            footPointsRow.append(poinstCell)
-            footGoalsRow.append(goalDiffCell)
-
+            footRow.append(cell)
         })
 
-        innerTableFoot.append(footPointsRow, footGoalsRow)
+        innerTableFoot.append(footRow, footGoalsRow)
         innerTable.append(innerTableBody, innerTableFoot)
         roundsData.append(innerTable)
         row.append(roundsData)

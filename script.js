@@ -5,27 +5,10 @@ import sortTeams from "./functions/sortTeams.js"
 import compareGamesData from "./functions/compareGamesData.js"
 import { teamsAmountForm } from "./functions/forms.js"
 import Game from "./classes/Game.js"
+import updateGameData from "./functions/updateGameData.js"
 
 const container = document.querySelector('.container')
 
-
-// Ar yra playoffai
-// kiek playoffuose komandu zais.
-// Ar reikia del 3 vietos ar ne
-// single game ar two games knockout round.
-// finalas is dvieju ar is dvieju rungtyniu
-
-
-// points (goal diff.) skaiciais tik
-// kai tk viena prideda parasyti kad pridet daugiau o ne lentele
-// hover fono spalva pakeisti eilutes ir stulpelio o ne teksta
-
-// generate scores
-
-// playoffs po du roundus padaryti (vietom sukeisti) 
-// playoffs porom zaidimus isskaidyti
-// playoffs grida padaryti
-// del 3 vietos padaryti
 
 function getLocalStorageData(container) {
     const teamsData = localStorage.getItem('teams-data') ? JSON.parse(localStorage.getItem('teams-data')) : null
@@ -93,7 +76,7 @@ export function tournamentForm(container, games, teams) {
     
                 const label = document.createElement('label')
                 const input = document.createElement('input')  
-                console.log(game, team);            
+
                 input.type = 'number'
                 input.id = `${game.id}-${game[team].team}`
                 input.dataset.team = game[team].team
@@ -113,39 +96,16 @@ export function tournamentForm(container, games, teams) {
 
     gamesForm.addEventListener('change', (e) => {
         const gameEl = e.target.parentElement.parentElement
-        const homeTeamInput = gameEl.querySelector('.home-team .result-input')
-        const awayTeamInput = gameEl.querySelector('.away-team .result-input')
-    
-        const homeTeamScored = Number(homeTeamInput.value)
-        const awayTeamScored = Number(awayTeamInput.value)
-    
-        const currentGame = games[gameEl.dataset.gameId-1]
-    
-    
-        const gameHomeTeamData = currentGame.homeTeam
-        const gameAwayTeamData = currentGame.awayTeam
-    
-        gameHomeTeamData.goals = homeTeamScored
-        gameAwayTeamData.goals = awayTeamScored
-
-
-        if (homeTeamInput.value && awayTeamInput.value) {
-            currentGame.played = true
-            gameEl.parentElement.classList.add('played')
-        } else {
-            currentGame.played = false
-            gameEl.parentElement.classList.remove('played')
-        }
-
+     
+        updateGameData(gameEl, games)
         updateTeamsData(games, teams)
-    
-        localStorage.setItem('games-data', JSON.stringify(games))
     })
 
 
     const resetBtn = document.createElement('button')
-    resetBtn.textContent = 'RESET all data'
+    resetBtn.type = 'button'
     resetBtn.id = 'reset-btn'
+    resetBtn.textContent = 'RESET all data'
 
 
     resetBtn.addEventListener('click', (e) => {
@@ -162,6 +122,7 @@ export function tournamentForm(container, games, teams) {
     })
 
     const changeTableBtn = document.createElement('button')
+    changeTableBtn.type = 'button'
     changeTableBtn.textContent = 'Change Table View'
 
     changeTableBtn.addEventListener('click', (e) => {
@@ -176,8 +137,29 @@ export function tournamentForm(container, games, teams) {
         }
     })
 
+
+    const generateScoresBtn = document.createElement('button')
+    generateScoresBtn.type = 'button'
+    generateScoresBtn.textContent = 'Generate Scores'
+
+    generateScoresBtn.addEventListener('click', (e) => {
+        const scoresEl = [...gamesForm.querySelectorAll('.result-input')]
+        
+        
+        scoresEl.forEach(element => {
+            const gameEl = element.parentElement.parentElement
+            const randomScore = Math.floor(Math.random() * 30)
+            element.value = randomScore
+
+            updateGameData(gameEl, games)
+            updateTeamsData(games, teams)
+        });
+        
+
+    })
+
     gamesForm.before(resetBtn)
-    gamesForm.after(changeTableBtn)
+    gamesForm.after(generateScoresBtn, changeTableBtn)
 }
 
 function updateTeamsData(games, teams) {
@@ -478,10 +460,32 @@ function playoffsTable(container, teams) {
     leftWrapper.classList.add('left-side')
     rightWrapper.classList.add('right-side')
 
+    let leftGamesAmount = 0
+    let rightGamesAmount = 0
+
+    for (let i = 0; i < round1Games.length/2; i++) {
+        const leftPairWrapper = document.createElement('div')
+        leftPairWrapper.className = 'left-pair-wrapper'
+        const rightPairWrapper = document.createElement('div')
+        rightPairWrapper.className = 'right-pair-wrapper'
+
+        if (i < round1Games.length/4) {
+            leftWrapper.append(leftPairWrapper)
+        } else {
+            rightWrapper.append(rightPairWrapper)
+        }
+
+        playoffsWrapper.append(leftWrapper, rightWrapper)
+    }
+
     for (let i = 0; i < round1Games.length; i++) {
         const game = round1Games[i];
         const gameWrapper = document.createElement('div')
         gameWrapper.classList.add('game-wrapper')
+
+        const leftPairWrappers = playoffsWrapper.querySelectorAll('.left-pair-wrapper')
+        const rightPairWrappers = playoffsWrapper.querySelectorAll('.right-pair-wrapper')
+        console.log(leftPairWrappers, rightPairWrappers);
 
         for (let team in game) {
             if (team == 'homeTeam' || team === 'awayTeam') {
@@ -500,7 +504,6 @@ function playoffsTable(container, teams) {
                 input.dataset.team = game[team].team
                 label.htmlFor = input.id
                 label.textContent = game[team].team
-                input.classList.add('result-input')
                 input.value = game.played ? game[team].goals : ''           
                 
                 teamWrapper.append(label, input)
@@ -509,14 +512,13 @@ function playoffsTable(container, teams) {
             }
         }
 
-
-        if (i < round1Games.length/2) {
-            leftWrapper.append(gameWrapper)
+        if (i === 0 || rightGamesAmount >= round1Games.length/2) {
+            leftPairWrappers[Math.floor(leftGamesAmount/2)].append(gameWrapper)
+            leftGamesAmount++
         } else {
-            rightWrapper.append(gameWrapper)
+            rightPairWrappers[Math.floor(rightGamesAmount/2)].append(gameWrapper)
+            rightGamesAmount++
         }
-
-        playoffsWrapper.append(leftWrapper, rightWrapper)
     }
 
     container.append(playoffsWrapper)
