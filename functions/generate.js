@@ -1,20 +1,32 @@
 import Game from "../classes/Game.js";
 import Team from "../classes/Team.js";
+import generatePlayoffsGames from "../generatePlayoffsGames.js";
 import { changeTable, tournamentForm } from "../script.js";
 
-
-export default function generateTeams(container, roundsAmount) {
+export default function generateTeams(container) {
     const teamNames = JSON.parse(localStorage.getItem('team-names'))
-    const totalGames = (teamNames.length-1)*roundsAmount
-    const teams = teamNames.map(name => new Team(name, totalGames, teamNames.length))
 
-    const games = generateGames(container, teams, roundsAmount)
-    tournamentForm(container, games, teams)
+    const leagueRoundsAmount = localStorage.getItem('rounds-amount')
+    const playoffsGamesData = localStorage.getItem('playoffs-data')
 
-    localStorage.setItem('total-games', totalGames)
-    localStorage.setItem('teams-data', JSON.stringify(teams))
 
-    return teams
+    if (leagueRoundsAmount) {
+        const totalGames = (teamNames.length-1)*leagueRoundsAmount
+    
+        const teams = teamNames.map(name => new Team(name, totalGames, teamNames.length))
+
+        const games = generateGames(container, teams, leagueRoundsAmount)
+        tournamentForm(container, games, teams)
+
+        localStorage.setItem('total-games', totalGames)
+        localStorage.setItem('teams-data', JSON.stringify(teams))
+    }
+
+    if (playoffsGamesData) {
+        generatePlayoffsGames(container)
+    }
+
+
 }
 
 
@@ -44,7 +56,7 @@ function generateGames(container, teams, roundsAmount) {
 
     changeTable(container, teams, games)
 
-    localStorage.setItem('games-data', JSON.stringify(games))
+    localStorage.setItem('league-games-data', JSON.stringify(games))
     
     return games
 }

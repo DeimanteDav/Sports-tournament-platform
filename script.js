@@ -4,8 +4,17 @@ import getInbetweenTeamsGames from "./functions/getInbetweenTeamsGames.js"
 import sortTeams from "./functions/sortTeams.js"
 import compareGamesData from "./functions/compareGamesData.js"
 import { teamsAmountForm } from "./functions/forms.js"
-import Game from "./classes/Game.js"
 import updateGameData from "./functions/updateGameData.js"
+import generatePlayoffsGames from "./generatePlayoffsGames.js"
+
+// jei league lentele yra tai ne is eiles
+// DETI NE COLUMNS groups o PAIRS IS KARTO
+// KIEK iskrenta irasyti paciam
+
+// ADD CONDITION:
+// PATSS IRASAI VISKA
+// tEIGIAMAS NEIGIAMAS
+// PATENka i europos lyga aukstesne / zemesne NUO KELINTOS IKI KELINTA
 
 const container = document.querySelector('.container')
 
@@ -24,17 +33,25 @@ const container = document.querySelector('.container')
 // Ar kova del 3 vietos yra
 
 
+
 // Daugiau lenteliu jei pvz.: 16komandu i 4 grupes.
 // kiek teamsu iseina i kita etapa PASIRINKTI.
 
 
 function getLocalStorageData(container) {
     const teamsData = localStorage.getItem('teams-data') ? JSON.parse(localStorage.getItem('teams-data')) : null
-    const gamesData = localStorage.getItem('games-data') ? JSON.parse(localStorage.getItem('games-data')) : null
+    const gamesData = localStorage.getItem('league-games-data') ? JSON.parse(localStorage.getItem('league-games-data')) : null
+    
+    const playoffGamesData = localStorage.getItem('playoffs-data')
 
-    if (teamsData && gamesData) {
-        tournamentForm(container, gamesData, teamsData)
-        changeTable(container, teamsData, gamesData)
+    if (teamsData) {
+        if (gamesData) {
+            tournamentForm(container, gamesData, teamsData)
+            changeTable(container, teamsData, gamesData)
+        }
+        if (playoffGamesData) {
+            generatePlayoffsGames(container)
+        }
     } else {
         teamsAmountForm(container)
     }
@@ -331,9 +348,9 @@ export function changeTable(container, teams, games) {
 
     const allGamesArePlayed = games.every(game => game.played)
 
-    if (allGamesArePlayed) {
-        playoffsTable(container, teams)
-    }
+    // if (allGamesArePlayed) {
+    //     playoffsGames(container, teams)
+    // }
 }
 
 function checkTeamPosition(teams, games) {
@@ -448,197 +465,3 @@ export function compareTeamsTable(wrapper, teams, games, tableType) {
 }
 
 
-function playoffsTable(container, teams) {
-    const playoffsWrapper = document.createElement('div')
-    playoffsWrapper.classList.add('playoffs')
-
-    playoffsWrapper.style.display = 'grid'
-    playoffsWrapper.style.gap = '80px'
-
-    const sortedTeams = [...teams].sort((a, b) => a.currentPlace - b.currentPlace)
-
-    const round1Games = []
-    for (let i = 0; i < sortedTeams.length; i++) {
-        let modifiedTeams
-        let round1Game
-
-        if (i === 0) {
-            modifiedTeams = sortedTeams
-            round1Game = new Game(modifiedTeams[0], modifiedTeams[modifiedTeams.length - 1])
-        } else {
-            modifiedTeams = sortedTeams.slice(i, -i)
-
-            if (modifiedTeams.length > 0) {
-                round1Game = new Game(modifiedTeams[0], modifiedTeams[modifiedTeams.length - 1])
-            }
-        }
-
-        round1Game && round1Games.push(round1Game)
-    }
-
-
-    const leftWrapper = document.createElement('div')
-    const rightWrapper = document.createElement('div')
-    leftWrapper.classList.add('left-side')
-    rightWrapper.classList.add('right-side')
-
-    let leftGamesAmount = 0
-    let rightGamesAmount = 0
-
-    for (let i = 0; i < round1Games.length/2; i++) {
-        const leftPairWrapper = document.createElement('div')
-        leftPairWrapper.className = 'left-pair-wrapper'
-        const rightPairWrapper = document.createElement('div')
-        rightPairWrapper.className = 'right-pair-wrapper'
-
-        if (i < round1Games.length/4) {
-            leftWrapper.append(leftPairWrapper)
-        } else {
-            rightWrapper.append(rightPairWrapper)
-        }
-
-        playoffsWrapper.append(leftWrapper, rightWrapper)
-    }
-
-    for (let i = 0; i < round1Games.length; i++) {
-        const game = round1Games[i];
-        const gameWrapper = document.createElement('div')
-        gameWrapper.classList.add('game-wrapper')
-
-        const leftPairWrappers = playoffsWrapper.querySelectorAll('.left-pair-wrapper')
-        const rightPairWrappers = playoffsWrapper.querySelectorAll('.right-pair-wrapper')
-
-        for (let team in game) {
-            if (team == 'homeTeam' || team === 'awayTeam') {
-                const teamWrapper = document.createElement('div')
-                teamWrapper.classList.add('team')
-    
-                if (team === 'homeTeam') {
-                    teamWrapper.classList.add('home-team')
-                } else {
-                    teamWrapper.classList.add('away-team')
-                }
-                const label = document.createElement('label')
-                const input = document.createElement('input')               
-                input.type = 'number'
-                input.id = `Playoffs-${i+1}-${game[team].team}`
-                input.dataset.team = game[team].team
-                label.htmlFor = input.id
-                label.textContent = game[team].team
-                input.value = game.played ? game[team].goals : ''           
-                
-                teamWrapper.append(label, input)
-
-                gameWrapper.append(teamWrapper) 
-            }
-        }
-
-        // if (i === 0 || rightGamesAmount >= round1Games.length/2) {
-        //     leftPairWrappers[Math.floor(leftGamesAmount/2)].append(gameWrapper)
-        //     leftGamesAmount++
-        // } else {
-        //     rightPairWrappers[Math.floor(rightGamesAmount/2)].append(gameWrapper)
-        //     rightGamesAmount++
-        // }
-    }
-
-
-    let roundsInfo = [] 
-    let roundGamesAmount = round1Games.length / 2
-    let prevRoundGamesAmount
-
-    for (let i = 0; i < round1Games.length; i++) {
-        roundGamesAmount = Math.round(roundGamesAmount / 2)
-        if (prevRoundGamesAmount !== roundGamesAmount) {
-            roundsInfo.push(roundGamesAmount)
-        }
-        prevRoundGamesAmount = roundGamesAmount
-    }
-    playoffsWrapper.style.gridTemplateColumns = `repeat(${roundsInfo.length*2 + 3}, 1fr)`
-
-
-    const createEmptyRounds = (roundNum, gamesAmount, prevLeftWrapper) => {
-        const leftWrapper = document.createElement('div')
-        const rightWrapper = document.createElement('div')
-        leftWrapper.classList.add(`left-side${roundNum}`)
-        leftWrapper.dataset.roundNum = roundNum
-        rightWrapper.classList.add(`right-side${roundNum}`)
-        rightWrapper.dataset.roundNum = roundNum
-
-        let leftGamesAmount = 0
-        let rightGamesAmount = 0
-
-        prevLeftWrapper.classList.remove('prev-wrapper')
-        console.log(prevLeftWrapper);
-
-        for (let i = 0; i < gamesAmount*2; i++) {
-            const leftPairWrapper = document.createElement('div')
-            leftPairWrapper.className = `left-pair-wrapper${roundNum} left-pair-wrapper`
-            const rightPairWrapper = document.createElement('div')
-            rightPairWrapper.className = `right-pair-wrapper${roundNum} right-pair-wrapper`
-
-            if (i < gamesAmount/4) {
-                leftWrapper.append(leftPairWrapper)
-            } else {
-                rightWrapper.append(rightPairWrapper)
-            }
-
-        }
-
-        prevLeftWrapper.after(leftWrapper, rightWrapper)
-        leftWrapper.classList.add('prev-wrapper')
-        console.log(leftWrapper.classList);
-
-
-        const leftPairWrappers = leftWrapper.querySelectorAll(`.left-pair-wrapper${roundNum}`)
-        const rightPairWrappers = rightWrapper.querySelectorAll(`.right-pair-wrapper${roundNum}`)
-
-        for (let i = 0; i < gamesAmount*2; i++) {
-            const gameWrapper = document.createElement('div')
-            gameWrapper.classList.add('game-wrapper')
-            const game = document.createElement('div')
-            game.classList.add('game')
-            gameWrapper.append(game)
-
-            if (i <= Math.round(gamesAmount/4)) {
-                leftPairWrappers[Math.floor(leftGamesAmount/4)].append(gameWrapper)
-                leftGamesAmount++
-            } else {
-                rightPairWrappers[Math.floor(rightGamesAmount/4)].append(gameWrapper)
-                rightGamesAmount++
-            }
-        }
-
-    }
-
-
-    let roundsCreated = false
-    for (let i = 0; i < roundsInfo.length; i++) {
-        let prevLeftWrapper = playoffsWrapper.querySelector('.prev-wrapper') ? playoffsWrapper.querySelector('.prev-wrapper') : leftWrapper
-
-        const gamesAmount = roundsInfo[i]
-        createEmptyRounds(i, gamesAmount, prevLeftWrapper)  
-
-        if (i === roundsInfo.length - 1) {
-            roundsCreated = true
-        }
-    }
-  
-    if (roundsCreated) {
-        let prevLeftWrapper = playoffsWrapper.querySelector('.prev-wrapper')
-        const finalsWrapper = document.createElement('div')
-        finalsWrapper.classList.add('finals-wrapper')
-        
-        const gameWrapper = document.createElement('div')
-        gameWrapper.classList.add('game-wrapper')
-        const game = document.createElement('div')
-        game.classList.add('game')
-        gameWrapper.append(game)
-    
-        finalsWrapper.append(gameWrapper)
-    
-        prevLeftWrapper.after(finalsWrapper)
-    }
-
-    container.append(playoffsWrapper)
-}

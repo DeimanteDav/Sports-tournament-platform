@@ -3,6 +3,7 @@ import { TEAM_NAMES } from "../config.js"
 import generateTeams from "./generate.js"
 
 export function teamsAmountForm(container) {
+    localStorage.clear()
     const form = document.createElement('form')
     const wrapper = document.createElement('div')
     const text = document.createElement('p')
@@ -160,12 +161,24 @@ function tournamentType(container, teamsAmount) {
             input.type = 'number'
             input.min = 1
             input.max = 5
+
+            input.value = 1
+            localStorage.setItem('rounds-amount', 1)
+
+            input.addEventListener('change', (e) => {
+                const amount = e.target.value
+    
+                if (amount) {
+                    localStorage.setItem('rounds-amount', amount)
+                }
+            })
         
             leagueInfoWrapper.append(text, input)
             leagueWrapper.append(leagueInfoWrapper)
         } else {
             const oldLeagueInfoWrapper = document.getElementById('league-info')
             oldLeagueInfoWrapper.remove()
+            localStorage.removeItem('rounds-amount')
         }
     }
 
@@ -233,6 +246,7 @@ function tournamentType(container, teamsAmount) {
                 const amount = Number(e.target.value)
 
                 generatePlayoffsData(playoffsInfoWrapper, amount, playoffsData)
+              
             })
 
      
@@ -240,6 +254,7 @@ function tournamentType(container, teamsAmount) {
         } else {
             const oldPlayoffsInfoWrapper = document.getElementById('playoffs-info')
             oldPlayoffsInfoWrapper.remove()
+            localStorage.removeItem('playoffs-data')
         }
     }
 
@@ -257,19 +272,18 @@ function tournamentType(container, teamsAmount) {
 
     form.addEventListener('submit', (e) => {
         e.preventDefault()
-        // const amount = 
-    
-        // if (amount) {
-        //     form.remove()
-        //     localStorage.setItem('rounds-amount', amount)
-        //     generateTeams(container, amount)
-        // }
+        const leagueData = localStorage.getItem('rounds-data')
+        const playoffsData = localStorage.getItem('playoffs-data')
+        
+        if (leagueData || playoffsData) {
+            form.remove()
+            generateTeams(container)
+        }
     })
 }
 
 function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
     playoffsData.teamsAmount = teamsAmount
-
     let roundGamesAmount = teamsAmount/2
     let prevRoundGamesAmount
     let roundsInfo = []
@@ -284,13 +298,17 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
         }
         prevRoundGamesAmount = roundGamesAmount
     }
+
+    console.log(roundsInfo);
     roundsInfo.forEach(gamesAmount => {
         const property = gamesAmount === 1 ? 'final' : `1/${gamesAmount}`
-
-        playoffsData.roundsData[property] = 1
+        playoffsData.roundsData[property] = {}
+        playoffsData.roundsData[property].gamesAmount = gamesAmount
+        playoffsData.roundsData[property].knockouts = 1
     })
+    localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
 
-
+    console.log(playoffsData);
     const prevRoundsInfoWrapper = document.getElementById('rounds-info-wrapper')
     prevRoundsInfoWrapper && prevRoundsInfoWrapper.remove()
 
@@ -323,18 +341,17 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
             doubleKnockoutBtn.classList.remove('clicked')
             singleKnockoutBtn.classList.add('clicked')
 
-            playoffsData.roundsData[round] = 1
-            console.log(playoffsData);
-
+            playoffsData.roundsData[round].knockouts = 1
+            localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
         })
 
         doubleKnockoutBtn.addEventListener('click', (e) => {
             singleKnockoutBtn.classList.remove('clicked')
             doubleKnockoutBtn.classList.add('clicked')
 
-            playoffsData.roundsData[round] = 2
+            playoffsData.roundsData[round].knockouts = 2
 
-            console.log(playoffsData);
+            localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
         })
         
         buttonsWrapper.append(singleKnockoutBtn, doubleKnockoutBtn)
@@ -345,6 +362,7 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
     playoffsInfoWrapper.append(roundsInfoWrapper)
 }
 
+ 
 function roundsAmountForm(container) {
     const form = document.createElement('form')
     const wrapper = document.createElement('div')
