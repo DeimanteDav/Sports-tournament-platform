@@ -1,12 +1,9 @@
-export default function updateGameData(gameEl, games) {
+export default function updateGameData(gameEl, currentGame) {
     const homeTeamInput = gameEl.querySelector('.home-team .result-input')
     const awayTeamInput = gameEl.querySelector('.away-team .result-input')
 
     const homeTeamScored = Number(homeTeamInput.value)
     const awayTeamScored = Number(awayTeamInput.value)
-
-    const currentGame = games[gameEl.dataset.gameId-1]
-
 
     const gameHomeTeamData = currentGame.homeTeam
     const gameAwayTeamData = currentGame.awayTeam
@@ -15,13 +12,19 @@ export default function updateGameData(gameEl, games) {
     gameAwayTeamData.goals = awayTeamScored
 
 
+
     if (homeTeamInput.value && awayTeamInput.value) {
+        if (homeTeamScored > awayTeamScored) {
+            currentGame.winner = gameHomeTeamData.team
+        } else {
+            currentGame.winner = gameAwayTeamData.team
+        }
+
         currentGame.played = true
         gameEl.parentElement.classList.add('played')
     } else {
         currentGame.played = false
+        currentGame.winner = null
         gameEl.parentElement.classList.remove('played')
     }
-
-    localStorage.setItem('games-data', JSON.stringify(games))
 }

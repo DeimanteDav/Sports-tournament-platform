@@ -300,6 +300,7 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
     }
 
     console.log(roundsInfo);
+    playoffsData.roundsData = {}
     roundsInfo.forEach(gamesAmount => {
         const property = gamesAmount === 1 ? 'final' : `1/${gamesAmount}`
         playoffsData.roundsData[property] = {}

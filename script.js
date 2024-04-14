@@ -6,6 +6,7 @@ import compareGamesData from "./functions/compareGamesData.js"
 import { teamsAmountForm } from "./functions/forms.js"
 import updateGameData from "./functions/updateGameData.js"
 import generatePlayoffsGames from "./generatePlayoffsGames.js"
+import playoffsForm from "./playoffs/playoffsForm.js"
 
 // jei league lentele yra tai ne is eiles
 // DETI NE COLUMNS groups o PAIRS IS KARTO
@@ -18,9 +19,6 @@ import generatePlayoffsGames from "./generatePlayoffsGames.js"
 
 const container = document.querySelector('.container')
 
-
-// Ar komanda tures league table
-// Ar tures playoffus
 
 // jei bus ir playoffai, tai kiek komandu iseina i playoffus parasyti.
 // Kiek kiekvienam rounde zaidzia knockoutu:
@@ -42,15 +40,16 @@ function getLocalStorageData(container) {
     const teamsData = localStorage.getItem('teams-data') ? JSON.parse(localStorage.getItem('teams-data')) : null
     const gamesData = localStorage.getItem('league-games-data') ? JSON.parse(localStorage.getItem('league-games-data')) : null
     
-    const playoffGamesData = localStorage.getItem('playoffs-data')
-
+    const playoffGamesData = JSON.parse(localStorage.getItem('playoffs-data')
+)
     if (teamsData) {
         if (gamesData) {
             tournamentForm(container, gamesData, teamsData)
             changeTable(container, teamsData, gamesData)
         }
         if (playoffGamesData) {
-            generatePlayoffsGames(container)
+            playoffsForm(container, teamsData, playoffGamesData)
+            // generatePlayoffsGames(container)
         }
     } else {
         teamsAmountForm(container)
@@ -186,7 +185,10 @@ export function tournamentForm(container, games, teams) {
             const randomScore = Math.floor(Math.random() * 30)
             element.value = randomScore
 
-            updateGameData(gameEl, games)
+            const currentGame = games[gameEl.dataset.gameId-1]
+            updateGameData(gameEl, currentGame)
+
+            localStorage.setItem('games-data', JSON.stringify(games))
             updateTeamsData(games, teams)
         });
         

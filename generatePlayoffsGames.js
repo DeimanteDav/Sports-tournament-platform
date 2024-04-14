@@ -235,10 +235,6 @@ export default function generatePlayoffsGames(container) {
 
             nextGameWrapper.append(gameEl)
 
-
-            const newGame = new Game()
-
-
         }
         localStorage.setItem('playoffs-games-data', JSON.stringify(gamesData))
     })
@@ -247,7 +243,7 @@ export default function generatePlayoffsGames(container) {
 
     // const sortedTeams = [...teams].sort((a, b) => a.currentPlace - b.currentPlace)
 
-//     const round1Games = []
+    // const round1Games = []
     // for (let i = 0; i < sortedTeams.length; i++) {
     //     let modifiedTeams
     //     let round1Game

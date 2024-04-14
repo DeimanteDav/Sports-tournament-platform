@@ -1,13 +1,14 @@
 import Game from "../classes/Game.js";
 import Team from "../classes/Team.js";
 import generatePlayoffsGames from "../generatePlayoffsGames.js";
+import playoffsForm from "../playoffs/playoffsForm.js";
 import { changeTable, tournamentForm } from "../script.js";
 
 export default function generateTeams(container) {
     const teamNames = JSON.parse(localStorage.getItem('team-names'))
 
     const leagueRoundsAmount = localStorage.getItem('rounds-amount')
-    const playoffsGamesData = localStorage.getItem('playoffs-data')
+    const playoffsGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
 
 
     if (leagueRoundsAmount) {
@@ -23,7 +24,14 @@ export default function generateTeams(container) {
     }
 
     if (playoffsGamesData) {
-        generatePlayoffsGames(container)
+        const teamsAmount = playoffsGamesData.teamsAmount
+        const difference = teamNames.length - teamsAmount
+        const teams = teamNames.slice(0, -difference).map(name => new Team(name, 0, teamsAmount))
+
+        localStorage.setItem('teams-data', JSON.stringify(teams))
+
+        playoffsForm(container, teams, playoffsGamesData)
+        // generatePlayoffsGames(container)
     }
 
 
