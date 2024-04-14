@@ -6,9 +6,7 @@ export default function playoffsForm(container, teams, gamesData) {
     const form = document.createElement('form')
     form.classList.add('playoffs')
 
-    form.style.display = 'grid'
-    form.style.gridTemplateColumns = `repeat(${Object.keys(roundsData).length}, 1fr)`
-    form.style.gap = '80px'
+
     container.append(form)
 
     const sortedData = Object.fromEntries(
@@ -27,19 +25,43 @@ export default function playoffsForm(container, teams, gamesData) {
             })
     );
 
-    const playoffsGames = localStorage.getItem('playoffs-games-data') ? JSON.parse(localStorage.getItem('playoffs-games-data')) : {}
+    const rowsAmount = Object.values(sortedData).filter((data, i) => i === 0 && data)[0].gamesAmount/2
+    form.style.gridTemplateColumns = `repeat(${Object.keys(roundsData).length}, 1fr)`
+    form.style.gridTemplateRows = `repeat(${rowsAmount}, auto)`
+    form.style.gap = '80px'
 
+
+    const playoffsGames = localStorage.getItem('playoffs-games-data') ? JSON.parse(localStorage.getItem('playoffs-games-data')) : {}
 
     Object.entries(sortedData).forEach(([round, data], index) => {
         const {gamesAmount, knockouts} = data
         let gameIndex = 0
+        let gridRowIndex = 0
 
         if (gamesAmount > 1) {
             const pairsAmount = gamesAmount/2
             for (let i = 0; i < pairsAmount; i++) {
                 const pairWrapper = document.createElement('div')
-                pairWrapper.append(gamesAmount)
+                pairWrapper.classList.add('pair-wrapper')
                 form.append(pairWrapper)
+
+                pairWrapper.style.gridColumn = index+1
+                let gridRow
+                if (index === 0) {
+                    gridRow = i
+                } else {
+                    if (gridRowIndex === 0) {
+                        gridRow = `1 / ${rowsAmount/pairsAmount +1}`
+                        gridRowIndex+=rowsAmount/pairsAmount+1
+                    } else {
+                        gridRow = `${gridRowIndex} / span 2`
+                        gridRowIndex+=rowsAmount/pairsAmount+1
+                    }
+                }
+
+
+                pairWrapper.style.gridRow = gridRow
+                console.log(round, i, index === 0 ? i : rowsAmount - pairsAmount);
 
 
                 for (let j = 0; j < 2; j++) {
@@ -68,6 +90,9 @@ export default function playoffsForm(container, teams, gamesData) {
             gameWrapper.dataset.knockouts = knockouts
             gameWrapper.dataset.round = round
 
+            console.log(rowsAmount);
+            gameWrapper.style.gridRow = `${rowsAmount/2} / span 2`
+
             form.append(gameWrapper)
 
             createTeamWrapers(gameWrapper, playoffsGames, round, gamesAmount, roundsData, teams)
@@ -82,8 +107,6 @@ export default function playoffsForm(container, teams, gamesData) {
         const gameWrapper = gameEl.parentElement
 
         const gameIndex = +gameWrapper.dataset.gameIndex
-        const knockouts = +gameWrapper.dataset.knockouts
-
         const knockoutIndex = +gameEl.dataset.knockoutIndex
 
         const currentRound = gameWrapper.dataset.round
@@ -99,255 +122,9 @@ export default function playoffsForm(container, teams, gamesData) {
         if (allGamesPlayed) {
             createTeamWrapers(gameWrapper, playoffsGames, currentRound, currentRound.slice(-1), roundsData, teams, gameEl, true)
         }
-
-        // const knockout = Number(gameEl.dataset.knockout)
-        // console.log(knockout);
-
-        // const homeTeamInput = gameEl.querySelector('.home-team .result-input')
-        // const awayTeamInput = gameEl.querySelector('.away-team .result-input')
-
-        // const homeTeamScored = Number(homeTeamInput.value)
-        // const awayTeamScored = Number(awayTeamInput.value)
-        // console.log(homeTeamScored, awayTeamScored);
-
-        // if (homeTeamInput.value && awayTeamInput.value) {
-        //     currentGame.played = true
-
-
-        // }
-        // const currentRound = gameEl.dataset.round
-        // const gameId = gameEl.dataset.gameId
-
-        // const currentRoundGames = gamesData[currentRound]
-        // const currentIndex = [Math.round(+gameId/2)-1]
-        // const currentGames = currentRoundGames[currentIndex]
-        // const currentGame = currentGames[knockout-1]
-    
-        // const gameHomeTeamData = currentGame.homeTeam
-        // const gameAwayTeamData = currentGame.awayTeam
-    
-        // gameHomeTeamData.goals = homeTeamScored
-        // gameAwayTeamData.goals = awayTeamScored
     })
-
-
-
-
-    
-    // let idCounter = 0
-    // Object.entries(sortedData).forEach(([round, data], m) => {
-    //     const {gamesAmount, knockouts} = data
-
-    //     if (gamesAmount > 1) {
-    //         const roundWrapper = document.createElement('div')
-    //         roundWrapper.append(round)
-    //         roundWrapper.classList.add(`round`, `round-games-${gamesAmount}`)
-    //         const wrapper1 = document.createElement('div')
-    //         wrapper1.classList.add('games')
-    //         const wrapper2 = document.createElement('div')
-    //         wrapper2.classList.add('games')
-            
-    //         // wrapper1.prepend(round, '1')
-    //         // wrapper2.prepend(round, '2')
-
-    //         if (gamesAmount > 2) {
-    //             roundWrapper.append(wrapper1, wrapper2)
-    //         } else {
-    //             roundWrapper.append(wrapper1)
-    //         }
-    //         playoffsWrapper.append(roundWrapper)
-
-    //         const pairsAmount = gamesAmount/2
-    //         for (let i = 1; i <= pairsAmount; i++) {
-    //             const pairWrapper = document.createElement('div')
-    //             pairWrapper.classList.add('pair-wrapper')   
-    
-    //             if (i < pairsAmount/2 + 1) {
-    //                 wrapper1.append(pairWrapper)
-    //             } else {
-    //                 wrapper2.append(pairWrapper)
-    //             }
-
-    //             // pairWrapper.append(`Pair ${i}`)
-    //             for (let j = 1; j <= gamesAmount; j++) {
-    //                 const gameWrapper = document.createElement('div')
-    //                 gameWrapper.classList.add('game-wrapper')
-                    
-    //                 const pairIndex = Math.round(j / 2)
-
-    //                 if (i === pairIndex) {
-    //                     pairWrapper.append(gameWrapper)
-    //                 }
-    //             }
-    //         }  
-            
-            
-    //         if (m === 0) {
-    //             console.log('addf');
-
-    //             let round1Games
-    //             if (!gamesData[round]) {
-    //                 round1Games = []
-    //                 for (let i = 0; i < teams.length; i++) {
-    //                     let modifiedTeams
-    //                     let round1Game
-        
-    //                     if (i === 0) {
-    //                         modifiedTeams = teams
-    //                     } else {
-    //                         modifiedTeams = teams.slice(i, -i)
-    //                     }
-        
-    //                     if (modifiedTeams.length > 0) {
-    //                         round1Game = [new Game(modifiedTeams[0], modifiedTeams[modifiedTeams.length - 1])]
-    
-                            
-    //                         if (knockouts === 2) {
-    //                             round1Game.push(new Game(modifiedTeams[0], modifiedTeams[modifiedTeams.length - 1]))
-    //                         }
-    //                     }
-                    
-                
-    //                     round1Game && round1Games.push(round1Game)
-    //                 }
-    //                 round1Games.forEach((games, j) => {
-    //                     idCounter++
-    //                     games.forEach((game, m) => {
-    //                         console.log(j, idCounter);
-    //                         game.id = j + idCounter + m
-    //                     })
-    //                 })
-    
-    //                 gamesData[round] = round1Games
-    //             } else {
-    //                 round1Games = gamesData[round]
-    //             }
-
-    //             const gamesWrappers = roundWrapper.querySelectorAll('.game-wrapper')
-
-    //             gamesWrappers.forEach((gameWrapper, n) => {
-    //                 const games = round1Games[n]
-    //                 for (let i = 0; i < games.length; i++) {
-    //                     const game = games[i]
-    //                     const gameEl = document.createElement('div')
-    //                     gameEl.classList.add('game')
-    //                     gameEl.dataset.round = round
-    //                     gameEl.dataset.gameId = game.id
-    //                     gameEl.dataset.knockout = i+1
-
-    
-    //                     gameWrapper.append(gameEl)
-    //                     createTeamWrapers(gameEl, game, i)
-    //                 }
-    //             })
-                
-    //             localStorage.setItem('playoffs-games-data', JSON.stringify(gamesData))
-    //         }
-    //     } else {
-    //         const finalsWrapper = document.createElement('div')
-    //         finalsWrapper.classList.add('final', 'round')
-    //         finalsWrapper.append(round)
-
-    //         const wrapper = document.createElement('div')
-    //         wrapper.classList.add('round')
-
-    //         const gameWrapper = document.createElement('div')
-    //         gameWrapper.classList.add('game-wrapper')
-
-    //         wrapper.append(gameWrapper)
-    //         finalsWrapper.append(wrapper)
-    //         playoffsWrapper.append(finalsWrapper)
-    //     }
-
- 
-    // })
-
-    // container.append(playoffsWrapper)
-
-    // playoffsWrapper.addEventListener('change', (e) => {
-    //     const gameEl = e.target.parentElement.parentElement
-
-    //     const knockout = Number(gameEl.dataset.knockout)
-    //     console.log(knockout);
-
-    //     const homeTeamInput = gameEl.querySelector('.home-team .result-input')
-    //     const awayTeamInput = gameEl.querySelector('.away-team .result-input')
-
-    //     const homeTeamScored = Number(homeTeamInput.value)
-    //     const awayTeamScored = Number(awayTeamInput.value)
-    //     const currentRound = gameEl.dataset.round
-    //     const gameId = gameEl.dataset.gameId
-
-    //     const currentRoundGames = gamesData[currentRound]
-    //     const currentIndex = [Math.round(+gameId/2)-1]
-    //     const currentGames = currentRoundGames[currentIndex]
-    //     const currentGame = currentGames[knockout-1]
-    
-    //     const gameHomeTeamData = currentGame.homeTeam
-    //     const gameAwayTeamData = currentGame.awayTeam
-    
-    //     gameHomeTeamData.goals = homeTeamScored
-    //     gameAwayTeamData.goals = awayTeamScored
-    
-    
-    //     if (homeTeamInput.value && awayTeamInput.value) {
-    //         currentGame.played = true
-    //         gameEl.parentElement.classList.add('played')
-    //         gameEl.dataset.played = true
-    //     } else {
-    //         currentGame.played = false
-    //         gameEl.parentElement.classList.remove('played')
-    //         gameEl.dataset.played = false
-    //     }
-
-    //     if (currentGames.every(game => game.played)) {
-    //         const nextRound = currentRoundGames.length/2 === 1 ? 'final' : currentRoundGames.length/2
-
-    //         const nextRoundElement = document.querySelector(`.round-games-${nextRound}`)
-
-    //         let nextRoundIndex
-    //         if (currentIndex + 1 < currentRoundGames.length/2 || currentRoundGames.length === 2) {
-    //             nextRoundIndex = 0 
-    //         } else {
-    //             nextRoundIndex = 1
-    //         }
-
-    //         const nextRoundGames = [...nextRoundElement.children]
-    //         const nextRoundPairs = [...nextRoundGames[nextRoundIndex].children]
-    //         const currentPairsLeft = Math.floor((currentRoundGames.length - currentIndex - 1)/2)
-
-    //         const nextPair = currentPairsLeft > 1 ? nextRoundPairs[Math.round(nextRoundPairs.length-1 - currentPairsLeft/2)] : nextRoundPairs[0]
-    //         const nextGames = [...nextPair.children]
-    //         const nextGameIndex = currentPairsLeft % 2 === 0 ? 1 : 0
-
-    //         const nextGameWrapper = nextGames[nextGameIndex]
-
-    //         const gameEl = document.createElement('div')
-    //         gameEl.classList.add('game')
-
-    //         nextGameWrapper.append(gameEl)
-    //     }
-
-    //     localStorage.setItem('playoffs-games-data', JSON.stringify(gamesData))
-    // })
 }
 
-// const gameIndex = +gameWrapper.dataset.gameIndex
-// const knockouts = +gameWrapper.dataset.knockouts
-// const prevRound = `1/${gamesAmount*2}`
-
-// const prevRoundGame1 = playoffsGames[prevRound] && playoffsGames[prevRound][gameIndex*2-1]
-// const prevRoundGame2 = playoffsGames[prevRound] && playoffsGames[prevRound][gameIndex*2]
-
-
-// console.log(roundsData[prevRound]);
-// const playedAllPrevGames = (playoffsGames[prevRound] && [...prevRoundGame1, ...prevRoundGame2].every(game => game.played)) || !roundsData[prevRound]
-
-// const currentGameExists = playoffsGames[round] && playoffsGames[round][gameIndex]
-
-// console.log(playedAllPrevGames, !currentGameExists, round);
-
-// if (!currentGameExists && playedAllPrevGames)
 
 function createTeamWrapers(gameWrapper, playoffsGames, round, gamesAmount, roundsData, allTeams, type) {
 

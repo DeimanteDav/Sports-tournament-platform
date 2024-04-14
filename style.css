@@ -1,318 +1,324 @@
 :root {
-    --blue: #2176b6;
-    --border-color: #dddddd;
-    --text-color: #ffffff; 
-    --table-hover-color: #f3f3f3
+  --blue: #2176b6;
+  --border-color: #dddddd;
+  --text-color: #ffffff;
+  --table-hover-color: #f3f3f3;
 }
 
-*, *::before, *::after {
-    box-sizing: border-box;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
-    margin: 30px auto;
-    font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  margin: 30px auto;
+  font-family: sans-serif;
 }
 
 .container button {
-    display: inline-block;
-    outline: 0;
-    cursor: pointer;
-    padding: 5px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    vertical-align: middle;
-    border: 1px solid;
-    border-radius: 6px;
-    color: #24292e;
-    background-color: #fafbfc;
-    border-color: #1b1f2326;
-    box-shadow: rgba(27, 31, 35, 0.04) 0px 1px 0px 0px, rgba(255, 255, 255, 0.25) 0px 1px 0px 0px inset;
-    transition: 0.2s cubic-bezier(0.3, 0, 0.5, 1);
-    transition-property: color, background-color, border-color;
+  display: inline-block;
+  outline: 0;
+  cursor: pointer;
+  padding: 5px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  vertical-align: middle;
+  border: 1px solid;
+  border-radius: 6px;
+  color: #24292e;
+  background-color: #fafbfc;
+  border-color: #1b1f2326;
+  box-shadow: rgba(27, 31, 35, 0.04) 0px 1px 0px 0px,
+    rgba(255, 255, 255, 0.25) 0px 1px 0px 0px inset;
+  transition: 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+  transition-property: color, background-color, border-color;
 }
 
 .container button:hover {
-    background-color: #f3f4f6;
-    border-color: #1b1f2326;
-    transition-duration: 0.1s;
+  background-color: #f3f4f6;
+  border-color: #1b1f2326;
+  transition-duration: 0.1s;
 }
 
 #games-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
 }
 #games-wrapper .round {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    flex: 1;
-    gap: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex: 1;
+  gap: 15px;
 }
 
 .game-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
 }
 
 #games-wrapper .round .game-wrapper.played {
-    background-color: #f7f7f7;
-    border: 1px solid #ddd;
-    border-radius: 3px;
+  background-color: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 3px;
 }
 
-
 .game-wrapper .team {
-    display: flex; 
-    gap: 5px;
-    padding: 4px;
-}   
+  display: flex;
+  gap: 5px;
+  padding: 4px;
+}
 
 .team label {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .team input {
-    width: 50px;
+  width: 50px;
 }
 
 #games-wrapper .game-wrapper.played:hover {
-    background-color: #e0e0e0;
+  background-color: #e0e0e0;
 }
 
 .table-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
 }
 
 table {
-    border-collapse: collapse;
+  border-collapse: collapse;
 }
 
 .table {
-    min-width: 400px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  min-width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
 .table thead tr {
-    background-color: var(--blue);
-    color: var(--text-color);
-    text-align: left;
+  background-color: var(--blue);
+  color: var(--text-color);
+  text-align: left;
 }
 
 .table th,
 .table td {
-    padding: 12px 15px;
+  padding: 12px 15px;
 }
 
 .table tbody tr {
-    border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color);
 }
 
 .table tbody tr:hover {
-    background-color: var(--table-hover-color);
+  background-color: var(--table-hover-color);
 }
 
 .table tbody tr.winner {
-    position: relative;
+  position: relative;
 }
 
 .table tbody tr.winner::after {
-    content: '';
-    position: absolute;
-    background-image: url('https://icons.veryicon.com/png/o/business/business-style-icon/trophy-18.png');
-    background-size: cover;
-    height: 30px;
-    width: 30px;
-    top: 50%;
-    left: -35px;
-    transform: translateY(-50%);
+  content: "";
+  position: absolute;
+  background-image: url("https://icons.veryicon.com/png/o/business/business-style-icon/trophy-18.png");
+  background-size: cover;
+  height: 30px;
+  width: 30px;
+  top: 50%;
+  left: -35px;
+  transform: translateY(-50%);
 }
 .table tbody tr.loser {
-    position: relative;
+  position: relative;
 }
 
 .table tbody tr.loser::after {
-    content: 'X';
-    position: absolute;
-    font-weight: bold;
-    font-size: 20px;
-    top: 50%;
-    left: -25px;
-    color: red;
-    /* background-image: url('https://icons.veryicon.com/png/o/business/business-style-icon/trophy-18.png'); */
-    /* background-size: cover; */
-    
-/* 
+  content: "X";
+  position: absolute;
+  font-weight: bold;
+  font-size: 20px;
+  top: 50%;
+  left: -25px;
+  color: red;
+  /* background-image: url('https://icons.veryicon.com/png/o/business/business-style-icon/trophy-18.png'); */
+  /* background-size: cover; */
+
+  /* 
     height: 30px;
     width: 30px; */
 
-    transform: translateY(-50%);
+  transform: translateY(-50%);
 }
 
 .table .comparison-btn {
-    width: 20px;
-    height: 20px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    font-size: 14px;
-    line-height: 1;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
-
 
 .modern-table tbody tr:nth-of-type(even) {
 }
 
 .modern-table tbody tr:last-of-type {
-    border-bottom: 2px solid var(--blue);
+  border-bottom: 2px solid var(--blue);
 }
 
 .modern-table th:nth-child(2),
 .modern-table td:nth-child(2) {
-    display: flex;
-    justify-content: space-between;
-    width: 150px;
+  display: flex;
+  justify-content: space-between;
+  width: 150px;
 }
 
 .modern-table button {
-    background-color: var(--blue);
-    color: var(--text-color);
+  background-color: var(--blue);
+  color: var(--text-color);
 }
 
 .modern-table button:hover {
-    background-color: #7b7b7b;
+  background-color: #7b7b7b;
 }
 
-
 .old-table thead tr {
-    border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color);
 }
 
 .old-table th button:hover {
-    background-color: rgb(230, 230, 230);
-}   
+  background-color: rgb(230, 230, 230);
+}
 
 .old-table tbody td.empty-cell {
-    background-color: rgb(214, 214, 214);
+  background-color: rgb(214, 214, 214);
 }
 
 .old-table th,
 .old-table td {
-    border: 1px solid var(--border-color);
-    padding: 5px 10px;
-    width: 80px;
-    text-align: center;
+  border: 1px solid var(--border-color);
+  padding: 5px 10px;
+  width: 80px;
+  text-align: center;
 }
 
-.old-table tr th:nth-child(-n+2) {
-    background-color: var(--blue);
-    color: var(--text-color);
+.old-table tr th:nth-child(-n + 2) {
+  background-color: var(--blue);
+  color: var(--text-color);
 }
 
 .old-table .rounds-data {
-    padding: 0;
+  padding: 0;
 }
 .old-table tbody td {
-    padding: 5px;
+  padding: 5px;
 }
 
 .old-table .inner-table {
-    min-height: 80px;
+  min-height: 80px;
 }
-
-
 
 .old-table .inner-table tbody.hidden {
-    display: none;
+  display: none;
 }
 .old-table .inner-table tbody.expanded {
-    display: table-row-group;
+  display: table-row-group;
 }
 
 .old-table .rounds-data tr,
 .old-table .rounds-data td {
-    border: none;
+  border: none;
 }
 
 .old-table .rounds-data td:not(.empty-cell):not(:last-child) {
-    border-right: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
 }
 
 .old-table .rounds-data tfoot tr:first-child td:not(.empty-cell) {
-    border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color);
 }
 
-
 .old-table .rounds-data td {
-    min-width: 90px;
-    width: 90px;
+  min-width: 90px;
+  width: 90px;
 }
 
 .old-table .rounds-data td p {
-    margin: 3px;
+  margin: 3px;
 }
 
 .old-table .rounds-data .empty-cell {
-    border: none ;
+  border: none;
 }
 
 .old-table tbody .btn-wrapper {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-    gap: 5px;
-    margin: 10px 2px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  gap: 5px;
+  margin: 10px 2px;
 }
 
 .old-table tbody .expand-btn {
-    padding: 4px;
+  padding: 4px;
 }
-
 
 .playoffs {
-    display: grid;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 10%;
+  display: grid;
+  align-items: center;
+  width: 100%;
+  padding: 10%;
 }
 
-.playoffs .round {
-    display: flex;
-    flex-direction: column;
-    gap: 50px;
-    justify-content: center;
-    height: 100%;
+.playoffs .pair-wrapper {
+  height: 100%;
+
+  align-self: center;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  gap: 50px;
+}
+
+
+/* .playoffs .round {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  justify-content: center;
+  height: 100%;
 }
 
 .playoffs .round .games {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    gap: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  gap: 30px;
 }
 .playoffs .round .pair-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    height: 100%;
-    gap: 20px;
-}
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 100%;
+  gap: 20px;
+} */
 
 /* .playoffs .left-pair-wrapper,
 .playoffs .right-pair-wrapper {
@@ -323,57 +329,55 @@ table {
 } */
 
 .playoffs .game-wrapper {
-    flex-direction: row;
-    justify-content: center;
-    border: 1px solid var(--blue);
-    border-radius: 2px;
-    position: relative;
-    min-height: 70px;
-    min-width: 90px;
+  flex-direction: row;
+  justify-content: center;
+  border: 1px solid var(--blue);
+  border-radius: 2px;
+  position: relative;
+  min-height: 70px;
+  min-width: 90px;
 }
-
 
 .playoffs .left-pair-wrapper::after,
 .playoffs .right-pair-wrapper::after {
-    content: '';
-    position: absolute;
-    width: 1px;
-    height: calc(100% - 70px);
-    background-color: var(--blue);
-    top: 35px;
-    right: -50px;
-    transform: translateX(-1px)
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: calc(100% - 70px);
+  background-color: var(--blue);
+  top: 35px;
+  right: -50px;
+  transform: translateX(-1px);
 }
 
 .playoffs .right-pair-wrapper::after {
-    left: -50px;
-} 
+  left: -50px;
+}
 
 .playoffs .game-wrapper::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: -50px;
-    width: 50px;
-    height: 2px;
-    background-color: var(--blue);
-    transform: translateY(-1px);
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -50px;
+  width: 50px;
+  height: 2px;
+  background-color: var(--blue);
+  transform: translateY(-1px);
 }
 
 .playoffs .right-pair-wrapper .game-wrapper::after {
-    left: -50px;
+  left: -50px;
 }
 
 .error {
-    border-color: red;
+  border-color: red;
 }
 
 button.clicked,
 button.clicked:hover {
-    background-color: #2182ab;
-    color: white;
+  background-color: #2182ab;
+  color: white;
 }
-
 
 /* @media (max-width: 550px) {
     .modern-table th:nth-last-child(2),
