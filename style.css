@@ -51,6 +51,7 @@
   flex-direction: column;
   gap: 50px;
 }
+
 #games-wrapper .round {
   display: flex;
   flex-wrap: wrap;
@@ -140,6 +141,7 @@ table {
   left: -35px;
   transform: translateY(-50%);
 }
+
 .table tbody tr.loser {
   position: relative;
 }
@@ -152,13 +154,6 @@ table {
   top: 50%;
   left: -25px;
   color: red;
-  /* background-image: url('https://icons.veryicon.com/png/o/business/business-style-icon/trophy-18.png'); */
-  /* background-size: cover; */
-
-  /* 
-    height: 30px;
-    width: 30px; */
-
   transform: translateY(-50%);
 }
 
@@ -174,8 +169,7 @@ table {
   transition: background-color 0.3s ease;
 }
 
-.modern-table tbody tr:nth-of-type(even) {
-}
+.modern-table tbody tr:nth-of-type(even) {}
 
 .modern-table tbody tr:last-of-type {
   border-bottom: 2px solid var(--blue);
@@ -225,6 +219,7 @@ table {
 .old-table .rounds-data {
   padding: 0;
 }
+
 .old-table tbody td {
   padding: 5px;
 }
@@ -236,6 +231,7 @@ table {
 .old-table .inner-table tbody.hidden {
   display: none;
 }
+
 .old-table .inner-table tbody.expanded {
   display: table-row-group;
 }
@@ -289,6 +285,7 @@ table {
 .playoffs .pair-wrapper {
   height: 100%;
 
+  position: relative;
   align-self: center;
   display: flex;
   justify-content: space-around;
@@ -296,37 +293,6 @@ table {
   gap: 50px;
 }
 
-
-/* .playoffs .round {
-  display: flex;
-  flex-direction: column;
-  gap: 50px;
-  justify-content: center;
-  height: 100%;
-}
-
-.playoffs .round .games {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  gap: 30px;
-}
-.playoffs .round .pair-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  height: 100%;
-  gap: 20px;
-} */
-
-/* .playoffs .left-pair-wrapper,
-.playoffs .right-pair-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-    position: relative;
-} */
 
 .playoffs .game-wrapper {
   flex-direction: row;
@@ -338,27 +304,11 @@ table {
   min-width: 90px;
 }
 
-.playoffs .left-pair-wrapper::after,
-.playoffs .right-pair-wrapper::after {
-  content: "";
-  position: absolute;
-  width: 1px;
-  height: calc(100% - 70px);
-  background-color: var(--blue);
-  top: 35px;
-  right: -50px;
-  transform: translateX(-1px);
-}
-
-.playoffs .right-pair-wrapper::after {
-  left: -50px;
-}
-
-.playoffs .game-wrapper::after {
+.playoffs .pair-wrapper::after {
   content: "";
   position: absolute;
   top: 50%;
-  right: -50px;
+  right: -60px;
   width: 50px;
   height: 2px;
   background-color: var(--blue);
@@ -378,22 +328,3 @@ button.clicked:hover {
   background-color: #2182ab;
   color: white;
 }
-
-/* @media (max-width: 550px) {
-    .modern-table th:nth-last-child(2),
-    .modern-table td:nth-last-child(2) {
-        display: none;
-    }
-}
-
-
-@media (max-width: 1100px) {
-    .modern-table th::before {
-        content: attr(data-small-title);
-    }
-
-    .modern-table th:nth-child(2),
-    .modern-table td:nth-child(2) {
-        width: 100px;
-    }
-} */

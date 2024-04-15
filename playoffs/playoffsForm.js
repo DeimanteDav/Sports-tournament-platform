@@ -197,8 +197,11 @@ function createTeamWrapers(gameWrapper, playoffsGames, round, gamesAmount, round
                 (game.homeTeam.team === winnerGame2.team || game.awayTeam.team === winnerGame2.team)
             ))
 
-            let nextRoundWrapper = document.querySelector(`.game-wrapper[data-round="${nextRound}"][data-game-index="${nextRoundGameIndex}"]`)
+            const nextRoundWrapper = document.querySelector(
+              `.game-wrapper[data-round="${nextRound}"][data-game-index="${nextRoundGameIndex}"]`
+            );
 
+            // game index blogai apskaiciuojamas
             if (allGamesPlayed) {
                 if (!(playoffsGames[nextRound] && playoffsGames[nextRound][nextRoundGameIndex]) || changedTeams) {
                     let games = []
