@@ -4,7 +4,7 @@ export default function sortTeams(teams, games, params = {}) {
     const {compareBetweenGames} = params
     const samePointsTeams = []
 
-    const result = [...teams].sort((a, b) => {
+    const result = teams.sort((a, b) => {
         if (a.points > b.points) {
             return -1
         } else if (a.points < b.points) {

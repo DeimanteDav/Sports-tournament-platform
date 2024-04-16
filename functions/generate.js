@@ -1,6 +1,5 @@
 import Game from "../classes/Game.js";
 import Team from "../classes/Team.js";
-import generatePlayoffsGames from "../generatePlayoffsGames.js";
 import playoffsForm from "../playoffs/playoffsForm.js";
 import { changeTable, tournamentForm } from "../script.js";
 
@@ -11,30 +10,39 @@ export default function generateTeams(container) {
     const playoffsGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
 
 
-    if (leagueRoundsAmount) {
+    if (leagueRoundsAmount && playoffsGamesData) {
+        const totalGames = (teamNames.length-1)*leagueRoundsAmount
+        const teams = teamNames.map(name => new Team(name, totalGames, teamNames.length))
+        const games = generateGames(container, teams, leagueRoundsAmount)
+        localStorage.setItem('league-games-data', JSON.stringify(games))
+        tournamentForm(container, games, teams)
+
+        playoffsForm(container, playoffsGamesData, null, teams)
+
+        localStorage.setItem('total-games', totalGames)
+        localStorage.setItem('teams-data', JSON.stringify(teams))
+
+
+    } else if (leagueRoundsAmount) {
         const totalGames = (teamNames.length-1)*leagueRoundsAmount
     
         const teams = teamNames.map(name => new Team(name, totalGames, teamNames.length))
 
         const games = generateGames(container, teams, leagueRoundsAmount)
+        localStorage.setItem('league-games-data', JSON.stringify(games))
         tournamentForm(container, games, teams)
 
         localStorage.setItem('total-games', totalGames)
         localStorage.setItem('teams-data', JSON.stringify(teams))
-    }
-
-    if (playoffsGamesData) {
+    } else if (playoffsGamesData) {
         const teamsAmount = playoffsGamesData.teamsAmount
         const difference = teamNames.length - teamsAmount
-        const teams = teamNames.slice(0, -difference).map(name => new Team(name, 0, teamsAmount))
+        const playoffTeams = teamNames.slice(0, -difference).map(name => new Team(name, 0, teamsAmount))
 
-        localStorage.setItem('teams-data', JSON.stringify(teams))
+        localStorage.setItem('playoffs-teams-data', JSON.stringify(playoffTeams))
 
-        playoffsForm(container, teams, playoffsGamesData)
-        // generatePlayoffsGames(container)
+        playoffsForm(container, playoffsGamesData, playoffTeams)
     }
-
-
 }
 
 

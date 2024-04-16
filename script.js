@@ -5,11 +5,8 @@ import sortTeams from "./functions/sortTeams.js"
 import compareGamesData from "./functions/compareGamesData.js"
 import { teamsAmountForm } from "./functions/forms.js"
 import updateGameData from "./functions/updateGameData.js"
-import generatePlayoffsGames from "./generatePlayoffsGames.js"
 import playoffsForm from "./playoffs/playoffsForm.js"
 
-// jei league lentele yra tai ne is eiles
-// DETI NE COLUMNS groups o PAIRS IS KARTO
 // KIEK iskrenta irasyti paciam
 
 // ADD CONDITION:
@@ -40,15 +37,21 @@ function getLocalStorageData(container) {
     const teamsData = localStorage.getItem('teams-data') ? JSON.parse(localStorage.getItem('teams-data')) : null
     const gamesData = localStorage.getItem('league-games-data') ? JSON.parse(localStorage.getItem('league-games-data')) : null
     
-    const playoffGamesData = JSON.parse(localStorage.getItem('playoffs-data')
-)
+
+    const playoffsTeamsData = localStorage.getItem('playoffs-teams-data') ? JSON.parse(localStorage.getItem('playoffs-teams-data')) : null
+    const playoffGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
+
     if (teamsData) {
-        if (gamesData) {
+        if (gamesData && playoffGamesData) {
             tournamentForm(container, gamesData, teamsData)
             changeTable(container, teamsData, gamesData)
-        }
-        if (playoffGamesData) {
-            playoffsForm(container, teamsData, playoffGamesData)
+
+            playoffsForm(container, playoffGamesData, playoffsTeamsData, teamsData)
+        } else if (gamesData) {
+            tournamentForm(container, gamesData, teamsData)
+            changeTable(container, teamsData, gamesData)
+        } else if (playoffGamesData) {
+            playoffsForm(container, playoffGamesData, playoffsTeamsData)
             // generatePlayoffsGames(container)
         }
     } else {
@@ -130,8 +133,12 @@ export function tournamentForm(container, games, teams) {
 
     gamesForm.addEventListener('change', (e) => {
         const gameEl = e.target.parentElement.parentElement
-     
-        updateGameData(gameEl, games)
+        const gameId = +gameEl.dataset.gameId
+        const currentGame = games.find(game => game.id === gameId)
+        
+        updateGameData(gameEl, currentGame)
+        localStorage.setItem('league-games-data', JSON.stringify(games))
+
         updateTeamsData(games, teams)
     })
 
@@ -187,8 +194,8 @@ export function tournamentForm(container, games, teams) {
 
             const currentGame = games[gameEl.dataset.gameId-1]
             updateGameData(gameEl, currentGame)
+            localStorage.setItem('league-games-data', JSON.stringify(games))
 
-            localStorage.setItem('games-data', JSON.stringify(games))
             updateTeamsData(games, teams)
         });
         
@@ -202,7 +209,7 @@ export function tournamentForm(container, games, teams) {
 function updateTeamsData(games, teams) {
     teams.forEach(team => {
         for (const [key, value] of Object.entries(team)) {
-            if (key !== 'team') {
+            if (key !== 'team' || key !== 'totalGames') {
                 if (Number(value)) {
                     team[key] = 0
                 }
@@ -217,12 +224,12 @@ function updateTeamsData(games, teams) {
         const gameHomeTeam = game.homeTeam
         const gameAwayTeam = game.awayTeam
         
-
+        console.log(gameHomeTeam, gameAwayTeam);
         const homeTeamData = teams.find(team => team.team === gameHomeTeam.team)
         const awayTeamData = teams.find(team => team.team === gameAwayTeam.team)
 
         const totalGames = Number(localStorage.getItem('total-games'))
-
+        
         homeTeamData.totalGames = totalGames
         awayTeamData.totalGames = totalGames
 
@@ -276,6 +283,15 @@ function updateTeamsData(games, teams) {
     })
 
     changeTable(container, teams, games)
+
+
+    const playoffsTeamsData = localStorage.getItem('playoffs-teams-data') ? JSON.parse(localStorage.getItem('playoffs-teams-data')) : null
+    const playoffGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
+
+    if (playoffGamesData) {
+        playoffsForm(container, playoffGamesData, playoffsTeamsData, teams)
+    }
+
     localStorage.setItem('teams-data', JSON.stringify(teams))
 }
 

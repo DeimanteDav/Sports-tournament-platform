@@ -15,9 +15,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 40px;
-  margin: 30px auto;
+  padding: 20px 0;
+  min-height: 100vh;
+}
+.container * {
   font-family: sans-serif;
+
 }
 
 .container button {
@@ -45,6 +50,81 @@
   border-color: #1b1f2326;
   transition-duration: 0.1s;
 }
+
+.container .form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border-radius: 4px;
+
+  gap: 20px;
+  padding: 20px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+
+.container .form .inputs {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  max-height: 300px;
+}
+
+.container .form .inputs input {
+  width: 100px;
+  margin: 10px 10px 0 5px;
+}
+
+.container .form .form-control {
+  width: 100%;
+}
+.container .form .form-control:not(:last-of-type)::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin-top: 20px;
+  background-color: black;
+}
+
+.container .form .games-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px 40px;
+
+}
+
+.container .form .form-control .title {
+  display: flex;
+  justify-content: space-between;
+  gap: 100px;
+  
+}
+
+.container .select-form {
+  display: flex;
+  gap: 20px;
+}
+
+.container select {
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+}
+
+.container select:hover {
+  border-color: #999;
+}
+
+.container select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
 
 #games-wrapper {
   display: flex;
@@ -275,14 +355,23 @@ table {
   padding: 4px;
 }
 
-.playoffs {
+.playoffs-table {
   display: grid;
   align-items: center;
   width: 100%;
   padding: 10%;
 }
 
-.playoffs .pair-wrapper {
+.playoffs-table .round-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  gap: 60px;
+  height: 100%;
+}
+
+.playoffs-table .pair-wrapper {
   height: 100%;
 
   position: relative;
@@ -290,21 +379,21 @@ table {
   display: flex;
   justify-content: space-around;
   flex-direction: column;
-  gap: 50px;
+  gap: 30px;
 }
 
 
-.playoffs .game-wrapper {
+.playoffs-table .game-wrapper {
   flex-direction: row;
   justify-content: center;
   border: 1px solid var(--blue);
   border-radius: 2px;
   position: relative;
-  min-height: 70px;
+  min-height: 60px;
   min-width: 90px;
 }
 
-.playoffs .pair-wrapper::after {
+.playoffs-table .pair-wrapper::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -315,7 +404,7 @@ table {
   transform: translateY(-1px);
 }
 
-.playoffs .right-pair-wrapper .game-wrapper::after {
+.playoffs-table .right-pair-wrapper .game-wrapper::after {
   left: -50px;
 }
 

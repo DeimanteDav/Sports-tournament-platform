@@ -5,6 +5,7 @@ import generateTeams from "./generate.js"
 export function teamsAmountForm(container) {
     localStorage.clear()
     const form = document.createElement('form')
+    form.classList.add('form')
     const wrapper = document.createElement('div')
     const text = document.createElement('p')
     text.textContent = 'How many teams in tournament?'
@@ -28,15 +29,7 @@ export function teamsAmountForm(container) {
         const amount = e.target.amount.value
     
         if (amount) {
-            let dropoutTeamsAmount = 0
-            if (amount > 5) {
-                dropoutTeamsAmount = 1
-            } else if (amount > 10) {
-                dropoutTeamsAmount = 2
-            }
-
             form.remove()
-            localStorage.setItem('dropout-amount', dropoutTeamsAmount)
             teamNamesForm(container, Number(amount))
         }
     })
@@ -44,13 +37,18 @@ export function teamsAmountForm(container) {
 
 export function teamNamesForm(container, teamsAmount) {
     const form = document.createElement('form')
-    
+    form.classList.add('form')
+
     const text = document.createElement('p')
     text.textContent = `Set Teams' names`
 
     const namesWrapper = document.createElement('div')
+    namesWrapper.classList.add('inputs')
+
 
     const generateWrapper = document.createElement('div')
+    generateWrapper.classList.add('select-form')
+
     const select = document.createElement('select')
     const options = [
         {
@@ -73,6 +71,7 @@ export function teamNamesForm(container, teamsAmount) {
         const optionElement = document.createElement('option')
         optionElement.textContent = option.title
         optionElement.value = option.value
+        optionElement.id = `generate-names-${option.value}`
 
         select.append(optionElement)
     }
@@ -103,8 +102,18 @@ export function teamNamesForm(container, teamsAmount) {
     form.append(text, generateWrapper, namesWrapper, submitBtn)
     container.append(form)
 
+    // select.addEventListener('change', (e) => {
+    //     const allOptions = [...select.children]
+    //     allOptions.forEach(option => {
+    //         option.classList.remove('selected')
+    //     })
+    //     const selectedOption = document.getElementById(`generate-names-${e.target.value}`)
+    //     selectedOption.classList.add('selected')
+    // })
+
     generateNamesBtn.addEventListener('click', (e) => {
         const optionValue = select.value
+        console.log(e.target);
         const inputs = [...namesWrapper.querySelectorAll('input')]
 
         if (optionValue === '1') {
@@ -141,6 +150,10 @@ export function teamNamesForm(container, teamsAmount) {
 
 function tournamentType(container, teamsAmount) {
     const form = document.createElement('form')
+    form.classList.add('form')
+
+    const leagueTitleWrapper = document.createElement('div')
+    leagueTitleWrapper.classList.add('title')
 
     const leagueWrapper = document.createElement('div')
     leagueWrapper.classList.add('form-control')
@@ -151,29 +164,56 @@ function tournamentType(container, teamsAmount) {
         if (checked) {
             const leagueInfoWrapper = document.createElement('div')
             leagueInfoWrapper.id = 'league-info'
-            leagueInfoWrapper.classList.add('form-control', 'rounds-info')
+            leagueInfoWrapper.classList.add('games-info')
     
-            const text = document.createElement('p')
-            text.textContent = 'How many rounds in tournament?'
-    
-            const input = document.createElement('input')
-            input.name = 'amount'
-            input.type = 'number'
-            input.min = 1
-            input.max = 5
+            const roundsAmountWrapper = document.createElement('div')
 
-            input.value = 1
+            const roundsText = document.createElement('p')
+            roundsText.textContent = 'Rounds amount'
+
+            const roundsAmountInput = document.createElement('input')
+            roundsAmountInput.name = 'amount'
+            roundsAmountInput.type = 'number'
+            roundsAmountInput.min = 1
+            roundsAmountInput.max = 5
+
+            roundsAmountInput.value = 1
             localStorage.setItem('rounds-amount', 1)
 
-            input.addEventListener('change', (e) => {
+            roundsAmountInput.addEventListener('change', (e) => {
                 const amount = e.target.value
     
                 if (amount) {
                     localStorage.setItem('rounds-amount', amount)
                 }
             })
+
+
+            const dropoutAmountWrapper = document.createElement('div')
+
+            const dropoutText = document.createElement('p')
+            dropoutText.textContent = 'Dropout amount'
+
+            const dropoutAmountInput = document.createElement('input')
+            dropoutAmountInput.name = 'amount'
+            dropoutAmountInput.type = 'number'
+            dropoutAmountInput.min = 0
+            dropoutAmountInput.max = 3
+
+            dropoutAmountInput.value = 0
+            localStorage.setItem('dropout-amount', 0)
+
+            dropoutAmountInput.addEventListener('change', (e) => {
+                const amount = e.target.value
+    
+                if (amount) {
+                    localStorage.setItem('dropout-amount', amount)
+                }
+            })
         
-            leagueInfoWrapper.append(text, input)
+            roundsAmountWrapper.append(roundsText, roundsAmountInput)
+            dropoutAmountWrapper.append(dropoutText, dropoutAmountInput)
+            leagueInfoWrapper.append(roundsAmountWrapper, dropoutAmountWrapper)
             leagueWrapper.append(leagueInfoWrapper)
         } else {
             const oldLeagueInfoWrapper = document.getElementById('league-info')
@@ -184,7 +224,11 @@ function tournamentType(container, teamsAmount) {
 
     const legueSwitch = toggleSwitch(leagueSwitchHandler)
 
-    leagueWrapper.prepend(leagueText, legueSwitch)
+    leagueTitleWrapper.prepend(leagueText, legueSwitch)
+    leagueWrapper.append(leagueTitleWrapper)
+
+    const playoffsTitleWrapper = document.createElement('div')
+    playoffsTitleWrapper.classList.add('title')
 
     const playoffsWrapper = document.createElement('div')
     playoffsWrapper.classList.add('form-control')
@@ -200,7 +244,7 @@ function tournamentType(container, teamsAmount) {
 
             const playoffsInfoWrapper = document.createElement('div')
             playoffsInfoWrapper.id = 'playoffs-info'
-            playoffsInfoWrapper.classList.add('form-control', 'rounds-info')
+            playoffsInfoWrapper.classList.add('games-info')
     
             const teamsAmountWrapper = document.createElement('div')
 
@@ -208,7 +252,7 @@ function tournamentType(container, teamsAmount) {
             teamsAmountText.textContent = 'How many teams play in Playoffs?'
     
             const possibleAmounts = []
-            const dropoutTeamsAmount = localStorage.getItem('dropout-amount')
+            const dropoutTeamsAmount = +localStorage.getItem('dropout-amount')
             teamsAmount = teamsAmount - Number(dropoutTeamsAmount)
             let minAmount = 2
 
@@ -258,10 +302,11 @@ function tournamentType(container, teamsAmount) {
         }
     }
 
-
     const playoffsSwitch = toggleSwitch(playoffsSwitchHandler)
        
-    playoffsWrapper.prepend(playoffsText, playoffsSwitch)
+    playoffsTitleWrapper.prepend(playoffsText, playoffsSwitch)
+
+    playoffsWrapper.append(playoffsTitleWrapper)
 
     const submitBtn = document.createElement('button')
     submitBtn.type = 'submit'
