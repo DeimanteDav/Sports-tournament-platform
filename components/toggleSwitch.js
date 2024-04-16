@@ -1,4 +1,4 @@
-export default function toggleSwitch(switchHandler, dropoutsChanged) {
+export default function toggleSwitch(switchHandler) {
     const toggle = document.createElement('input')
     toggle.type = 'checkbox'
     toggle.classList.add('toggle')
@@ -6,11 +6,6 @@ export default function toggleSwitch(switchHandler, dropoutsChanged) {
     toggle.addEventListener('change', (e) => {
         switchHandler(e.target.checked)
     })
-
-    if (dropoutsChanged) {
-        dropoutsChanged = false
-        switchHandler(2)
-    }
 
     return toggle
 }
