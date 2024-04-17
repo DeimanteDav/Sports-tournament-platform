@@ -14,15 +14,17 @@ export default function generateTeams(container) {
         const totalGames = (teamNames.length-1)*leagueRoundsAmount
         const teams = teamNames.map(name => new Team(name, totalGames, teamNames.length))
         const games = generateGames(container, teams, leagueRoundsAmount)
-        localStorage.setItem('league-games-data', JSON.stringify(games))
-        tournamentForm(container, games, teams)
-
-        playoffsForm(container, playoffsGamesData, null, teams)
+   
 
         localStorage.setItem('total-games', totalGames)
         localStorage.setItem('teams-data', JSON.stringify(teams))
+        localStorage.setItem('league-games-data', JSON.stringify(games))
 
+        localStorage.setItem('playoffs-teams-data', JSON.stringify( teams.slice(0, playoffsGamesData.teamsAmount)))
 
+        tournamentForm(container, games, teams)
+
+        playoffsForm(container, playoffsGamesData, teams.slice(0, playoffsGamesData.teamsAmount))
     } else if (leagueRoundsAmount) {
         const totalGames = (teamNames.length-1)*leagueRoundsAmount
     

@@ -11,8 +11,6 @@ export default function updateGameData(gameEl, currentGame) {
     gameHomeTeamData.goals = homeTeamScored
     gameAwayTeamData.goals = awayTeamScored
 
-
-
     if (homeTeamInput.value && awayTeamInput.value) {
         if (homeTeamScored > awayTeamScored) {
             currentGame.winner = gameHomeTeamData.team

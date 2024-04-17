@@ -7,7 +7,20 @@ import { teamsAmountForm } from "./functions/forms.js"
 import updateGameData from "./functions/updateGameData.js"
 import playoffsForm from "./playoffs/playoffsForm.js"
 
-// KIEK iskrenta irasyti paciam
+// regular season o ne league games
+// relegation o ne dropout
+
+// grido elutes tiek kiek zaidimu
+
+// elementas eilutes ir viduj pats game
+
+// after - before |- 
+
+
+// playoffs atskirai suvesti rezultatus o lentelej tik atvaizdavimas
+// ne ta komanda i kita rounda paraso
+// nepalikti tusciu laukeliu o parasyti kad pvz is 1 poros ta ir ta komanda
+
 
 // ADD CONDITION:
 // PATSS IRASAI VISKA
@@ -16,17 +29,7 @@ import playoffsForm from "./playoffs/playoffsForm.js"
 
 const container = document.querySelector('.container')
 
-
-// jei bus ir playoffai, tai kiek komandu iseina i playoffus parasyti.
-// Kiek kiekvienam rounde zaidzia knockoutu:
-// finalas
-// 1/2
-// 1/4
-// 1/8
-// 1/16
-// Po du zaidzia bet finalas viena
 // Ar kova del 3 vietos yra
-
 
 
 // Daugiau lenteliu jei pvz.: 16komandu i 4 grupes.
@@ -224,7 +227,6 @@ function updateTeamsData(games, teams) {
         const gameHomeTeam = game.homeTeam
         const gameAwayTeam = game.awayTeam
         
-        console.log(gameHomeTeam, gameAwayTeam);
         const homeTeamData = teams.find(team => team.team === gameHomeTeam.team)
         const awayTeamData = teams.find(team => team.team === gameAwayTeam.team)
 
@@ -285,11 +287,22 @@ function updateTeamsData(games, teams) {
     changeTable(container, teams, games)
 
 
-    const playoffsTeamsData = localStorage.getItem('playoffs-teams-data') ? JSON.parse(localStorage.getItem('playoffs-teams-data')) : null
+    const playoffsTeamsData = JSON.parse(localStorage.getItem('playoffs-teams-data'))
     const playoffGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
 
+    console.log(playoffGamesData);
     if (playoffGamesData) {
-        playoffsForm(container, playoffGamesData, playoffsTeamsData, teams)
+        const teamsToPlayoffs = teams.slice(0, playoffGamesData.teamsAmount)
+        console.log(teams, teamsToPlayoffs);
+        console.log(teamsToPlayoffs, playoffsTeamsData);
+
+        let leagueTableUpdated = !teamsToPlayoffs.every((team, i) => Object.keys(team).every(p => team[p] === playoffsTeamsData[i][p]));
+ 
+        localStorage.setItem('playoffs-teams-data', JSON.stringify(teamsToPlayoffs))
+
+        if (leagueTableUpdated) {
+            playoffsForm(container, playoffGamesData, teamsToPlayoffs, {leagueTableUpdated})
+        }
     }
 
     localStorage.setItem('teams-data', JSON.stringify(teams))

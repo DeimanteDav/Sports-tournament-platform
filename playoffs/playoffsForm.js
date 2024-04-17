@@ -1,27 +1,30 @@
 import Game from "../classes/Game.js"
 import updateGameData from "../functions/updateGameData.js"
 
-export default function playoffsForm(container, gamesData, playoffTeams, teams) {
-    let prevForm = document.querySelector('.playoffs-table')
-    let form
+export default function playoffswrapper(container, gamesData, playoffTeams, params = {}) {
+    const {leagueTableUpdated} = params
 
-    if (prevForm) {
-        prevForm.innerHTML = ''
-        form = prevForm
+    let prevWrapper = document.querySelector('.playoffs-wrapper')
+    let wrapper
+
+    if (prevWrapper) {
+        prevWrapper.innerHTML = ''
+        wrapper = prevWrapper
     } else {
-        form = document.createElement('form')
-        form.classList.add('playoffs-table')
-        container.append(form)
+        wrapper = document.createElement('div')
+        wrapper.classList.add('playoffs-wrapper')
+        container.append(wrapper)
     }
+
+    const playoffsHeaderEl = document.createElement('ul')
+    playoffsHeaderEl.classList.add('playoffs-header')
+    const playoffsGamesForm = document.createElement('form')
+    playoffsGamesForm.classList.add('playoffs-games')
+
+    wrapper.append(playoffsHeaderEl,playoffsGamesForm)
+
 
     const {roundsData, teamsAmount} = gamesData
-
-    let teamsChanged = false
-    if (playoffTeams !== teams) {
-        playoffTeams = teams.slice(0, teamsAmount)
-        localStorage.setItem('playoffs-teams-data', JSON.stringify(playoffTeams))
-        teamsChanged = true
-    }
 
     const sortedData = Object.fromEntries(
         Object.entries(roundsData)
@@ -40,26 +43,29 @@ export default function playoffsForm(container, gamesData, playoffTeams, teams) 
     );
 
     const rowsAmount = Object.keys(roundsData).length
-    form.style.gridTemplateColumns = `repeat(${rowsAmount}, 1fr)`
-    form.style.gridAutoFlow = 'column'
-    form.style.gap = '80px'
+    playoffsGamesForm.style.gridTemplateColumns = `repeat(${rowsAmount}, 1fr)`
 
     const playoffsGames = localStorage.getItem('playoffs-games-data') ? JSON.parse(localStorage.getItem('playoffs-games-data')) : {}
+    console.log(playoffsGames);
+    
 
     Object.entries(sortedData).forEach(([round, data], index) => {
         const {gamesAmount, knockouts} = data
+        const headerItem = document.createElement('li')
+        headerItem.textContent = round
+        playoffsHeaderEl.append(headerItem)
+
         let gameIndex = 0
         const roundWrapper = document.createElement('div')
         roundWrapper.classList.add('round-wrapper')
 
-        form.append(roundWrapper)
+        playoffsGamesForm.append(roundWrapper)
 
         if (gamesAmount > 1) {
             const pairsAmount = gamesAmount/2
             for (let i = 0; i < pairsAmount; i++) {
                 const pairWrapper = document.createElement('div')
                 pairWrapper.classList.add('pair-wrapper')
-                pairWrapper.append(round)
                 roundWrapper.append(pairWrapper)
 
                 for (let j = 0; j < 2; j++) {
@@ -67,14 +73,13 @@ export default function playoffsForm(container, gamesData, playoffTeams, teams) 
                     gameWrapper.classList.add('game-wrapper')
                     pairWrapper.append(gameWrapper)
 
-                    const sortedTeams = [...playoffTeams].sort((a, b) => a.currentPlace - b.currentPlace)
 
                     gameWrapper.dataset.gameIndex = gameIndex+1
                     gameWrapper.dataset.knockouts = knockouts
                     gameWrapper.dataset.round = round
-                    console.log(sortedTeams);
+
                     if (gameIndex < pairsAmount*2 ) {
-                        createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundsData[round], playoffTeams, {teamsChanged})
+                        createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundsData[round], playoffTeams, {teamsChanged: leagueTableUpdated})
 
                         gameIndex+=1
                     }
@@ -91,12 +96,12 @@ export default function playoffsForm(container, gamesData, playoffTeams, teams) 
 
             roundWrapper.append(gameWrapper)
 
-            createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundsData[round], playoffTeams, {teamsChanged})
+            createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundsData[round], playoffTeams, {teamsChanged: leagueTableUpdated})
         }
     })
 
 
-    form.addEventListener('change', (e) => {
+    playoffsGamesForm.addEventListener('change', (e) => {
         console.log(e);
         const gameEl = e.target.parentElement.parentElement
         const gameWrapper = gameEl.parentElement
@@ -110,6 +115,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, teams) 
         const currentGame = teamsGames[knockoutIndex-1]
 
         updateGameData(gameEl, currentGame)
+
         localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))
 
         const allGamesPlayed = teamsGames.every(game => game.played)
@@ -118,16 +124,16 @@ export default function playoffsForm(container, gamesData, playoffTeams, teams) 
 
 
         if (allGamesPlayed) {
-            createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundsData[currentRound], gameEl, playoffTeams, {update: true})
+            createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundsData[currentRound], teams, {update: true})
         }
     })
 }
 
 
 function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, allTeams, params = {}) {
+    console.log(allTeams);
     const {teamsChanged, update} = params
     const {gamesAmount, knockouts} = roundData
-    console.log(teamsChanged);
 
     const round = gamesAmount === 1 ? 'final' : `1/${gamesAmount}`
     const prevRound = `1/${gamesAmount*2}`
@@ -136,10 +142,8 @@ function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, al
     let currentRoundGames = playoffsGames[round]
     const currentGames = currentRoundGames && currentRoundGames[gameIndex]
 
-    console.log(teamsChanged);
-    if ((!roundsData[prevRound] && !currentGames) || teamsChanged) {
+    if (!roundsData[prevRound] && (!currentGames || teamsChanged)) {
         const round1TeamPairs = []
-        console.log(teamsChanged, 'pakeista');
 
         for (let i = 0; i < allTeams.length; i++) {
             let modifiedTeams
@@ -163,31 +167,33 @@ function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, al
                 playoffsGames[round] = {}
             }
             games.push(new Game(teams[0], teams[1]))
-    
             playoffsGames[round][gameIndex] = games
-            console.log(playoffsGames);
-    
-            localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))
         }
+
+        localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))
+
+        playoffsGames[round][gameIndex].forEach((game, i) => {
+            createGameElement(gameWrapper, game, i)
+        })
     } 
-    if (!update && currentGames) {
+
+    if (!update && !teamsChanged && currentGames) {
         currentGames.forEach((game, i) => {
             createGameElement(gameWrapper, game, i)
         })
-        console.log(update);
     }
 
 
-    if (currentGames && update) {
+    if (currentGames && (update || teamsChanged)) {
         const currentRoundGames = playoffsGames[round]
 
+        console.log(gameIndex, gameIndex-1 % 2 === 0);
         const games1 = gameIndex-1 % 2 === 0 ? currentRoundGames[gameIndex] : currentRoundGames[gameIndex - 1]
         const games2 = gameIndex-1 % 2 === 0 ? currentRoundGames[gameIndex+1] : currentRoundGames[gameIndex]
 
+        const allGamesPlayed = [...games1, ...games2].every(game => game.played)
 
-        if (games1 && games2) {
-            const allGamesPlayed = [...games1, ...games2].every(game => game.played)
-    
+        if (allGamesPlayed) {
             const nextRound = gamesAmount === 2 ? 'final' : `1/${gamesAmount/2}`
             const nextRoundGameIndex = Math.round(gameIndex/2)
 
@@ -197,6 +203,7 @@ function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, al
             const nextRoundGames = playoffsGames[nextRound] && playoffsGames[nextRound][nextRoundGameIndex]
 
 
+            console.log(nextRoundGames, winnerGame1, winnerGame2);
             const changedTeams = nextRoundGames && !nextRoundGames.some(game => (
                 (game.homeTeam.team === winnerGame1.team || game.awayTeam.team === winnerGame1.team)
                 &&
@@ -207,7 +214,6 @@ function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, al
               `.game-wrapper[data-round="${nextRound}"][data-game-index="${nextRoundGameIndex}"]`
             );
 
-            // game index blogai apskaiciuojamas
             if (allGamesPlayed) {
                 if (!(playoffsGames[nextRound] && playoffsGames[nextRound][nextRoundGameIndex]) || changedTeams) {
                     let games = []
@@ -220,10 +226,10 @@ function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, al
                         games.push(new Game(winnerGame1, winnerGame2))
                 
                         playoffsGames[nextRound][nextRoundGameIndex] = games
-                        console.log(playoffsGames[nextRound][nextRoundGameIndex]);
                 
-                        localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))
                     }
+
+                    localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))
 
                     nextRoundWrapper.innerHTML = ''
                     playoffsGames[nextRound][nextRoundGameIndex].forEach((game, i) => {
@@ -234,6 +240,8 @@ function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, al
         }
         
     }
+
+
 }
 
 function getRoundWinner(allTeams, round) {

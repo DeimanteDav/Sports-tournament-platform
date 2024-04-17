@@ -210,10 +210,45 @@ function tournamentType(container, teamsAmount) {
                     localStorage.setItem('dropout-amount', amount)
                 }
             })
-        
+
+
+            const conditionsWrapper = document.createElement('div')
+            const conditionInput = document.createElement('input')
+            conditionInput.type = 'text'
+            const conditionButton = document.createElement('button')
+            conditionButton.textContent = 'Add Condition'
+            conditionButton.type = 'button'
+
+            const conditionsList = document.createElement('ul')
+
+            conditionButton.addEventListener('click', (e) => {
+                const condition = conditionInput.value
+
+                if (condition) {
+                    const conditionItem = document.createElement('li')
+                    const text = document.createElement('p')
+                    text.textContent = condition
+                    const deleteBtn = document.createElement('button')
+                    deleteBtn.type = 'button'
+                    deleteBtn.textContent = 'x'
+
+                    deleteBtn.addEventListener('click', (e) => {
+                        conditionItem.remove()
+                    })
+
+                    conditionItem.append(text, deleteBtn)
+                    conditionsList.append(conditionItem)
+
+                    conditionInput.value = ''
+                }
+            })
+
+            
             roundsAmountWrapper.append(roundsText, roundsAmountInput)
             dropoutAmountWrapper.append(dropoutText, dropoutAmountInput)
-            leagueInfoWrapper.append(roundsAmountWrapper, dropoutAmountWrapper)
+            conditionsWrapper.append(conditionInput, conditionButton, conditionsList)
+
+            leagueInfoWrapper.append(roundsAmountWrapper, dropoutAmountWrapper, conditionsWrapper)
             leagueWrapper.append(leagueInfoWrapper)
         } else {
             const oldLeagueInfoWrapper = document.getElementById('league-info')
@@ -317,9 +352,10 @@ function tournamentType(container, teamsAmount) {
 
     form.addEventListener('submit', (e) => {
         e.preventDefault()
-        const leagueData = localStorage.getItem('rounds-data')
+        const leagueData = localStorage.getItem('rounds-amount')
         const playoffsData = localStorage.getItem('playoffs-data')
         
+        console.log(leagueData, playoffsData);
         if (leagueData || playoffsData) {
             form.remove()
             generateTeams(container)
