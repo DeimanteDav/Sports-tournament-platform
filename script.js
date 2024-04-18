@@ -10,16 +10,9 @@ import playoffsForm from "./playoffs/playoffsForm.js"
 // regular season o ne league games
 // relegation o ne dropout
 
-// grido elutes tiek kiek zaidimu
-
 // elementas eilutes ir viduj pats game
 
 // after - before |- 
-
-
-// playoffs atskirai suvesti rezultatus o lentelej tik atvaizdavimas
-// ne ta komanda i kita rounda paraso
-// nepalikti tusciu laukeliu o parasyti kad pvz is 1 poros ta ir ta komanda
 
 
 // ADD CONDITION:

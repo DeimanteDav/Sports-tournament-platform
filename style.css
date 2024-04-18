@@ -355,6 +355,28 @@ table {
   padding: 4px;
 }
 
+
+.playoffs-form {
+  display: flex;
+  gap: 50px;
+  margin-top: 50px;
+}
+
+.playoffs-form .round-wrapper .game-wrapper {
+  margin-top: 10px;
+}
+
+.playoffs-form .game-wrapper {
+  flex-direction: row;
+  justify-content: center;
+  border: 1px solid var(--blue);
+  border-radius: 2px;
+  position: relative;
+  min-height: 60px;
+  min-width: 90px;
+}
+
+
 .playoffs-table .playoffs-header {
   display: flex;
   flex-direction: row;
@@ -372,45 +394,81 @@ table {
   padding: 20px;
 }
 
-.playoffs-games {
+.playoffs-table .playoffs-games {
   display: grid;
   grid-auto-flow: column;
-  gap: 80px;
+  gap: 50px;
   align-items: center;
   width: 100%;
 }
 
-.playoffs-games .round-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-around;
-  gap: 60px;
-  height: 100%;
-}
-
-.playoffs-games .pair-wrapper {
-  height: 100%;
-
+.playoffs-table .playoffs-games .grid-wrapper {
   position: relative;
-  align-self: center;
   display: flex;
-  justify-content: space-around;
-  flex-direction: column;
-  gap: 30px;
-}
-
-
-.playoffs-form .game-wrapper {
-  flex-direction: row;
   justify-content: center;
-  border: 1px solid var(--blue);
-  border-radius: 2px;
-  position: relative;
-  min-height: 60px;
-  min-width: 90px;
+  align-items: center;
+  height: 100%;
+  width: 100%;
 }
 
+.playoffs-table .playoffs-games .game-result-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: 5px;
+  flex-grow: 1;
+}
+
+.playoffs-table .playoffs-games .grid-wrapper:not(:last-of-type) .game-result-wrapper:after {
+  content: '';
+  position: absolute;
+  width: 25px;
+  height: 1px;
+  background-color: black;
+  right: 0px;
+  transform: translateX(25px); 
+}
+
+
+.playoffs-table .playoffs-games .grid-wrapper:not(.first-row)::before {
+  content: '';
+  position: absolute;
+  height: calc(25px + 50%);
+  width: 1px;
+  left: -25px;
+  background-color: black;
+  transform: translateX(-2px); 
+}
+
+.playoffs-table .playoffs-games .grid-wrapper:not(.first-row) .game-result-wrapper::before {
+  content: '';
+  position: absolute;
+  width: 25px;
+  height: 1px;
+  background-color: black;
+  left: 0px;
+  transform: translateX(-25px); 
+}
+
+
+.game-result-wrapper .teams-wrapper div {
+  display: flex;
+  align-items: center;
+  gap: 10px;  
+  margin: 4px;
+}
+
+.game-result-wrapper .teams-wrapper p {
+  margin: 0;
+}
+
+
+
+
+/*
 .playoffs-games .pair-wrapper::after {
   content: "";
   position: absolute;
@@ -419,12 +477,13 @@ table {
   width: 50px;
   height: 2px;
   background-color: var(--blue);
-  transform: translateY(-1px);
+  transform: translateY(-1px); 
 }
 
 .playoffs-games .right-pair-wrapper .game-wrapper::after {
   left: -50px;
 }
+*/
 
 .error {
   border-color: red;

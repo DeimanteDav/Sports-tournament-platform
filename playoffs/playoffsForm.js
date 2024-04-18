@@ -161,7 +161,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         
                             if (otherRound && otherGameId) {
                                 const otherGameWrapper = document.querySelector(`[data-round="${otherRound}"][data-game-id="${otherGameId}"]`)
-                                
+
                                 delete playoffsGames[otherRound][otherGameId]
 
                                 otherGameWrapper && otherGameWrapper.remove()
@@ -185,7 +185,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                     const otherRound =  nextRoundGamesAmount === 2 ? 'final' : `1/${nextRoundGamesAmount/2}`
                     const otherGameId = nextGameId % 2 === 0 ? nextGameId/2 : (nextGameId+1)/2
 
-                    if (otherRound && otherGameId) {
+                    if (playoffsGames[otherRound] && playoffsGames[otherRound][otherGameId]) {
                         const otherGameWrapper = document.querySelector(`[data-round="${otherRound}"][data-game-id="${otherGameId}"]`)
 
                         delete playoffsGames[otherRound][otherGameId]
@@ -534,11 +534,19 @@ function changePlayoffsTable(container, roundsData, playoffsGames, teams) {
 
         for (let i = 0; i < gamesAmount; i++) {
             const gameId = i+1
+
+            const gridWrapper = document.createElement('div')
+            gridWrapper.classList.add('grid-wrapper')
             const gameResultWrapper = document.createElement('div')
+            gameResultWrapper.classList.add('game-result-wrapper')
             gameResultWrapper.style.border = '1px solid black'
 
-            gameResultWrapper.style.gridColumn = index+1
-            gameResultWrapper.style.gridRow = `${rowIndex} / span ${rowSpan}`
+            if (index === 0) {
+                gridWrapper.classList.add('first-row')
+            }
+
+            gridWrapper.style.gridColumn = index+1
+            gridWrapper.style.gridRow = `${rowIndex} / span ${rowSpan}`
             rowIndex+=rowSpan
 
             if (gamesAmount > 1) {
@@ -548,22 +556,22 @@ function changePlayoffsTable(container, roundsData, playoffsGames, teams) {
             }
 
             const games = playoffsGames[round] && playoffsGames[round][gameId]
-            console.log(games );
 
             if (games) {
                 const teamsWrapper = document.createElement('div')
+                teamsWrapper.classList.add('teams-wrapper')
     
                 for (let j = 0; j < 2; j++) {
                     const teamWrapper = document.createElement('div')
                     const teamEl = document.createElement('p')             
                     const goalsEl = document.createElement('span')
+
                     let goals = 0;
                     if (j === 0) {
                         teamEl.textContent = games[0].homeTeam.team
                         games.forEach(game => goals += game.homeTeam.goals);
                     } else {
                         teamEl.textContent = games[0].awayTeam.team
-                        let goals = 0;
                         games.forEach(game => goals += game.awayTeam.goals);
                     }
                     goalsEl.textContent = goals
@@ -583,8 +591,8 @@ function changePlayoffsTable(container, roundsData, playoffsGames, teams) {
                 gameResultWrapper.append(infoEl)
             }
 
- 
-            table.append(gameResultWrapper)
+            gridWrapper.append(gameResultWrapper)
+            table.append(gridWrapper)
         }
     })
 
