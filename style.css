@@ -355,7 +355,7 @@ table {
   padding: 4px;
 }
 
-.playoffs-wrapper .playoffs-header {
+.playoffs-table .playoffs-header {
   display: flex;
   flex-direction: row;
   gap: 80px;
@@ -365,7 +365,7 @@ table {
   margin: 0;
 }
 
-.playoffs-wrapper .playoffs-header li {
+.playoffs-table .playoffs-header li {
   flex-grow: 1;
   text-align: center;
   list-style: none;
@@ -401,7 +401,7 @@ table {
 }
 
 
-.playoffs-games .game-wrapper {
+.playoffs-form .game-wrapper {
   flex-direction: row;
   justify-content: center;
   border: 1px solid var(--blue);

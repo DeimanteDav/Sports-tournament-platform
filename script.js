@@ -39,25 +39,22 @@ const container = document.querySelector('.container')
 function getLocalStorageData(container) {
     const teamsData = localStorage.getItem('teams-data') ? JSON.parse(localStorage.getItem('teams-data')) : null
     const gamesData = localStorage.getItem('league-games-data') ? JSON.parse(localStorage.getItem('league-games-data')) : null
-    
 
     const playoffsTeamsData = localStorage.getItem('playoffs-teams-data') ? JSON.parse(localStorage.getItem('playoffs-teams-data')) : null
     const playoffGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
 
-    if (teamsData) {
-        if (gamesData && playoffGamesData) {
-            tournamentForm(container, gamesData, teamsData)
-            changeTable(container, teamsData, gamesData)
+    if (gamesData && playoffGamesData) {
+        tournamentForm(container, gamesData, teamsData)
+        changeTable(container, teamsData, gamesData)
 
-            playoffsForm(container, playoffGamesData, playoffsTeamsData, teamsData)
-        } else if (gamesData) {
-            tournamentForm(container, gamesData, teamsData)
-            changeTable(container, teamsData, gamesData)
-        } else if (playoffGamesData) {
-            playoffsForm(container, playoffGamesData, playoffsTeamsData)
-            // generatePlayoffsGames(container)
-        }
-    } else {
+        playoffsForm(container, playoffGamesData, playoffsTeamsData, teamsData)
+    } else if (gamesData) {
+        tournamentForm(container, gamesData, teamsData)
+        changeTable(container, teamsData, gamesData)
+    } else if (playoffGamesData) {
+        playoffsForm(container, playoffGamesData, playoffsTeamsData)
+        // generatePlayoffsGames(container)
+    }  else {
         teamsAmountForm(container)
     }
 }
