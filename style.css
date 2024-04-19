@@ -485,8 +485,13 @@ table {
 }
 */
 
-.error {
+.error * {
+  color: red;
   border-color: red;
+}
+
+.modern-table .relegation * {
+  border-top: 1px solid red;
 }
 
 button.clicked,

@@ -10,7 +10,7 @@ export default function updateGameData(gameEl, currentGame) {
 
     gameHomeTeamData.goals = homeTeamScored
     gameAwayTeamData.goals = awayTeamScored
-
+    console.log(homeTeamInput, homeTeamInput.value, awayTeamInput, awayTeamInput.value);
     if (homeTeamInput.value && awayTeamInput.value) {
         if (homeTeamScored > awayTeamScored) {
             currentGame.winner = gameHomeTeamData.team

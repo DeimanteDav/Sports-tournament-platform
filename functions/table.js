@@ -7,7 +7,7 @@ export function createModernTable(wrapper, teams, games, params = {}) {
 
     const table = document.createElement('table')
     table.classList.add('table', 'modern-table')
-
+    const conditions = JSON.parse(localStorage.getItem('conditions'))
 
     const tableHead = document.createElement('thead')
     const tableBody = document.createElement('tbody')
@@ -54,7 +54,21 @@ export function createModernTable(wrapper, teams, games, params = {}) {
             row.classList.add('loser')
         }
 
+
         const rowItems = [team.team, ...(position ? [team.maxPlace, team.minPlace] : []),, team.playedGames, team.wins, team.draws, team.losses, team.goals, team.goalsMissed, team.goalDifference, team.points]
+
+        if (conditions) {
+            conditions.forEach((data, j) => {
+                const {condition, amount} = data
+                const lastPlaces = teams.length - amount
+
+                if (condition === 'Relegation') {
+                    if (lastPlaces === i) {
+                        row.classList.add('relegation')
+                    }
+                }
+            })
+        }
 
         rowItems.forEach((item, i) => {
             const cell = document.createElement('td')

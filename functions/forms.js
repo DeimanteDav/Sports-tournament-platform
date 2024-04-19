@@ -158,7 +158,7 @@ function tournamentType(container, teamsAmount) {
     const leagueWrapper = document.createElement('div')
     leagueWrapper.classList.add('form-control')
     const leagueText = document.createElement('p')
-    leagueText.textContent = 'League Game'
+    leagueText.textContent = 'Regular Season'
 
     const leagueSwitchHandler = (checked) => {
         if (checked) {
@@ -212,41 +212,119 @@ function tournamentType(container, teamsAmount) {
             })
 
 
+            // const conditionsWrapper = document.createElement('div')
             const conditionsWrapper = document.createElement('div')
-            const conditionInput = document.createElement('input')
-            conditionInput.type = 'text'
-            const conditionButton = document.createElement('button')
-            conditionButton.textContent = 'Add Condition'
-            conditionButton.type = 'button'
+            const conditionsText = document.createElement('p')
+            conditionsText.textContent = 'Conditions'
+            // const conditionInput = document.createElement('input')
+            // conditionInput.type = 'text'
+            // const conditionButton = document.createElement('button')
+            // conditionButton.textContent = 'Add Condition'
+
+            
+            const conditions = ['Relegation', 'Custom']
+            const addedConditions = []
+            delete localStorage.getItem('conditions')
 
             const conditionsList = document.createElement('ul')
 
-            conditionButton.addEventListener('click', (e) => {
-                const condition = conditionInput.value
+            conditions.forEach(condition => {
+                const conditionWrapper = document.createElement('div')
 
-                if (condition) {
-                    const conditionItem = document.createElement('li')
-                    const text = document.createElement('p')
-                    text.textContent = condition
-                    const deleteBtn = document.createElement('button')
-                    deleteBtn.type = 'button'
-                    deleteBtn.textContent = 'x'
+                const text = document.createElement('p')
+                text.textContent = condition
 
-                    deleteBtn.addEventListener('click', (e) => {
-                        conditionItem.remove()
-                    })
+                const amountInput = document.createElement('input')
+                amountInput.type = 'number'
+                amountInput.placeholder = 'Amount'
 
-                    conditionItem.append(text, deleteBtn)
-                    conditionsList.append(conditionItem)
-
-                    conditionInput.value = ''
+                const titleInput = document.createElement('input')
+                if (condition === 'Custom') {
+                    titleInput.type = 'text'
+                    titleInput.placeholder = 'Title'
+                    conditionWrapper.append(titleInput)
                 }
+
+                const addBtn = document.createElement('button')
+                addBtn.type = 'button'
+                addBtn.textContent = 'Add'
+
+                
+                conditionWrapper.prepend(text)
+                conditionWrapper.append(amountInput, addBtn)
+                conditionsWrapper.append(conditionWrapper)
+
+
+                addBtn.addEventListener('click', (e) => {
+                    if (+amountInput.value > 0 || (condition === 'Custom' && titleInput === '')) {
+                        const conditionItem = document.createElement('li')
+                        const conditionText = document.createElement('span')
+                        conditionText.textContent = titleInput.value || condition
+                        const deleteBtn = document.createElement('button')
+                        deleteBtn.type = 'button'
+                        deleteBtn.textContent = 'x'
+
+                        conditionItem.append(conditionText, deleteBtn)
+                        conditionsList.append(conditionItem)
+
+                        const newCondition = {
+                            condition: titleInput.value || condition,
+                            amount: +amountInput.value,
+                            // positive: condition === 'Relegation' ? false : 
+                        }
+
+                        addedConditions.push(newCondition)
+                        localStorage.setItem('conditions', JSON.stringify(addedConditions))
+
+                        amountInput.value = ''
+                        titleInput.value = ''
+    
+                        if (condition === 'Relegation') {
+                            conditionWrapper.style.display = 'none'
+                        }
+    
+                        deleteBtn.addEventListener('click', (e) => {
+                            if (condition === 'Relegation') {
+                                conditionWrapper.style.display = 'block'
+                            }
+                            const filteredConditions = addedConditions.filter(data => data.condition !== conditionText.value)
+                            localStorage.setItem('conditions', JSON.stringify(filteredConditions))
+                            conditionItem.remove()
+                        })
+                    } else {
+                        conditionWrapper.classList.add('error')
+                    }
+                })
             })
+
+            // conditionButton.addEventListener('click', (e) => {
+            //     const condition = conditionInput.value
+
+            //     if (condition) {
+            //         const conditionItem = document.createElement('li')
+            //         const text = document.createElement('p')
+            //         text.textContent = condition
+            //         const deleteBtn = document.createElement('button')
+            //         deleteBtn.type = 'button'
+            //         deleteBtn.textContent = 'x'
+
+            //         deleteBtn.addEventListener('click', (e) => {
+            //             conditionItem.remove()
+            //         })
+
+            //         conditionItem.append(text, deleteBtn)
+            //         conditionsList.append(conditionItem)
+
+            //         conditionInput.value = ''
+            //     }
+            // })
 
             
             roundsAmountWrapper.append(roundsText, roundsAmountInput)
             dropoutAmountWrapper.append(dropoutText, dropoutAmountInput)
-            conditionsWrapper.append(conditionInput, conditionButton, conditionsList)
+
+            conditionsWrapper.prepend(conditionsText)
+            conditionsWrapper.append(conditionsList)
 
             leagueInfoWrapper.append(roundsAmountWrapper, dropoutAmountWrapper, conditionsWrapper)
             leagueWrapper.append(leagueInfoWrapper)

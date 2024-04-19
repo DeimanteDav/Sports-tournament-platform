@@ -124,10 +124,9 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
             const nextGameWrapper = document.querySelector(`[data-round="${nextRound}"][data-game-id="${nextGameId}"]`)
 
             const anotherGamesData = currentGameId % 2 === 0 ? currentRoundData[currentGameId-1] : currentRoundData[currentGameId+1]
+            console.log(anotherGamesData);
+            const allPairGamesPlayed = anotherGamesData && [...currentGamesData, ...anotherGamesData].every(game => game.played)
 
-            const allPairGamesPlayed = [...currentGamesData, ...anotherGamesData].every(game => game.played)
-
-            console.log(allPairGamesPlayed, nextGames);
             if (allPairGamesPlayed) {
                 const winner1 = getGamesWinner(playoffTeams, currentGamesData)
                 const winner2 = getGamesWinner(playoffTeams, anotherGamesData)
@@ -158,8 +157,8 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                         for (let i = 0; i < nextRoundGamesAmount; i++) {
                             const otherRound =  nextRoundGamesAmount === 2 ? 'final' : `1/${nextRoundGamesAmount/2}`
                             const otherGameId = nextGameId % 2 === 0 ? nextGameId/2 : (nextGameId+1)/2
-        
-                            if (otherRound && otherGameId) {
+                            
+                            if (playoffsGames[otherRound] && playoffsGames[otherGameId]) {
                                 const otherGameWrapper = document.querySelector(`[data-round="${otherRound}"][data-game-id="${otherGameId}"]`)
 
                                 delete playoffsGames[otherRound][otherGameId]
