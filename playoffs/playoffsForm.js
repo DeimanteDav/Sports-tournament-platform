@@ -1,10 +1,8 @@
 import Game from "../classes/Game.js"
 import updateGameData from "../functions/updateGameData.js"
 
-export default function playoffsForm(container, gamesData, playoffTeams, params = {}) {
-    const {leagueTableUpdated} = params
+export default function playoffsForm(container, gamesData, playoffTeams) {
     const {roundsData, teamsAmount} = gamesData
-    console.log(playoffTeams);
     const oldForm = document.querySelector('.playoffs-form')
     let form
 
@@ -77,7 +75,6 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
             const gameId = i+1
             const roundGames = playoffsGames[round]
             const gameData = roundGames && roundGames[gameId]
-
             if (gameData) {
                 const gameWrapper = document.createElement('div')
                 gameWrapper.classList.add('game-wrapper')
@@ -131,7 +128,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                 const winner1 = getGamesWinner(playoffTeams, currentGamesData)
                 const winner2 = getGamesWinner(playoffTeams, anotherGamesData)
 
-                const {knockouts} = nextRoundInfo
+                const {gamesAmount, knockouts} = nextRoundInfo
 
                 const teamsChanged = nextGames && !nextGames.every(team => (
                     (team.homeTeam.team === winner1.team || team.awayTeam.team === winner1.team)
@@ -511,25 +508,62 @@ function changePlayoffsTable(container, roundsData, playoffsGames, teams) {
 
     const headerEl = document.createElement('ul')
     headerEl.classList.add('playoffs-header')
-    const table = document.createElement('form')
+    const table = document.createElement('div')
     table.classList.add('playoffs-games')
 
+    let colsAmount = Object.keys(roundsData).length
+    let rowsAmount = Object.values(roundsData)[0].gamesAmount
 
-    const colsAmount = Object.keys(roundsData).length
-    const rowsAmount = Object.values(roundsData)[0].gamesAmount
+    const wideScreen  = window.matchMedia( '(min-width: 1200px)' );
 
-    table.style.gridTemplateColumns = `repeat(${colsAmount}, 1fr)`
-    table.style.gridTemplateRows = `repeat(${rowsAmount}, 1fr)`
-    
+    wideScreen.addEventListener('change', resizeHandler)
+
+
+    function resizeHandler(e) {
+        if (e.matches) {
+            colsAmount = colsAmount*2-1
+            rowsAmount = rowsAmount/2
+        } else {
+            colsAmount = Object.keys(roundsData).length
+            rowsAmount = Object.values(roundsData)[0].gamesAmount
+        }
+
+        table.style.gridTemplateColumns = `repeat(${colsAmount}, 1fr)`
+        table.style.gridTemplateRows = `repeat(${rowsAmount}, 1fr)`
+
+        headerEl.innerHTML = ''  
+
+        Object.entries(roundsData).forEach(([round]) => {
+            const headerItem = document.createElement('li')
+            headerItem.textContent = round
+            headerEl.append(headerItem)
+        }) 
+        if (e.matches) {
+            Object.entries(roundsData).reverse().forEach(([round]) => {
+                console.log(round);
+                if (round !== 'final') {
+                    const anotherHeader = document.createElement('li')
+                    anotherHeader.textContent = round
+                    headerEl.append(anotherHeader)
+                }
+            }) 
+        }
+    }
+
+    resizeHandler(wideScreen)
+
 
     Object.entries(roundsData).forEach(([round, data], index) => {
         const {gamesAmount} = data
-        const headerItem = document.createElement('li')
-        headerItem.textContent = round
-        headerEl.append(headerItem)
 
         let rowIndex = 1
-        let rowSpan = rowsAmount/gamesAmount
+        let rowSpan
+
+        wideScreen.addEventListener('change', (e) => {
+            rowIndex = 1
+            // changeHeaderItems(e)
+        })
+     
 
         for (let i = 0; i < gamesAmount; i++) {
             const gameId = i+1
@@ -544,14 +578,41 @@ function changePlayoffsTable(container, roundsData, playoffsGames, teams) {
                 gridWrapper.classList.add('first-row')
             }
 
-            gridWrapper.style.gridColumn = index+1
-            gridWrapper.style.gridRow = `${rowIndex} / span ${rowSpan}`
-            rowIndex+=rowSpan
 
+            wideScreen.addEventListener('change', repositionResultWrapper)
+            repositionResultWrapper(wideScreen)
+
+            function repositionResultWrapper(e) {
+                if (e.matches) {     
+                    rowSpan = rowsAmount*2/gamesAmount
+                    if (gamesAmount > 1 && gamesAmount/2 < gameId) {
+                        gridWrapper.style.gridColumn = colsAmount - (index)
+                        gridWrapper.style.gridRow = `${Math.round(i/2)} / span ${rowSpan}`
+                    } else {
+                        gridWrapper.style.gridColumn = index+1
+                        if (gamesAmount > 1) {
+                            gridWrapper.style.gridRow = `${rowIndex} / span ${rowSpan}`
+                        } else {
+                            gridWrapper.style.gridRow = `${rowIndex} / span ${rowsAmount}`
+                        }
+                    }
+                } else {
+                    rowSpan = rowsAmount/gamesAmount
+                    gridWrapper.style.gridColumn = index+1
+                    gridWrapper.style.gridRow = `${rowIndex} / span ${rowSpan}`
+                }
+                rowIndex+=rowSpan
+            }
+            
             if (gamesAmount > 1) {
+                if (gamesAmount/2 < gameId) {
+                    gridWrapper.classList.add('right')
+                }
                 const gameNumberEl = document.createElement('span')
                 gameNumberEl.textContent = `${gameId}.`
                 gameResultWrapper.append(gameNumberEl)
+            } else {
+                gridWrapper.classList.add('final')
             }
 
             const games = playoffsGames[round] && playoffsGames[round][gameId]

@@ -376,12 +376,10 @@ table {
   min-width: 90px;
 }
 
-
 .playoffs-table .playoffs-header {
   display: flex;
   flex-direction: row;
-  gap: 80px;
-  justify-content: center;
+  gap: 50px;
 
   padding: 0;
   margin: 0;
@@ -449,7 +447,7 @@ table {
   width: 25px;
   height: 1px;
   background-color: black;
-  left: 0px;
+  left: 0;
   transform: translateX(-25px); 
 }
 
@@ -465,7 +463,33 @@ table {
   margin: 0;
 }
 
+@media (min-width: 1200px) {
+  .playoffs-table .playoffs-games .grid-wrapper:not(.first-row).right::before {
+    left: 100%;
+    transform: translateX(25px);
+  }
 
+  .playoffs-table .playoffs-games .grid-wrapper.first-row.right .game-result-wrapper::after {
+    left: 0;
+    transform: translateX(-25px);
+  }
+
+  .playoffs-table .playoffs-games .grid-wrapper.final::before {
+    content: none;
+  }
+  .playoffs-table .playoffs-games .grid-wrapper.final .game-result-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 25px;
+    height: 1px;
+    background-color: black;
+    right: 0;
+    transform: translateX(25px);   }
+
+  /* .playoffs-table .playoffs-games .grid-wrapper.first-row.right .game-result-wrapper::before {
+    content: none;
+  } */
+}
 
 
 /*
