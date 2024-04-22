@@ -6,14 +6,9 @@ import compareGamesData from "./functions/compareGamesData.js"
 import { teamsAmountForm } from "./functions/forms.js"
 import updateGameData from "./functions/updateGameData.js"
 import playoffsForm from "./playoffs/playoffsForm.js"
+import resetDataBtn from "./components/resetDataBtn.js"
 
 // regular season o ne league games
-// relegation o ne dropout
-
-// elementas eilutes ir viduj pats game
-
-// after - before |- 
-
 
 // ADD CONDITION:
 // PATSS IRASAI VISKA
@@ -23,7 +18,6 @@ import playoffsForm from "./playoffs/playoffsForm.js"
 const container = document.querySelector('.container')
 
 // Ar kova del 3 vietos yra
-
 
 // Daugiau lenteliu jei pvz.: 16komandu i 4 grupes.
 // kiek teamsu iseina i kita etapa PASIRINKTI.
@@ -36,18 +30,21 @@ function getLocalStorageData(container) {
     const playoffsTeamsData = localStorage.getItem('playoffs-teams-data') ? JSON.parse(localStorage.getItem('playoffs-teams-data')) : null
     const playoffGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
 
-    if (gamesData && playoffGamesData) {
-        tournamentForm(container, gamesData, teamsData)
-        changeTable(container, teamsData, gamesData)
-
-        playoffsForm(container, playoffGamesData, playoffsTeamsData, teamsData)
-    } else if (gamesData) {
-        tournamentForm(container, gamesData, teamsData)
-        changeTable(container, teamsData, gamesData)
-    } else if (playoffGamesData) {
-        playoffsForm(container, playoffGamesData, playoffsTeamsData)
-        // generatePlayoffsGames(container)
-    }  else {
+    if (gamesData || playoffGamesData) {
+        resetDataBtn(container)
+        if (gamesData && playoffGamesData) {
+            tournamentForm(container, gamesData, teamsData)
+            changeTable(container, teamsData, gamesData)
+    
+            playoffsForm(container, playoffGamesData, playoffsTeamsData, teamsData)
+        } else if (gamesData) {
+            tournamentForm(container, gamesData, teamsData)
+            changeTable(container, teamsData, gamesData)
+        } else if (playoffGamesData) {
+            playoffsForm(container, playoffGamesData, playoffsTeamsData)
+            // generatePlayoffsGames(container)
+        }
+    } else {
         teamsAmountForm(container)
     }
 }
@@ -122,7 +119,7 @@ export function tournamentForm(container, games, teams) {
         }
     }
 
-    container.prepend(gamesForm)
+    container.append(gamesForm)
 
     gamesForm.addEventListener('change', (e) => {
         const gameEl = e.target.parentElement.parentElement
@@ -136,25 +133,7 @@ export function tournamentForm(container, games, teams) {
     })
 
 
-    const resetBtn = document.createElement('button')
-    resetBtn.type = 'button'
-    resetBtn.id = 'reset-btn'
-    resetBtn.textContent = 'RESET all data'
-
-
-    resetBtn.addEventListener('click', (e) => {
-        // localStorage.removeItem('team-names')
-        // localStorage.removeItem('total-games')
-        // localStorage.removeItem('teams-data')
-        // localStorage.removeItem('games-names')
-        // localStorage.removeItem('comparing-teams')
-        // localStorage.removeItem('rounds-amount')
-        localStorage.clear()
-        container.innerHTML = ''
-        
-        teamsAmountForm(container)
-    })
-
+// resetBtn
     const changeTableBtn = document.createElement('button')
     changeTableBtn.type = 'button'
     changeTableBtn.textContent = 'Change Table View'
@@ -195,8 +174,9 @@ export function tournamentForm(container, games, teams) {
 
     })
 
-    gamesForm.before(resetBtn)
     gamesForm.after(generateScoresBtn, changeTableBtn)
+
+    changeTable(container, teams, games)
 }
 
 function updateTeamsData(games, teams) {
@@ -280,11 +260,8 @@ function updateTeamsData(games, teams) {
     const playoffsTeamsData = JSON.parse(localStorage.getItem('playoffs-teams-data'))
     const playoffGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
 
-    console.log(playoffGamesData);
     if (playoffGamesData) {
         const teamsToPlayoffs = teams.slice(0, playoffGamesData.teamsAmount)
-        console.log(teams, teamsToPlayoffs);
-        console.log(teamsToPlayoffs, playoffsTeamsData);
 
         let leagueTableUpdated = !teamsToPlayoffs.every((team, i) => Object.keys(team).every(p => team[p] === playoffsTeamsData[i][p]));
  

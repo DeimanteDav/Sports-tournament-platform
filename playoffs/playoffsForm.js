@@ -121,7 +121,6 @@ export default function playoffsForm(container, gamesData, playoffTeams) {
             const nextGameWrapper = document.querySelector(`[data-round="${nextRound}"][data-game-id="${nextGameId}"]`)
 
             const anotherGamesData = currentGameId % 2 === 0 ? currentRoundData[currentGameId-1] : currentRoundData[currentGameId+1]
-            console.log(anotherGamesData);
             const allPairGamesPlayed = anotherGamesData && [...currentGamesData, ...anotherGamesData].every(game => game.played)
 
             if (allPairGamesPlayed) {
@@ -314,7 +313,6 @@ export default function playoffsForm(container, gamesData, playoffTeams) {
 
 
 function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, allTeams, params = {}) {
-    console.log(allTeams);
     const {teamsChanged, update} = params
     const {gamesAmount, knockouts} = roundData
 
@@ -370,7 +368,6 @@ function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, al
     if (currentGames && (update || teamsChanged)) {
         const currentRoundGames = playoffsGames[round]
 
-        console.log(gameIndex, gameIndex-1 % 2 === 0);
         const games1 = gameIndex-1 % 2 === 0 ? currentRoundGames[gameIndex] : currentRoundGames[gameIndex - 1]
         const games2 = gameIndex-1 % 2 === 0 ? currentRoundGames[gameIndex+1] : currentRoundGames[gameIndex]
 
@@ -386,7 +383,6 @@ function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, al
             const nextRoundGames = playoffsGames[nextRound] && playoffsGames[nextRound][nextRoundGameIndex]
 
 
-            console.log(nextRoundGames, winnerGame1, winnerGame2);
             const changedTeams = nextRoundGames && !nextRoundGames.some(game => (
                 (game.homeTeam.team === winnerGame1.team || game.awayTeam.team === winnerGame1.team)
                 &&
@@ -400,7 +396,6 @@ function createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundData, al
             if (allGamesPlayed) {
                 if (!(playoffsGames[nextRound] && playoffsGames[nextRound][nextRoundGameIndex]) || changedTeams) {
                     let games = []
-                    console.log(roundsData[nextRound].knockoutss);
                     
                     for (let i = 0; i < roundsData[nextRound].knockouts; i++) {
                         if (!playoffsGames[nextRound]) {
@@ -540,7 +535,6 @@ function changePlayoffsTable(container, roundsData, playoffsGames, teams) {
         }) 
         if (e.matches) {
             Object.entries(roundsData).reverse().forEach(([round]) => {
-                console.log(round);
                 if (round !== 'final') {
                     const anotherHeader = document.createElement('li')
                     anotherHeader.textContent = round

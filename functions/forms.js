@@ -113,7 +113,6 @@ export function teamNamesForm(container, teamsAmount) {
 
     generateNamesBtn.addEventListener('click', (e) => {
         const optionValue = select.value
-        console.log(e.target);
         const inputs = [...namesWrapper.querySelectorAll('input')]
 
         if (optionValue === '1') {
@@ -188,114 +187,220 @@ function tournamentType(container, teamsAmount) {
                 }
             })
 
-
-            const dropoutAmountWrapper = document.createElement('div')
-
-            const dropoutText = document.createElement('p')
-            dropoutText.textContent = 'Dropout amount'
-
-            const dropoutAmountInput = document.createElement('input')
-            dropoutAmountInput.name = 'amount'
-            dropoutAmountInput.type = 'number'
-            dropoutAmountInput.min = 0
-            dropoutAmountInput.max = 3
-
-            dropoutAmountInput.value = 0
-            localStorage.setItem('dropout-amount', 0)
-
-            dropoutAmountInput.addEventListener('change', (e) => {
-                const amount = e.target.value
     
-                if (amount) {
-                    localStorage.setItem('dropout-amount', amount)
+            const relegationWrapper = document.createElement('relegation')
+
+            const relegationText = document.createElement('p')
+            relegationText.textContent = 'Relegation'
+            const relegationAmountInput = document.createElement('input')
+            relegationAmountInput.type = 'number'
+            relegationAmountInput.placeholder = 'Amount'
+    
+            const relegationBtn = document.createElement('button')
+            relegationBtn.type = 'button'
+            relegationBtn.textContent = 'Add'
+
+            relegationBtn.addEventListener('click', (e) => {
+                const amount = +relegationAmountInput.value
+                const oldAmount = localStorage.getItem('relegation')
+
+                if (amount > 0 && !oldAmount) {
+                    relegationBtn.textContent = 'Remove'
+                    relegationAmountInput.setAttribute('disabled', true)
+                    localStorage.setItem('relegation', amount)
+                } else {
+                    relegationBtn.textContent = 'Add'
+                    relegationAmountInput.removeAttribute('disabled')
+
+                    localStorage.removeItem('relegation')
                 }
+
             })
 
 
-            // const conditionsWrapper = document.createElement('div')
+            
             const conditionsWrapper = document.createElement('div')
             const conditionsText = document.createElement('p')
             conditionsText.textContent = 'Conditions'
-            // const conditionInput = document.createElement('input')
-            // conditionInput.type = 'text'
-            // const conditionButton = document.createElement('button')
-            // conditionButton.textContent = 'Add Condition'
+            let addedConditions = []
 
+            const addConditionWrapper = document.createElement('div')
+            const conditionTitleInput = document.createElement('input')
+            conditionTitleInput.type = 'text'
+            conditionTitleInput.placeholder = 'Condition'
+
+            const amountOfTeamsWrapper = document.createElement('div')
+            const teamsFromInput = document.createElement('input')
+            teamsFromInput.type = 'number'
+            teamsFromInput.placeholder = 'From'
             
-            const conditions = ['Relegation', 'Custom']
-            const addedConditions = []
-            delete localStorage.getItem('conditions')
+            const teamsToInput = document.createElement('input')
+            teamsToInput.type = 'number'
+            teamsToInput.placeholder = 'To'
+
+
+            const conditionTypesWrapper = document.createElement('div')
+            const conditionTypes = [
+                {name: 'positive', checked: true},
+                {name: 'negative', checked: false}
+            ]
+            for (const type of conditionTypes) {
+                const typeWrapper = document.createElement('div')
+                const typeLabel = document.createElement('label')
+                typeLabel.htmlFor = type.name
+                typeLabel.textContent = type.name
+
+                const typeInput = document.createElement('input')
+                typeInput.type = 'radio'
+                typeInput.id = type.name
+                typeInput.value = type.name
+                typeInput.checked = type.checked
+                typeInput.name = 'type'
+
+                typeInput.addEventListener('click', (e) => {
+                    const selectedCondition = conditionTypes.find(condition => condition.name === e.target.value)
+                    const otherCondition = conditionTypes.find(condition => condition.name !== e.target.value)
+
+                    selectedCondition.checked = true
+                    otherCondition.checked = false
+                })
+
+                typeWrapper.append(typeInput, typeLabel)
+                conditionTypesWrapper.append(typeWrapper)
+            }
+
+            const conditionBtn = document.createElement('button')
+            conditionBtn.type = 'button'
+            conditionBtn.textContent = 'Add'
 
             const conditionsList = document.createElement('ul')
 
-            conditions.forEach(condition => {
-                const conditionWrapper = document.createElement('div')
+            conditionBtn.addEventListener('click', (e) => {
+                const selectedCondition = conditionTypes.find(type => type.checked)
 
-                const text = document.createElement('p')
-                text.textContent = condition
+                const fromTeams = +teamsFromInput.value
+                const toTeams = +teamsToInput.value
 
-                const amountInput = document.createElement('input')
-                amountInput.type = 'number'
-                amountInput.placeholder = 'Amount'
-
-                const titleInput = document.createElement('input')
-                if (condition === 'Custom') {
-                    titleInput.type = 'text'
-                    titleInput.placeholder = 'Title'
-                    conditionWrapper.append(titleInput)
-                }
-
-                const addBtn = document.createElement('button')
-                addBtn.type = 'button'
-                addBtn.textContent = 'Add'
-
-                
-                conditionWrapper.prepend(text)
-                conditionWrapper.append(amountInput, addBtn)
-                conditionsWrapper.append(conditionWrapper)
-
-
-                addBtn.addEventListener('click', (e) => {
-                    if (+amountInput.value > 0 || (condition === 'Custom' && titleInput === '')) {
+                if (conditionTitleInput && fromTeams > 0 && toTeams > 0) {
+                    if (selectedCondition.name === 'positive' && fromTeams > toTeams || selectedCondition.name === 'negative' && toTeams > fromTeams) {
+                        amountOfTeamsWrapper.classList.add('error')
+                    } else {
+                        const newCondition = {
+                            title: conditionTitleInput.value,
+                            teamsFrom: selectedCondition.name === 'positive' ? fromTeams : toTeams,
+                            teamsTo: selectedCondition.name === 'positive' ?  toTeams : fromTeams,
+                            positive: selectedCondition.name === 'positive' ? true : false,
+                            id: addedConditions.length
+                        }
+                        conditionTitleInput.value = ''
+                        teamsFromInput.value = ''
+                        teamsToInput.value = ''
+                        
+              
                         const conditionItem = document.createElement('li')
+                        conditionItem.id = addedConditions.length
                         const conditionText = document.createElement('span')
-                        conditionText.textContent = titleInput.value || condition
+                        conditionText.textContent = newCondition.title
+
+                        const teamsAmountElement = document.createElement('span')                        
+                        teamsAmountElement.textContent = `${newCondition.teamsFrom} - ${newCondition.teamsTo}`
+
                         const deleteBtn = document.createElement('button')
                         deleteBtn.type = 'button'
                         deleteBtn.textContent = 'x'
 
-                        conditionItem.append(conditionText, deleteBtn)
-                        conditionsList.append(conditionItem)
-
-                        const newCondition = {
-                            condition: titleInput.value || condition,
-                            amount: +amountInput.value,
-                            // positive: condition === 'Relegation' ? false : 
-                        }
-
                         addedConditions.push(newCondition)
+
                         localStorage.setItem('conditions', JSON.stringify(addedConditions))
 
-                        amountInput.value = ''
-                        titleInput.value = ''
-    
-                        if (condition === 'Relegation') {
-                            conditionWrapper.style.display = 'none'
-                        }
-    
-                        deleteBtn.addEventListener('click', (e) => {
-                            if (condition === 'Relegation') {
-                                conditionWrapper.style.display = 'block'
-                            }
-                            const filteredConditions = addedConditions.filter(data => data.condition !== conditionText.value)
-                            localStorage.setItem('conditions', JSON.stringify(filteredConditions))
+
+                        deleteBtn.addEventListener('click', () => {
+                            addedConditions = addedConditions.filter(condition => +condition.id !== +conditionItem.id)
+
                             conditionItem.remove()
+                            localStorage.setItem('conditions', JSON.stringify(addedConditions))
                         })
-                    } else {
-                        conditionWrapper.classList.add('error')
+
+                        conditionItem.append(conditionText, teamsAmountElement, deleteBtn)
+                        conditionsList.append(conditionItem)
+
+                        amountOfTeamsWrapper.classList.remove('error')
+                        addConditionWrapper.classList.remove('error')
                     }
-                })
+                } else {
+                    addConditionWrapper.classList.add('error')
+
+                }
             })
+
+            // conditions.forEach(condition => {
+            //     const conditionWrapper = document.createElement('div')
+
+            //     const text = document.createElement('p')
+            //     text.textContent = condition
+
+            //     const amountInput = document.createElement('input')
+            //     amountInput.type = 'number'
+            //     amountInput.placeholder = 'Amount'
+
+            //     const titleInput = document.createElement('input')
+            //     if (condition === 'Custom') {
+            //         titleInput.type = 'text'
+            //         titleInput.placeholder = 'Title'
+            //         conditionWrapper.append(titleInput)
+            //     }
+
+            //     const addBtn = document.createElement('button')
+            //     addBtn.type = 'button'
+            //     addBtn.textContent = 'Add'
+
+                
+            //     conditionWrapper.prepend(text)
+            //     conditionWrapper.append(amountInput, addBtn)
+            //     conditionsWrapper.append(conditionWrapper)
+
+
+            //     addBtn.addEventListener('click', (e) => {
+            //         if (+amountInput.value > 0 || (condition === 'Custom' && titleInput === '')) {
+                        // const conditionItem = document.createElement('li')
+                        // const conditionText = document.createElement('span')
+                        // conditionText.textContent = titleInput.value || condition
+                        // const deleteBtn = document.createElement('button')
+                        // deleteBtn.type = 'button'
+                        // deleteBtn.textContent = 'x'
+
+                        // conditionItem.append(conditionText, deleteBtn)
+                        // conditionsList.append(conditionItem)
+
+            //             const newCondition = {
+            //                 condition: titleInput.value || condition,
+            //                 amount: +amountInput.value,
+            //                 // positive: condition === 'Relegation' ? false : 
+            //             }
+
+            //             addedConditions.push(newCondition)
+            //             localStorage.setItem('conditions', JSON.stringify(addedConditions))
+
+            //             amountInput.value = ''
+            //             titleInput.value = ''
+    
+            //             if (condition === 'Relegation') {
+            //                 conditionWrapper.style.display = 'none'
+            //             }
+    
+            //             deleteBtn.addEventListener('click', (e) => {
+            //                 if (condition === 'Relegation') {
+            //                     conditionWrapper.style.display = 'block'
+            //                 }
+            //                 const filteredConditions = addedConditions.filter(data => data.condition !== conditionText.value)
+            //                 localStorage.setItem('conditions', JSON.stringify(filteredConditions))
+            //                 conditionItem.remove()
+            //             })
+            //         } else {
+            //             conditionWrapper.classList.add('error')
+            //         }
+            //     })
+            // })
 
             // conditionButton.addEventListener('click', (e) => {
             //     const condition = conditionInput.value
@@ -319,14 +424,17 @@ function tournamentType(container, teamsAmount) {
             //     }
             // })
 
-            
+
             roundsAmountWrapper.append(roundsText, roundsAmountInput)
-            dropoutAmountWrapper.append(dropoutText, dropoutAmountInput)
 
-            conditionsWrapper.prepend(conditionsText)
-            conditionsWrapper.append(conditionsList)
+            relegationWrapper.append(relegationText, relegationAmountInput, relegationBtn)
 
-            leagueInfoWrapper.append(roundsAmountWrapper, dropoutAmountWrapper, conditionsWrapper)
+            amountOfTeamsWrapper.append(teamsFromInput, teamsToInput)
+
+            addConditionWrapper.append(conditionTitleInput, amountOfTeamsWrapper, conditionTypesWrapper, conditionBtn)
+            conditionsWrapper.append(conditionsText, addConditionWrapper, conditionsList)
+
+            leagueInfoWrapper.append(roundsAmountWrapper,relegationWrapper, conditionsWrapper)
             leagueWrapper.append(leagueInfoWrapper)
         } else {
             const oldLeagueInfoWrapper = document.getElementById('league-info')
@@ -365,8 +473,8 @@ function tournamentType(container, teamsAmount) {
             teamsAmountText.textContent = 'How many teams play in Playoffs?'
     
             const possibleAmounts = []
-            const dropoutTeamsAmount = +localStorage.getItem('dropout-amount')
-            teamsAmount = teamsAmount - Number(dropoutTeamsAmount)
+            const relegationTeamsAmount = +localStorage.getItem('relegation')
+            teamsAmount = teamsAmount - Number(relegationTeamsAmount)
             let minAmount = 2
 
             for (let i = 0; i < teamsAmount; i++) {
@@ -385,7 +493,6 @@ function tournamentType(container, teamsAmount) {
 
             for (let i = 0; i < possibleAmounts.length; i++) {
                 const possibleAmount = possibleAmounts[i];
-                console.log(i, possibleAmount);
                 const option = document.createElement('option')       
 
                 option.textContent = possibleAmount
@@ -433,7 +540,6 @@ function tournamentType(container, teamsAmount) {
         const leagueData = localStorage.getItem('rounds-amount')
         const playoffsData = localStorage.getItem('playoffs-data')
         
-        console.log(leagueData, playoffsData);
         if (leagueData || playoffsData) {
             form.remove()
             generateTeams(container)
@@ -458,7 +564,6 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
         prevRoundGamesAmount = roundGamesAmount
     }
 
-    console.log(roundsInfo);
     playoffsData.roundsData = {}
     roundsInfo.forEach(gamesAmount => {
         const property = gamesAmount === 1 ? 'final' : `1/${gamesAmount}`
@@ -468,7 +573,6 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
     })
     localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
 
-    console.log(playoffsData);
     const prevRoundsInfoWrapper = document.getElementById('rounds-info-wrapper')
     prevRoundsInfoWrapper && prevRoundsInfoWrapper.remove()
 
@@ -495,7 +599,6 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
 
         singleKnockoutBtn.classList.add('clicked')
 
-        console.log(playoffsData);
 
         singleKnockoutBtn.addEventListener('click', (e) => {
             doubleKnockoutBtn.classList.remove('clicked')

@@ -8,7 +8,6 @@ export default function generatePlayoffsGames(container) {
     if (!localStorage.getItem('teams-data')) {
         const teamNames = JSON.parse(localStorage.getItem('team-names'))
         const difference = teamNames.length - teamsAmount
-        console.log(difference);
         
         const teamsData = teamNames.slice(0, -difference).map(name => new Team(name, 0, teamsAmount))
 
@@ -36,7 +35,6 @@ export default function generatePlayoffsGames(container) {
 
     const playoffsWrapper = document.createElement('form')
     playoffsWrapper.classList.add('playoffs')
-    console.log(Object.keys(roundsData));
 
     playoffsWrapper.style.display = 'grid'
     playoffsWrapper.style.gridTemplateColumns = `repeat(${Object.keys(roundsData).length}, 1fr)`
@@ -91,8 +89,6 @@ export default function generatePlayoffsGames(container) {
             
             
             if (m === 0) {
-                console.log('addf');
-
                 let round1Games
                 if (!gamesData[round]) {
                     round1Games = []
@@ -121,7 +117,6 @@ export default function generatePlayoffsGames(container) {
                     round1Games.forEach((games, j) => {
                         idCounter++
                         games.forEach((game, m) => {
-                            console.log(j, idCounter);
                             game.id = j + idCounter + m
                         })
                     })
@@ -176,7 +171,6 @@ export default function generatePlayoffsGames(container) {
         const gameEl = e.target.parentElement.parentElement
 
         const knockout = Number(gameEl.dataset.knockout)
-        console.log(knockout);
 
         const homeTeamInput = gameEl.querySelector('.home-team .result-input')
         const awayTeamInput = gameEl.querySelector('.away-team .result-input')
@@ -355,7 +349,6 @@ export default function generatePlayoffsGames(container) {
 //         let rightGamesAmount = 0
 
 //         prevLeftWrapper.classList.remove('prev-wrapper')
-//         console.log(prevLeftWrapper);
 
 //         for (let i = 0; i < gamesAmount*2; i++) {
 //             const leftPairWrapper = document.createElement('div')

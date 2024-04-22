@@ -1,5 +1,6 @@
 import Game from "../classes/Game.js";
 import Team from "../classes/Team.js";
+import resetDataBtn from "../components/resetDataBtn.js";
 import playoffsForm from "../playoffs/playoffsForm.js";
 import { changeTable, tournamentForm } from "../script.js";
 
@@ -21,6 +22,7 @@ export default function generateTeams(container) {
         localStorage.setItem('league-games-data', JSON.stringify(games))
 
         localStorage.setItem('playoffs-teams-data', JSON.stringify( teams.slice(0, playoffsGamesData.teamsAmount)))
+        resetDataBtn(container)
 
         tournamentForm(container, games, teams)
 
@@ -32,16 +34,20 @@ export default function generateTeams(container) {
 
         const games = generateGames(container, teams, leagueRoundsAmount)
         localStorage.setItem('league-games-data', JSON.stringify(games))
-        tournamentForm(container, games, teams)
-
         localStorage.setItem('total-games', totalGames)
         localStorage.setItem('teams-data', JSON.stringify(teams))
+
+        resetDataBtn(container)
+
+        tournamentForm(container, games, teams)
+
     } else if (playoffsGamesData) {
         const teamsAmount = playoffsGamesData.teamsAmount
         const difference = teamNames.length - teamsAmount
         const playoffTeams = teamNames.slice(0, -difference).map(name => new Team(name, 0, teamsAmount))
 
         localStorage.setItem('playoffs-teams-data', JSON.stringify(playoffTeams))
+        resetDataBtn(container)
 
         playoffsForm(container, playoffsGamesData, playoffTeams)
     }
@@ -72,7 +78,6 @@ function generateGames(container, teams, roundsAmount) {
         game.id = i + 1
     })
 
-    changeTable(container, teams, games)
 
     localStorage.setItem('league-games-data', JSON.stringify(games))
     
