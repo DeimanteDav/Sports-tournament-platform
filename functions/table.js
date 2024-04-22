@@ -8,6 +8,7 @@ export function createModernTable(wrapper, teams, games, params = {}) {
     const table = document.createElement('table')
     table.classList.add('table', 'modern-table')
     const conditions = JSON.parse(localStorage.getItem('conditions'))
+    const relegations = localStorage.getItem('relegation')
 
     const tableHead = document.createElement('thead')
     const tableBody = document.createElement('tbody')
@@ -37,6 +38,13 @@ export function createModernTable(wrapper, teams, games, params = {}) {
     })
     tableHead.append(tHeadRow)
 
+    let conditionsInfoWrapper
+    if (conditions) {
+        conditionsInfoWrapper = document.createElement('div')
+        conditionsInfoWrapper.classList.add('conditions-info-wrapper')
+        wrapper.append(conditionsInfoWrapper)
+    }
+
     for (let i = 0; i < teams.length; i++) {
         const team = teams[i];
 
@@ -54,20 +62,29 @@ export function createModernTable(wrapper, teams, games, params = {}) {
             row.classList.add('loser')
         }
 
-
         const rowItems = [team.team, ...(position ? [team.maxPlace, team.minPlace] : []),, team.playedGames, team.wins, team.draws, team.losses, team.goals, team.goalsMissed, team.goalDifference, team.points]
 
         if (conditions) {
             conditions.forEach((data, j) => {
-                const {condition, amount} = data
-                const lastPlaces = teams.length - amount
+                const {title, teamsFrom, teamsTo, positive, id} = data
+                const fromTeamIndex = teams.length - teamsFrom
+                const toTeamIndex = teams.length - teamsTo
 
-                if (condition === 'Relegation') {
-                    if (lastPlaces === i) {
-                        row.classList.add('relegation')
-                    }
+                if (teamsFrom - 1 === i) {
+                    row.classList.add(`condition-began-${id}`)
+                }
+                
+                if (teamsTo - 1 === i) {
+                    row.classList.add(`condition-end-${id}`)
                 }
             })
+        }
+
+        if (relegations) {
+            const lastPlace = teams.length - relegations
+            if (i === lastPlace) {
+                row.classList.add('relegation')
+            }
         }
 
         rowItems.forEach((item, i) => {

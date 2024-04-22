@@ -287,8 +287,8 @@ function tournamentType(container, teamsAmount) {
                     } else {
                         const newCondition = {
                             title: conditionTitleInput.value,
-                            teamsFrom: selectedCondition.name === 'positive' ? fromTeams : toTeams,
-                            teamsTo: selectedCondition.name === 'positive' ?  toTeams : fromTeams,
+                            teamsFrom: fromTeams,
+                            teamsTo: toTeams,
                             positive: selectedCondition.name === 'positive' ? true : false,
                             id: addedConditions.length
                         }

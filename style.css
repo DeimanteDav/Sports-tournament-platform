@@ -226,7 +226,7 @@ table {
   position: relative;
 }
 
-.table tbody tr.loser::after {
+/* .table tbody tr.loser::after {
   content: "X";
   position: absolute;
   font-weight: bold;
@@ -235,7 +235,7 @@ table {
   left: -25px;
   color: red;
   transform: translateY(-50%);
-}
+} */
 
 .table .comparison-btn {
   width: 20px;
@@ -249,11 +249,33 @@ table {
   transition: background-color 0.3s ease;
 }
 
-.modern-table tbody tr:nth-of-type(even) {}
 
 .modern-table tbody tr:last-of-type {
   border-bottom: 2px solid var(--blue);
 }
+
+
+/* KITAIP PADARYTI */
+.modern-table .condition-began-0 {
+  border-top: 2px solid green;
+}
+.modern-table .condition-end-0 {
+  border-bottom: 2px solid green;
+}
+.modern-table .condition-began-1 {
+  border-top: 2px solid purple;
+}
+.modern-table .condition-end-1 {
+  border-bottom: 2px solid purple;
+}
+.modern-table .condition-began-2 {
+  border-top: 2px solid yellow;
+}
+.modern-table .condition-end-2 {
+  border-bottom: 2px solid yellow;
+}
+
+
 
 .modern-table th:nth-child(2),
 .modern-table td:nth-child(2) {
