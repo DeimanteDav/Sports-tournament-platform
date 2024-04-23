@@ -2,23 +2,14 @@ import Game from "../classes/Game.js"
 import accordion from "../components/accordion.js"
 import updateGameData from "../functions/updateGameData.js"
 
-// formojj issiskleist kiekviena rounda
 
 // playoffs table komandos toliau numeruotus o ne is naujo
 
-// lentelej abieju zaidimu rezultatus skirtingai rasyt
 // Kai vienas zaidimas suzaistas atvaizduotu ta komanda ir kitos kuri laimes
-// Sukeicia vietom KOMANDAS kitam rounde
+
 // ANTRO zaidimo tarp komandu neleisti zaisti KOL pirmas nesuzaistas
 
 // JEI DOUBLE ELIMINATION sukeisti awayTeam ir homeTeam antram zaidime IR ATSKIRTI KVADRATELIUS  
-
-
-
-// 0 0 nerasyti o rasyti kad zais kartu
-// ne 3 & 4 winners o tiesgiog 3 winner ir apacioj 4 winner
-
-// ne stulpeliais o is kaires i desne
 
 
 // JEIGU LYGIOSIOS (Prie antro zaidimo):
@@ -147,15 +138,19 @@ export default function playoffsForm(container, gamesData, playoffTeams) {
             const nextRoundInfo = nextRound && roundsData[nextRound]
             const nextRoundGamesAmount = nextRoundInfo && nextRoundInfo.gamesAmount
 
-            const nextRoundWrapper = document.querySelector(`.round-wrapper[data-round="${nextRound}"]`)
+            const nextRoundWrapper = document.querySelector(`.round[data-round="${nextRound}"]`)
             const nextGameWrapper = document.querySelector(`[data-round="${nextRound}"][data-game-id="${nextGameId}"]`)
+            console.log(2%2==0);
 
-            const anotherGamesData = currentGameId % 2 === 0 ? currentRoundData[currentGameId-1] : currentRoundData[currentGameId+1]
-            const allPairGamesPlayed = anotherGamesData && [...currentGamesData, ...anotherGamesData].every(game => game.played)
+            const game1 = currentGameId % 2 === 0 ? currentRoundData[currentGameId-1] : currentRoundData[currentGameId]
+
+            const game2 = currentGameId % 2 === 0 ? currentRoundData[currentGameId] : currentRoundData[currentGameId-1]
+
+            const allPairGamesPlayed = game2 && [...game1, ...game2].every(game => game.played)
 
             if (allPairGamesPlayed) {
-                const winner1 = getGamesWinner(playoffTeams, currentGamesData)
-                const winner2 = getGamesWinner(playoffTeams, anotherGamesData)
+                const winner1 = getGamesWinner(playoffTeams, game1)
+                const winner2 = getGamesWinner(playoffTeams, game2)
 
                 const {gamesAmount, knockouts} = nextRoundInfo
 
@@ -474,7 +469,6 @@ function changePlayoffsTable(container, roundsData, playoffsGames, teams) {
 
         wideScreen.addEventListener('change', (e) => {
             rowIndex = 1
-            // changeHeaderItems(e)
         })
      
 
@@ -530,40 +524,42 @@ function changePlayoffsTable(container, roundsData, playoffsGames, teams) {
 
             const games = playoffsGames[round] && playoffsGames[round][gameId]
 
-            if (games) {
-                const teamsWrapper = document.createElement('div')
-                teamsWrapper.classList.add('teams-wrapper')
+            const teamsWrapper = document.createElement('div')
+            teamsWrapper.classList.add('teams-wrapper')
+            
+            for (let j = 0; j < 2; j++) {
+                const teamWrapper = document.createElement('div')
+                const teamEl = document.createElement('p')             
+
+                if (games) {
+                    for (let m = 0; m < games.length; m++) {
+                        const game = games[m];
+                        const goalsEl = document.createElement('div')
+
+                        if (j === 0) {
+                            teamEl.textContent = game.homeTeam.team
+                            goalsEl.textContent = game.played ? game.homeTeam.goals : '-'
+                        } else {
+                            teamEl.textContent = game.awayTeam.team
+                            goalsEl.textContent =  game.played ? game.awayTeam.goals : '-'
+                        }
     
-                for (let j = 0; j < 2; j++) {
-                    const teamWrapper = document.createElement('div')
-                    const teamEl = document.createElement('p')             
-                    const goalsEl = document.createElement('span')
-
-                    let goals = 0;
-                    if (j === 0) {
-                        teamEl.textContent = games[0].homeTeam.team
-                        games.forEach(game => goals += game.homeTeam.goals);
-                    } else {
-                        teamEl.textContent = games[0].awayTeam.team
-                        games.forEach(game => goals += game.awayTeam.goals);
+                        teamWrapper.append(goalsEl)
+    
                     }
-                    goalsEl.textContent = goals
-
-                    teamWrapper.append(teamEl, goalsEl)
-                    teamsWrapper.append(teamWrapper)
+                } else {
+                    if (j === 0) {
+                        teamEl.textContent = `${gameId*2-1}. game winner`
+                    } else {
+                        teamEl.textContent = `${gameId*2}. game winner`
+                    }
                 }
-
-                gameResultWrapper.append(teamsWrapper)
-            } else {
-                const prevGame1Id = gameId*2-1
-                const prevGame2Id = gameId*2
-
-                const infoEl = document.createElement('p')
-                infoEl.textContent = `${prevGame1Id} & ${prevGame2Id} winners`
-
-                gameResultWrapper.append(infoEl)
+ 
+                teamWrapper.prepend(teamEl)
+                teamsWrapper.append(teamWrapper)
             }
 
+            gameResultWrapper.append(teamsWrapper)
             gridWrapper.append(gameResultWrapper)
             table.append(gridWrapper)
         }
