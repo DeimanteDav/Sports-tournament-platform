@@ -7,6 +7,7 @@ import { teamsAmountForm } from "./functions/forms.js"
 import updateGameData from "./functions/updateGameData.js"
 import playoffsForm from "./playoffs/playoffsForm.js"
 import resetDataBtn from "./components/resetDataBtn.js"
+import accordion from "./components/accordion.js"
 
 // regular season o ne league games
 
@@ -14,6 +15,10 @@ import resetDataBtn from "./components/resetDataBtn.js"
 // PATSS IRASAI VISKA
 // tEIGIAMAS NEIGIAMAS
 // PATENka i europos lyga aukstesne / zemesne NUO KELINTOS IKI KELINTA
+
+// Prie games round, RATAI
+// Pervadinti rounds i ratus kazkaip angliskai
+
 
 const container = document.querySelector('.container')
 
@@ -57,71 +62,77 @@ export function tournamentForm(container, games, teams) {
     gamesForm.id = 'games-wrapper'
 
     const roundsAmount = Number(localStorage.getItem('rounds-amount'))
-    const gamesPerRound = Math.ceil(games.length / roundsAmount)
 
-    const roundContainers = []
     for (let i = 0; i < roundsAmount; i++) {
-        const roundEl = document.createElement('div')
-        roundEl.className = 'round'
-        roundContainers.push(roundEl)
+        const accordiontText = `Round ${i+1}`
+        const accordionWrapper = accordion(accordiontText, 'block')
+        const panel = accordionWrapper.querySelector('.panel')
 
-        gamesForm.append(roundEl)
-    }
 
-    for (let i = 0; i < games.length; i++) {
-        const game = games[i];
-        const roundIndex = Math.floor(i / gamesPerRound)
-        const roundContainer = roundContainers[roundIndex]
+        for (let j = 0; j < games.length/(roundsAmount*5); j++) {
+            const innerAccordionWrapper = accordion(`Round ${j+1}`, 'flex', 'round')
+            innerAccordionWrapper.style.margin = '0 20px'
+            const innerPanel = innerAccordionWrapper.querySelector('.panel')
 
-        const gameWrapper = document.createElement('div')
-        gameWrapper.classList.add('game-wrapper')
+            for (let m = 0; m < games.length; m++) {
+                const game = games[m];
+                const gameWrapper = document.createElement('div')
+                gameWrapper.classList.add('game-wrapper')
 
-        const gameNumber = document.createElement('p')
+                const gameNumber = document.createElement('p')
 
-        const gameEl = document.createElement('div')
-        gameEl.classList.add('game')
+                const gameEl = document.createElement('div')
+                gameEl.classList.add('game')
 
-        
-        game.played && gameWrapper.classList.add('played')
-        
-        gameEl.dataset.gameId = game.id
-        gameNumber.textContent = `${game.id}.`
-        
-        gameWrapper.append(gameNumber, gameEl)
-        roundContainer.append(gameWrapper)
-
-        for (let team in game) {
-            if (team == 'homeTeam' || team === 'awayTeam') {
-                const teamWrapper = document.createElement('div')
-                teamWrapper.classList.add('team')
-    
-                if (team === 'homeTeam') {
-                    teamWrapper.classList.add('home-team')
-                } else {
-                    teamWrapper.classList.add('away-team')
-                }
-    
-                const label = document.createElement('label')
-                const input = document.createElement('input')  
-
-                input.type = 'number'
-                input.id = `${game.id}-${game[team].team}`
-                input.dataset.team = game[team].team
-                label.htmlFor = input.id
-                label.textContent = game[team].team
-                input.classList.add('result-input')
-                input.value = game.played ? game[team].goals : ''           
                 
-                teamWrapper.append(label, input)
+                game.played && gameWrapper.classList.add('played')
+                
+                gameEl.dataset.gameId = game.id
+                gameNumber.textContent = `${game.id}.`
+                
 
-                gameEl.append(teamWrapper) 
+                for (let team in game) {
+                    if (team == 'homeTeam' || team === 'awayTeam') {
+                        const teamWrapper = document.createElement('div')
+                        teamWrapper.classList.add('team')
+            
+                        if (team === 'homeTeam') {
+                            teamWrapper.classList.add('home-team')
+                        } else {
+                            teamWrapper.classList.add('away-team')
+                        }
+            
+                        const label = document.createElement('label')
+                        const input = document.createElement('input')  
+
+                        input.type = 'number'
+                        input.id = `${game.id}-${game[team].team}`
+                        input.dataset.team = game[team].team
+                        label.htmlFor = input.id
+                        label.textContent = game[team].team
+                        input.classList.add('result-input')
+                        input.value = game.played ? game[team].goals : ''           
+                        
+                        teamWrapper.append(label, input)
+
+                        gameEl.append(teamWrapper) 
+                        gameWrapper.append(gameEl)
+                    }
+                }
+                if (j === Math.floor(m/5)) {
+                    innerPanel.append(gameWrapper)
+                }
             }
-        }
-    }
 
-    container.append(gamesForm)
+            panel.append(innerAccordionWrapper)
+        }
+
+        gamesForm.append(accordionWrapper)
+
+    }
 
     gamesForm.addEventListener('change', (e) => {
+        console.log(e);
         const gameEl = e.target.parentElement.parentElement
         const gameId = +gameEl.dataset.gameId
         const currentGame = games.find(game => game.id === gameId)
@@ -132,8 +143,6 @@ export function tournamentForm(container, games, teams) {
         updateTeamsData(games, teams)
     })
 
-
-// resetBtn
     const changeTableBtn = document.createElement('button')
     changeTableBtn.type = 'button'
     changeTableBtn.textContent = 'Change Table View'
@@ -149,7 +158,6 @@ export function tournamentForm(container, games, teams) {
             changeTable(container, teams, games)
         }
     })
-
 
     const generateScoresBtn = document.createElement('button')
     generateScoresBtn.type = 'button'
@@ -174,8 +182,10 @@ export function tournamentForm(container, games, teams) {
 
     })
 
-    gamesForm.after(generateScoresBtn, changeTableBtn)
 
+
+    // gamesForm.after(generateScoresBtn, changeTableBtn)
+    container.append(gamesForm, generateScoresBtn, changeTableBtn)
     changeTable(container, teams, games)
 }
 

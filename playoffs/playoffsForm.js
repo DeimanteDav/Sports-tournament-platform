@@ -1,5 +1,33 @@
 import Game from "../classes/Game.js"
+import accordion from "../components/accordion.js"
 import updateGameData from "../functions/updateGameData.js"
+
+// formojj issiskleist kiekviena rounda
+
+// playoffs table komandos toliau numeruotus o ne is naujo
+
+// lentelej abieju zaidimu rezultatus skirtingai rasyt
+// Kai vienas zaidimas suzaistas atvaizduotu ta komanda ir kitos kuri laimes
+// Sukeicia vietom KOMANDAS kitam rounde
+// ANTRO zaidimo tarp komandu neleisti zaisti KOL pirmas nesuzaistas
+
+// JEI DOUBLE ELIMINATION sukeisti awayTeam ir homeTeam antram zaidime IR ATSKIRTI KVADRATELIUS  
+
+
+
+// 0 0 nerasyti o rasyti kad zais kartu
+// ne 3 & 4 winners o tiesgiog 3 winner ir apacioj 4 winner
+
+// ne stulpeliais o is kaires i desne
+
+
+// JEIGU LYGIOSIOS (Prie antro zaidimo):
+// extra time du inputai
+// JEI VEL LYGIOS:
+// penalty shootout
+
+
+// table atvaizduoti extra time; Penalty; BENDRas rezultatas
 
 export default function playoffsForm(container, gamesData, playoffTeams) {
     const {roundsData, teamsAmount} = gamesData
@@ -35,9 +63,10 @@ export default function playoffsForm(container, gamesData, playoffTeams) {
 
     Object.entries(sortedData).forEach(([round, data], index) => {
         const {gamesAmount, knockouts} = data
-        const roundWrapper = document.createElement('div')
-        roundWrapper.dataset.round = round
-        roundWrapper.classList.add('round-wrapper')
+        const accordionWrapper = accordion(round, 'flex')
+        const panel = accordionWrapper.querySelector('.panel')
+        panel.classList.add('round')
+        panel.dataset.round = round
 
         if (index === 0 && !playoffsGames[round]) {
             const round1TeamPairs = []
@@ -75,18 +104,19 @@ export default function playoffsForm(container, gamesData, playoffTeams) {
             const gameId = i+1
             const roundGames = playoffsGames[round]
             const gameData = roundGames && roundGames[gameId]
+
             if (gameData) {
                 const gameWrapper = document.createElement('div')
                 gameWrapper.classList.add('game-wrapper')
                 gameWrapper.dataset.round = round
                 gameWrapper.dataset.gameId = gameId
 
-                roundWrapper.append(gameWrapper)
+                panel.append(gameWrapper)
                 createGameElement(gameWrapper, gameData)
             }
         }
 
-        form.append(roundWrapper)
+        form.append(accordionWrapper)
     })
 
     changePlayoffsTable(container, sortedData, playoffsGames, playoffTeams)
@@ -169,7 +199,7 @@ export default function playoffsForm(container, gamesData, playoffTeams) {
                         newGameWrapper.dataset.gameId = nextGameId
                         nextRoundWrapper.append(newGameWrapper)
                     }
-                    
+                    console.log(nextRoundWrapper);
                     createGameElement(newGameWrapper, games)
                 }
             } else if (nextGames) {
@@ -198,117 +228,6 @@ export default function playoffsForm(container, gamesData, playoffTeams) {
 
         localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))        
     })
-    // const playoffsHeaderEl = document.createElement('ul')
-    // playoffsHeaderEl.classList.add('playoffs-header')
-    // const playoffsGamesForm = document.createElement('form')
-    // playoffsGamesForm.classList.add('playoffs-games')
-
-    // form.append(playoffsHeaderEl,playoffsGamesForm)
-
-
-    // const {roundsData, teamsAmount} = gamesData
-
-    // const sortedData = Object.fromEntries(
-    //     Object.entries(roundsData)
-    //         .sort(([key1], [key2]) => {
-    //             const a = +key1.slice(-1)
-    //             const b = +key2.slice(-1)
-
-    //             if (a && b) {
-    //                 return Number(b[0]) - Number(a[0])
-    //             } else if (!Number(a)) {
-    //                 return 1
-    //             } else {
-    //                 return -1
-    //             }
-    //         })
-    // );
-
-    // const rowsAmount = Object.keys(roundsData).length
-    // playoffsGamesForm.style.gridTemplateColumns = `repeat(${rowsAmount}, 1fr)`
-
-    // const playoffsGames = localStorage.getItem('playoffs-games-data') ? JSON.parse(localStorage.getItem('playoffs-games-data')) : {}
-    // console.log(playoffsGames);
-    
-
-    // Object.entries(sortedData).forEach(([round, data], index) => {
-    //     const {gamesAmount, knockouts} = data
-        // const headerItem = document.createElement('li')
-        // headerItem.textContent = round
-    //     playoffsHeaderEl.append(headerItem)
-
-    //     let gameIndex = 0
-    //     const roundWrapper = document.createElement('div')
-    //     roundWrapper.classList.add('round-wrapper')
-
-    //     playoffsGamesForm.append(roundWrapper)
-
-    //     if (gamesAmount > 1) {
-    //         const pairsAmount = gamesAmount/2
-    //         for (let i = 0; i < pairsAmount; i++) {
-    //             const pairWrapper = document.createElement('div')
-    //             pairWrapper.classList.add('pair-wrapper')
-    //             roundWrapper.append(pairWrapper)
-
-    //             for (let j = 0; j < 2; j++) {
-    //                 const gameWrapper = document.createElement('div')                    
-    //                 gameWrapper.classList.add('game-wrapper')
-    //                 pairWrapper.append(gameWrapper)
-
-
-    //                 gameWrapper.dataset.gameIndex = gameIndex+1
-    //                 gameWrapper.dataset.knockouts = knockouts
-    //                 gameWrapper.dataset.round = round
-
-    //                 if (gameIndex < pairsAmount*2 ) {
-    //                     createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundsData[round], playoffTeams, {teamsChanged: leagueTableUpdated})
-
-    //                     gameIndex+=1
-    //                 }
-    //             }
-    //         }
-    //     } else {
-    //         const gameWrapper = document.createElement('div')                    
-    //         gameWrapper.classList.add('game-wrapper', 'final')
-    //         gameWrapper.dataset.knockouts = knockouts
-
-    //         gameWrapper.dataset.gameIndex = 1
-    //         gameWrapper.dataset.knockouts = knockouts
-    //         gameWrapper.dataset.round = round
-
-    //         roundWrapper.append(gameWrapper)
-
-    //         createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundsData[round], playoffTeams, {teamsChanged: leagueTableUpdated})
-    //     }
-    // })
-
-
-    // playoffsGamesForm.addEventListener('change', (e) => {
-    //     console.log(e);
-    //     const gameEl = e.target.parentElement.parentElement
-    //     const gameWrapper = gameEl.parentElement
-
-    //     const gameIndex = +gameWrapper.dataset.gameIndex
-    //     const knockoutIndex = +gameEl.dataset.knockoutIndex
-
-    //     const currentRound = gameWrapper.dataset.round
-    //     const teamsGames = playoffsGames[currentRound][gameIndex]
-
-    //     const currentGame = teamsGames[knockoutIndex-1]
-
-        // updateGameData(gameEl, currentGame)
-
-        // localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))
-
-    //     const allGamesPlayed = teamsGames.every(game => game.played)
-
-    //     const teams = JSON.parse(localStorage.getItem('playoffs-teams-data'))
-
-
-    //     if (allGamesPlayed) {
-    //         createTeamWrapers(gameWrapper, playoffsGames, roundsData, roundsData[currentRound], teams, {update: true})
-    //     }
-    // })
 }
 
 

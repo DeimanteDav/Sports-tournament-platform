@@ -25,7 +25,7 @@
 
 }
 
-.container button {
+.container button:not(.accordion) {
   display: inline-block;
   outline: 0;
   cursor: pointer;
@@ -45,7 +45,7 @@
   transition-property: color, background-color, border-color;
 }
 
-.container button:hover {
+.container button:not(.accordion):hover {
   background-color: #f3f4f6;
   border-color: #1b1f2326;
   transition-duration: 0.1s;
@@ -130,12 +130,14 @@
   display: flex;
   flex-direction: column;
   gap: 50px;
+  max-width: 1200px;
+  width: 100%;
 }
 
-#games-wrapper .round {
-  display: flex;
+.panel.round {
+  padding: 20px;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
   gap: 15px;
 }
@@ -150,7 +152,7 @@
 #games-wrapper .round .game-wrapper.played {
   background-color: #f7f7f7;
   border: 1px solid #ddd;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 .game-wrapper .team {
@@ -237,11 +239,10 @@ table {
   transform: translateY(-50%);
 } */
 
-.table .comparison-btn {
+.table button.comparison-btn {
   width: 20px;
   height: 20px;
   padding: 0;
-  border: none;
   border-radius: 50%;
   font-size: 14px;
   line-height: 1;
@@ -276,6 +277,39 @@ table {
 }
 
 
+.accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s;
+}
+
+.active, .accordion:hover {
+  background-color: #ccc;
+}
+
+.panel {
+  display: none;
+  padding: 0 18px;
+  background-color: white;
+  overflow: hidden;
+}
+.accordion:after {
+  content: '\02795';
+  font-size: 13px;
+  color: #777;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2796";
+}
 
 .modern-table th:nth-child(2),
 .modern-table td:nth-child(2) {
@@ -284,12 +318,12 @@ table {
   width: 150px;
 }
 
-.modern-table button {
+.container .modern-table button {
   background-color: var(--blue);
   color: var(--text-color);
 }
 
-.modern-table button:hover {
+.container .modern-table button:hover {
   background-color: #7b7b7b;
 }
 
@@ -379,13 +413,9 @@ table {
 
 
 .playoffs-form {
-  display: flex;
-  gap: 50px;
-  margin-top: 50px;
-}
-
-.playoffs-form .round-wrapper .game-wrapper {
-  margin-top: 10px;
+  max-width: 1200px;
+  width: 100%;
+  margin-top: 60px;
 }
 
 .playoffs-form .game-wrapper {
