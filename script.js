@@ -9,7 +9,28 @@ import playoffsForm from "./playoffs/playoffsForm.js"
 import resetDataBtn from "./components/resetDataBtn.js"
 import accordion from "./components/accordion.js"
 
-// regular season o ne league games
+// FUTBOLO IR KREPSINIO
+// Jei krepsinio, tai skirsis: 
+    // taskai;
+    // lygiuju nera;
+    // points: WIN 2, LOSS 1, TECHNINIS PRALAIMEJIMAS 0 (pazymet, kad neatvyko i rungtynes 0-20 taskai, kuriuos imeta);
+    // Laimejimu procentas;
+    // tasku neatvaizduoja, bet imesti taskai 
+    // OT (overtime points) 
+
+
+// SORTINTI:
+    // 1. taskai (ne imesti)
+    // 2. laimejimu procentas;
+    // TIE BREAKS: 
+    // 3. kas daugiau laimejo tarpusavio zaidimuose
+    // 4. didesnis santykis imestu ir praleistu tasku tarp VISU zaidimu (+/-)
+    // 5. daugiau imestu tasku tarp VISU zaidimu
+
+    // jei tie break neissiaiskina, tai kartoti breakus tarp likusiu komandu nuo 3. punko TARPUSAVY
+
+// POINTS imesti ir OVERTIME POINTS imesti atskirai rasos ir tie breakuose points skaicuojas, o laimejimuose TOTAL 
+
 
 // ADD CONDITION:
 // PATSS IRASAI VISKA
@@ -26,6 +47,9 @@ const container = document.querySelector('.container')
 
 // Daugiau lenteliu jei pvz.: 16komandu i 4 grupes.
 // kiek teamsu iseina i kita etapa PASIRINKTI.
+
+// rungtyniu nr prideti
+
 
 
 function getLocalStorageData(container) {
@@ -47,7 +71,6 @@ function getLocalStorageData(container) {
             changeTable(container, teamsData, gamesData)
         } else if (playoffGamesData) {
             playoffsForm(container, playoffGamesData, playoffsTeamsData)
-            // generatePlayoffsGames(container)
         }
     } else {
         teamsAmountForm(container)
@@ -63,73 +86,71 @@ export function tournamentForm(container, games, teams) {
 
     const roundsAmount = Number(localStorage.getItem('rounds-amount'))
 
-    for (let i = 0; i < roundsAmount; i++) {
-        const accordiontText = `Round ${i+1}`
-        const accordionWrapper = accordion(accordiontText, 'block')
-        const panel = accordionWrapper.querySelector('.panel')
+    // for (let i = 0; i < roundsAmount; i++) {
+    //     const accordiontText = `Round ${i+1}`
+    //     const accordionWrapper = accordion(accordiontText, 'block')
+    //     const panel = accordionWrapper.querySelector('.panel')
 
 
-        for (let j = 0; j < games.length/(roundsAmount*5); j++) {
-            const innerAccordionWrapper = accordion(`Round ${j+1}`, 'flex', 'round')
-            innerAccordionWrapper.style.margin = '0 20px'
-            const innerPanel = innerAccordionWrapper.querySelector('.panel')
+    //     for (let j = 0; j < games.length/(roundsAmount*5); j++) {
+    //         const innerAccordionWrapper = accordion(`Round ${j+1}`, 'flex', 'round')
+    //         innerAccordionWrapper.style.margin = '0 20px'
+    //         const innerPanel = innerAccordionWrapper.querySelector('.panel')
 
-            for (let m = 0; m < games.length; m++) {
-                const game = games[m];
-                const gameWrapper = document.createElement('div')
-                gameWrapper.classList.add('game-wrapper')
+    //         for (let m = 0; m < games.length; m++) {
+    //             const game = games[m];
+    //             const gameWrapper = document.createElement('div')
+    //             gameWrapper.classList.add('game-wrapper')
+    //             const gameNumber = document.createElement('p')
 
-                const gameNumber = document.createElement('p')
-
-                const gameEl = document.createElement('div')
-                gameEl.classList.add('game')
+    //             const gameEl = document.createElement('div')
+    //             gameEl.classList.add('game')
 
                 
-                game.played && gameWrapper.classList.add('played')
+    //             game.played && gameWrapper.classList.add('played')
                 
-                gameEl.dataset.gameId = game.id
-                gameNumber.textContent = `${game.id}.`
+    //             gameEl.dataset.gameId = game.id
+    //             gameNumber.textContent = `${game.id}.`
                 
-
-                for (let team in game) {
-                    if (team == 'homeTeam' || team === 'awayTeam') {
-                        const teamWrapper = document.createElement('div')
-                        teamWrapper.classList.add('team')
+    //             for (let team in game) {
+    //                 if (team == 'homeTeam' || team === 'awayTeam') {
+    //                     const teamWrapper = document.createElement('div')
+    //                     teamWrapper.classList.add('team')
             
-                        if (team === 'homeTeam') {
-                            teamWrapper.classList.add('home-team')
-                        } else {
-                            teamWrapper.classList.add('away-team')
-                        }
+    //                     if (team === 'homeTeam') {
+    //                         teamWrapper.classList.add('home-team')
+    //                     } else {
+    //                         teamWrapper.classList.add('away-team')
+    //                     }
             
-                        const label = document.createElement('label')
-                        const input = document.createElement('input')  
+    //                     const label = document.createElement('label')
+    //                     const input = document.createElement('input')  
 
-                        input.type = 'number'
-                        input.id = `${game.id}-${game[team].team}`
-                        input.dataset.team = game[team].team
-                        label.htmlFor = input.id
-                        label.textContent = game[team].team
-                        input.classList.add('result-input')
-                        input.value = game.played ? game[team].goals : ''           
+    //                     input.type = 'number'
+    //                     input.id = `${game.id}-${game[team].team}`
+    //                     input.dataset.team = game[team].team
+    //                     label.htmlFor = input.id
+    //                     label.textContent = game[team].team
+    //                     input.classList.add('result-input')
+    //                     input.value = game.played ? game[team].goals : ''           
                         
-                        teamWrapper.append(label, input)
+    //                     teamWrapper.append(label, input)
 
-                        gameEl.append(teamWrapper) 
-                        gameWrapper.append(gameEl)
-                    }
-                }
-                if (j === Math.floor(m/5)) {
-                    innerPanel.append(gameWrapper)
-                }
-            }
+    //                     gameEl.append(teamWrapper) 
+    //                     gameWrapper.append(gameEl)
+    //                 }
+    //             }
+    //             if (j === Math.floor(m/5)) {
+    //                 innerPanel.append(gameWrapper)
+    //             }
+    //         }
 
-            panel.append(innerAccordionWrapper)
-        }
+    //         panel.append(innerAccordionWrapper)
+    //     }
 
-        gamesForm.append(accordionWrapper)
+    //     gamesForm.append(accordionWrapper)
 
-    }
+    // }
 
     gamesForm.addEventListener('change', (e) => {
         console.log(e);
@@ -352,13 +373,6 @@ export function changeTable(container, teams, games) {
 
         tableWrapper.append(compareTeamsTable(tableWrapper, updatedTeams, games, tableType))
     }
-
-
-    const allGamesArePlayed = games.every(game => game.played)
-
-    // if (allGamesArePlayed) {
-    //     playoffsGames(container, teams)
-    // }
 }
 
 function checkTeamPosition(teams, games) {

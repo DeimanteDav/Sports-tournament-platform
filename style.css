@@ -134,13 +134,7 @@
   width: 100%;
 }
 
-.panel.round {
-  padding: 20px;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  flex: 1;
-  gap: 15px;
-}
+
 
 .game-wrapper {
   display: flex;
@@ -296,9 +290,17 @@ table {
 .panel {
   display: none;
   padding: 0 18px;
-  background-color: white;
   overflow: hidden;
 }
+
+.panel.round {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  flex: 1;
+  padding: 20px;
+  gap: 15px;
+}
+
 .accordion:after {
   content: '\02795';
   font-size: 13px;
@@ -570,8 +572,8 @@ table {
   border-top: 1px solid red;
 }
 
-button.clicked,
-button.clicked:hover {
+.container button.clicked,
+.container button.clicked:hover {
   background-color: #2182ab;
   color: white;
 }

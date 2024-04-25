@@ -14,7 +14,7 @@ export default function generateTeams(container) {
     if (leagueRoundsAmount && playoffsGamesData) {
         const totalGames = (teamNames.length-1)*leagueRoundsAmount
         const teams = teamNames.map(name => new Team(name, totalGames, teamNames.length))
-        const games = generateGames(container, teams, leagueRoundsAmount)
+        const games = generateGames(teams, leagueRoundsAmount)
    
 
         localStorage.setItem('total-games', totalGames)
@@ -54,7 +54,7 @@ export default function generateTeams(container) {
 }
 
 
-function generateGames(container, teams, roundsAmount) {
+function generateGames(teams, roundsAmount) {
     let games = []
 
     for (let i = 0; i < roundsAmount; i++) {
