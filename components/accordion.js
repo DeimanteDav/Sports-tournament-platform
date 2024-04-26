@@ -1,4 +1,18 @@
-export default function accordion(container, btnText, panelDisplay, data, panelClassName) {
+export default function accordion(container, games, innerRounds, btnText) {
+    const accordionWrapper = generateAccordion(btnText, 'block')
+    const panel = accordionWrapper.querySelector('.panel')
+
+    innerRounds && innerRounds.forEach(round => {
+        const innerBtnText = `Round ${round}`
+
+        const innerAccordionWrapper = generateAccordion(innerBtnText, 'flex', games, round, 'inner', btnText)
+        panel.append(innerAccordionWrapper)
+    })
+
+    container.append(accordionWrapper)
+}
+
+function generateAccordion(btnText, panelDisplay, games, round, panelClassName, outerRound) {
     const accordionWrapper = document.createElement('div')
 
     const accordionBtn = document.createElement('button')
@@ -8,14 +22,17 @@ export default function accordion(container, btnText, panelDisplay, data, panelC
 
     const panel = document.createElement('div')
     panel.classList.add('panel')
+    // roundNumber && (panel.dataset.roundNr = roundNumber)
     panelClassName && panel.classList.add(panelClassName)
 
-    if (data) {
-        data.forEach(item => {
-            panel.append(createGameWrappers(item))
+    if (round) {
+        games.forEach(game => {
+            if (`${round}` === `${game.roundNr}`) {
+                panel.append(createGameWrappers(games, game, outerRound))
+            }
         })
     }
-    
+
     accordionBtn.addEventListener('click', (e) => {
         e.target.classList.toggle('active')
 
@@ -27,29 +44,38 @@ export default function accordion(container, btnText, panelDisplay, data, panelC
     })
 
     accordionWrapper.append(accordionBtn, panel)
-
-    container.append(accordionWrapper)
+    return accordionWrapper
 }
 
-function createGameWrappers(game) {
+
+function createGameWrappers(games, game, round) {
     const gameWrapper = document.createElement('div')
     gameWrapper.classList.add('game-wrapper')
 
     const idsWrapper = document.createElement('div')
     
     const gameIdElement = document.createElement('p')
-    gameIdElement.textContent = `${game.id}.`
-    idsWrapper.append(gameIdElement)
+    const gameEl = document.createElement('div')
+    
+    if (game.id) {
+        gameEl.dataset.gameId = game.id
+        gameIdElement.textContent = `${game.id}.`
+        idsWrapper.append(gameIdElement)
+    }
+    gameEl.dataset.roundNr = game.roundNr
+    gameEl.dataset.round = round
+
+    gameEl.classList.add('game')
 
     if (game.pairId) {
         const pairIdElement = document.createElement('p')
         pairIdElement.textContent = `Pair ${game.pairId}`
 
         idsWrapper.append(pairIdElement)
+
+        gameEl.dataset.pairId = game.pairId
     }
 
-    const gameEl = document.createElement('div')
-    gameEl.classList.add('game')
     gameWrapper.append(idsWrapper, gameEl)
 
     for (let team in game) {
@@ -66,12 +92,21 @@ function createGameWrappers(game) {
             } else {
                 teamWrapper.classList.add('away-team')
             }
-            input.dataset.team = game[team].team
             label.htmlFor = input.id
-            label.textContent = game[team].team
-            
 
+            label.textContent = game[team].team
+            input.dataset.team = game[team].team
+            
             input.value = game.played ? game[team].goals : ''
+
+            const pairGames = games.filter(otherGame => otherGame.pairId === game.pairId)
+            const firstGame = pairGames.reduce((acc, curr) => acc.id < curr.id ? acc : curr)
+            const secondGameId = firstGame.id+1
+    
+            if (!firstGame.played && secondGameId === game.id) {
+                input.setAttribute('disabled', true)
+            }
+
             teamWrapper.append(label, input)
             gameEl.append(teamWrapper) 
         }

@@ -293,7 +293,7 @@ table {
   overflow: hidden;
 }
 
-.panel.round {
+.panel.inner {
   justify-content: flex-start;
   flex-wrap: wrap;
   flex: 1;

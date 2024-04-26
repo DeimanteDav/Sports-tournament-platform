@@ -14,8 +14,10 @@ export default function updateGameData(gameEl, currentGame) {
     if (homeTeamInput.value && awayTeamInput.value) {
         if (homeTeamScored > awayTeamScored) {
             currentGame.winner = gameHomeTeamData.team
-        } else {
+        } else if (homeTeamScored < awayTeamScored) {
             currentGame.winner = gameAwayTeamData.team
+        } else {
+            currentGame.winner = null
         }
 
         currentGame.played = true
