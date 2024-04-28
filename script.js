@@ -82,75 +82,81 @@ getLocalStorageData(container)
 // faila pasidaryti
 export function tournamentForm(container, games, teams) {
     const gamesForm = document.createElement('form')
-    gamesForm.id = 'games-wrapper'
+    gamesForm.id = 'games-form'
 
     const roundsAmount = Number(localStorage.getItem('rounds-amount'))
 
-    // for (let i = 0; i < roundsAmount; i++) {
-    //     const accordiontText = `Round ${i+1}`
-    //     const accordionWrapper = accordion(accordiontText, 'block')
-    //     const panel = accordionWrapper.querySelector('.panel')
+    for (let i = 0; i < roundsAmount; i++) {
+        const btnText = `Round ${i+1}`
+        const roundGames = games.filter(game => game.round === i+1)
+        const innerRounds = [...new Set(roundGames.map(game => game.roundNr))]
+
+        accordion(gamesForm, roundGames, innerRounds, btnText)
+        // const accordionWrapper = accordion(accordiontText, 'block')
+        // const panel = accordionWrapper.querySelector('.panel')
+
+        // accordion(gamesForm, games, innerRounds, round)
 
 
-    //     for (let j = 0; j < games.length/(roundsAmount*5); j++) {
-    //         const innerAccordionWrapper = accordion(`Round ${j+1}`, 'flex', 'round')
-    //         innerAccordionWrapper.style.margin = '0 20px'
-    //         const innerPanel = innerAccordionWrapper.querySelector('.panel')
+        // for (let j = 0; j < games.length/(roundsAmount*5); j++) {
+        //     const innerAccordionWrapper = accordion(`Round ${j+1}`, 'flex', 'round')
+        //     innerAccordionWrapper.style.margin = '0 20px'
+        //     const innerPanel = innerAccordionWrapper.querySelector('.panel')
 
-    //         for (let m = 0; m < games.length; m++) {
-    //             const game = games[m];
-    //             const gameWrapper = document.createElement('div')
-    //             gameWrapper.classList.add('game-wrapper')
-    //             const gameNumber = document.createElement('p')
+        //     for (let m = 0; m < games.length; m++) {
+        //         const game = games[m];
+        //         const gameWrapper = document.createElement('div')
+        //         gameWrapper.classList.add('game-wrapper')
+        //         const gameNumber = document.createElement('p')
 
-    //             const gameEl = document.createElement('div')
-    //             gameEl.classList.add('game')
+        //         const gameEl = document.createElement('div')
+        //         gameEl.classList.add('game')
 
                 
-    //             game.played && gameWrapper.classList.add('played')
+        //         game.played && gameWrapper.classList.add('played')
                 
-    //             gameEl.dataset.gameId = game.id
-    //             gameNumber.textContent = `${game.id}.`
+        //         gameEl.dataset.gameId = game.id
+        //         gameNumber.textContent = `${game.id}.`
                 
-    //             for (let team in game) {
-    //                 if (team == 'homeTeam' || team === 'awayTeam') {
-    //                     const teamWrapper = document.createElement('div')
-    //                     teamWrapper.classList.add('team')
+        //         for (let team in game) {
+        //             if (team == 'homeTeam' || team === 'awayTeam') {
+        //                 const teamWrapper = document.createElement('div')
+        //                 teamWrapper.classList.add('team')
             
-    //                     if (team === 'homeTeam') {
-    //                         teamWrapper.classList.add('home-team')
-    //                     } else {
-    //                         teamWrapper.classList.add('away-team')
-    //                     }
+        //                 if (team === 'homeTeam') {
+        //                     teamWrapper.classList.add('home-team')
+        //                 } else {
+        //                     teamWrapper.classList.add('away-team')
+        //                 }
             
-    //                     const label = document.createElement('label')
-    //                     const input = document.createElement('input')  
+        //                 const label = document.createElement('label')
+        //                 const input = document.createElement('input')  
 
-    //                     input.type = 'number'
-    //                     input.id = `${game.id}-${game[team].team}`
-    //                     input.dataset.team = game[team].team
-    //                     label.htmlFor = input.id
-    //                     label.textContent = game[team].team
-    //                     input.classList.add('result-input')
-    //                     input.value = game.played ? game[team].goals : ''           
+        //                 input.type = 'number'
+        //                 input.id = `${game.id}-${game[team].team}`
+        //                 input.dataset.team = game[team].team
+        //                 label.htmlFor = input.id
+        //                 label.textContent = game[team].team
+        //                 input.classList.add('result-input')
+        //                 input.value = game.played ? game[team].goals : ''           
                         
-    //                     teamWrapper.append(label, input)
+        //                 teamWrapper.append(label, input)
 
-    //                     gameEl.append(teamWrapper) 
-    //                     gameWrapper.append(gameEl)
-    //                 }
-    //             }
-    //             if (j === Math.floor(m/5)) {
-    //                 innerPanel.append(gameWrapper)
-    //             }
-    //         }
+        //                 gameEl.append(teamWrapper) 
+        //                 gameWrapper.append(gameEl)
+        //             }
+        //         }
+        //         if (j === Math.floor(m/5)) {
+        //             innerPanel.append(gameWrapper)
+        //         }
+        //     }
 
-    //         panel.append(innerAccordionWrapper)
-    //     }
+        //     panel.append(innerAccordionWrapper)
+        // }
 
-    //     gamesForm.append(accordionWrapper)
+        // gamesForm.append(accordionWrapper)
 
-    // }
+    }
 
     gamesForm.addEventListener('change', (e) => {
         console.log(e);

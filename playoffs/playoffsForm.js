@@ -1,6 +1,6 @@
 import Game from "../classes/Game.js"
 import PlayoffsPair from "../classes/PlayoffsPair.js"
-import accordion from "../components/accordion.js"
+import accordion, { createGameWrappers } from "../components/accordion.js"
 import updateGameData from "../functions/updateGameData.js"
 
 
@@ -96,7 +96,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                     }
 
                     gameId+=1
-                    const roundNr = Math.ceil(gameId / 5)
+                    const roundNr = j
                     const pairId = i+1
 
                     if ((j % 2) === 0) {
@@ -116,12 +116,16 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                     playoffsPairs[round] = []
                 }
 
-                playoffsPairs[round].push(new PlayoffsPair(i, games))
+                const playoffsPair = new PlayoffsPair(i, games)
+                playoffsPair.teams = setTeams(games)
+                playoffsPairs[round].push(playoffsPair)
+
             }
 
             localStorage.setItem('playoffs-pairs-data', JSON.stringify(playoffsPairs))
             localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))
         }
+        console.log(playoffsPairs);
 
         // if (index !== 0 && leagueTableUpdated) {
         //     delete playoffsGames[round]
@@ -131,7 +135,6 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         const roundGames = playoffsGames[round]
         const innerRounds = roundGames && [...new Set(roundGames.map(game => game.roundNr))] 
 
-
         accordion(form, roundGames, innerRounds, round)
     })
 
@@ -140,141 +143,386 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
     form.addEventListener('change', (e) => {
         const gameEl = e.target.parentElement.parentElement
         const pairId = +gameEl.dataset.pairId
-    
+        const gameId = +gameEl.dataset.gameId
+        const gameExtra = gameEl.dataset.extraTime ? true : null
+
         const currentRound = gameEl.dataset.round
         const roundGames = playoffsGames[currentRound]
-        const roundNr = gameEl.dataset.roundNr
+        const roundNr = +gameEl.dataset.roundNr
 
         const currentRoundInfo = roundsData[currentRound]
         const {gamesAmount, knockouts} = currentRoundInfo
-        const totalGames = gamesAmount*knockouts
 
-        let currentGame
-        if (roundNr === 'extra-time') {
-            currentGame = roundGames.find(game => game.pairId === pairId && game.roundNr === 'extra-time')
-        } else {
-            const gameId = +gameEl.dataset.gameId
-            currentGame = roundGames.find(game => game.id === gameId)
-        }
+
+        const pairData = playoffsPairs[currentRound].find(games => games.id === pairId)
+        const pairGames = pairData.games
+        
+        const totalGames = gamesAmount*knockouts
+        
+
+        const currentGame = !gameExtra ? pairGames.find(game => {
+            if (game.id === gameId && game.extraTime === gameExtra) {
+                return game
+            }
+        }) : pairData.extraTime
+
+        playoffsGames[currentRound] = roundGames.map(game => {
+            if (game.id === gameId && game.extraTime === gameExtra) {
+                game = currentGame
+            }
+            return game
+        })
 
         updateGameData(gameEl, currentGame)
 
-        const pairGames = pairId && roundGames.filter(game => game.pairId === pairId && game.roundNr !== 'extra-time')
 
-        const pairGamesPlayed = pairGames && pairGames.every(game => game.played)
-        
-        let changed = false
-        let game = currentGame
+        const firstGame = [...pairGames].shift()
+        const lastGame = [...pairGames].pop()
+        const lastGameId = lastGame.id
+        const secondGameChanged = knockouts > 1 ? lastGameId === gameId : true
 
-        const extraTimeGame = roundGames.find(game => game.pairId === pairId && game.roundNr === 'extra-time')
+        const pairGamesPlayed = pairGames.every(game => game.played)
 
+        const lastGameElement = form.querySelector(`[data-game-id="${lastGameId}"][data-round="${currentRound}"]`)
+        const lastGameWrapper = lastGameElement && lastGameElement.parentElement
 
-        if (pairGames && roundNr !== 'extra-time') {
-            const secondGame = pairGames.reduce((acc, curr) => acc.id > curr.id ? acc : curr)
+        const lastGameInputs = lastGameElement && lastGameElement.querySelectorAll('.result-input')
 
-            if (pairGamesPlayed) {
-                game = secondGame 
+        if (secondGameChanged && !pairData.extraTime && pairGamesPlayed && !currentGame.extraTime) {
+            if (!lastGame.winner) {
+                const extraTimeGame = new Game(lastGame.awayTeam, lastGame.homeTeam, gameId, pairId, roundNr, currentRound)
+                extraTimeGame.extraTime = true
+                playoffsGames[currentRound].push(extraTimeGame)
+
+                pairData.extraTime = extraTimeGame
+                pairData.teams = setTeams(pairGames, extraTimeGame)
+
+                lastGameWrapper.innerHTML = ''
+                const newLastGameWrapper = [...createGameWrappers(lastGame, currentRound, extraTimeGame).children]
+
+                newLastGameWrapper.forEach(child => {
+                    lastGameWrapper.append(child)
+                })
             }
-
-            const firstGame = pairGames.reduce((acc, curr) => acc.id < curr.id ? acc : curr)
-
-            const secondGameElement = document.querySelector(`.game[data-pair-id="${pairId}"][data-game-id="${firstGame.id+1}"]`)
-
-            const inputs = [...secondGameElement.querySelectorAll('.result-input')]
-
-            inputs.forEach(input => {
-                if (firstGame.played) {
-                    input.removeAttribute('disabled')
+        }
+        if ((!firstGame.played || !lastGame.played || lastGame.winner) && pairData.extraTime && !currentGame.extraTime) {
+            pairData.extraTime = null
+            playoffsGames[currentRound] = roundGames.filter(game => {
+                if (game.extraTime) {
+                    if (game.id !== lastGameId) {
+                        return game
+                    }
                 } else {
-                    input.setAttribute('disabled', true)
-                    input.value = ''
-                    playoffsGames[currentRound][secondGame.id-1].homeTeam.goals = 0
-                    playoffsGames[currentRound][secondGame.id-1].awayTeam.goals = 0
-                    playoffsGames[currentRound][secondGame.id-1].played = false
-                    playoffsGames[currentRound][secondGame.id-1].winner = null
+                    return game
                 }
             })
-        }
-    
-        if ((pairGamesPlayed || (!pairId && currentGame.played)) && !extraTimeGame) {
-            if (!game.winner) {
-                const extraTimeGame = new Game(game.homeTeam, game.awayTeam, null, game.pairId, 'extra-time', currentRound)
-                roundGames.push(extraTimeGame)
-                game = extraTimeGame
 
-                changed = true
-            }
-        } 
-
-        if ((currentGame.winner || !currentGame.played) && game.roundNr !== 'extra-time') {
-            const filteredRoundGames = roundGames.filter(game => {
-                if (game.roundNr === 'extra-time') {
-                    return game.pairId !== pairId
-                }
-
-                return game
-            })
-
-            if (filteredRoundGames.length !== roundGames.length) {
-                playoffsGames[currentRound] = filteredRoundGames
-                changed = true
-            }
+            const extraTimeGameEl = lastGameWrapper.querySelector(`.game[data-extra-time="${true}"]`)
+            extraTimeGameEl.remove()
         }
 
+        if (!firstGame.played && knockouts > 1 && !currentGame.extraTime) {
+            lastGameInputs.forEach(input => input.setAttribute('disabled', true))
+        } else if (firstGame.played) {
+            lastGameInputs.forEach(input => input.removeAttribute('disabled'))
+        }
+
+        pairData.teams = setTeams(pairGames, pairData.extraTime)
+
+        const allGames = pairData.extraTime ? [...pairGames, pairData.extraTime] : pairGames
 
         const nextRound =  gamesAmount === 2 ? 'final' : `1/${gamesAmount/2}`
-        const nextRoundTotalGames = roundsData[nextRound].gamesAmount*roundsData[nextRound].knockouts
+        const nextRoundGamesAmount = roundsData[nextRound].gamesAmount
+        const nextRoundKnockouts = roundsData[nextRound].knockouts
+        const nextRoundTotalGames = nextRoundGamesAmount*nextRoundKnockouts
 
-        let nextGameId
-        if (game.id) {
-            nextGameId = game.id+nextRoundTotalGames+(totalGames-game.id)-1
-        } else {
-            nextGameId = (pairId*2)+nextRoundTotalGames+(totalGames-(pairId*2))
+        const nextGameId = totalGames+Math.round(pairId/2)
+        const nextPairId = Math.ceil(nextGameId/2)
+      
+        let nextGames = playoffsGames[nextRound] && playoffsGames[nextRound].filter(game => game.pairId === nextPairId)
 
-        }
+        const nextGameWrapper = document.querySelector(`[dataset]`)
 
-        if (extraTimeGame?.winner || (!extraTimeGame && pairGamesPlayed)) {
+        if (allGames.every(game => game.played)) {
+            const winner = pairData.teams[0].score > pairData.teams[1].score ? pairData.teams[0] : pairData.teams[1]
+            
             if (!playoffsGames[nextRound]) {
                 playoffsGames[nextRound] = []
             }
+            if (!nextGames || nextGames.length === 0) {
+                nextGames = []
+                for (let i = 0; i < nextRoundKnockouts; i++) {
 
-            if (!playoffsGames[nextRound].some(game => game.id === nextGameId)) {
-                const nextRoundNr = Math.ceil(nextGameId / 5)
-                const winner = playoffTeams.find(team => team.team === game.winner)
-                const nextPairId = Math.ceil(nextGameId/2)
-
-                let nextGame
-                if (pairId % 2 === 0) {
-                    console.log('1');
-                    nextGame = new Game(null, winner, nextGameId, nextPairId, nextRoundNr)
-                } else {
-                    console.log('2');
-                    nextGame = new Game(winner, null, nextGameId, nextPairId, nextRoundNr)
+                    const nextGamesData = [nextGameId, nextPairId-i, i+1, nextRound]
+                    if (pairId % 2 === 0) {
+                        if (i === 0) {
+                            nextGames.push(new Game(null, winner, ...nextGamesData))
+                        } else {
+                            nextGames.push(new Game(winner, null, ...nextGamesData))
+                        }
+                    } else {
+                        if (i === 0) {
+                            nextGames.push(new Game(winner, null, ...nextGamesData))
+                        } else {
+                            nextGames.push(new Game(null, winner, ...nextGamesData))
+                        }
+                    }
                 }
 
-                playoffsGames[nextRound].push(nextGame)
-            }
-        } else {
-            if (playoffsGames[nextRound]) {
-                console.log(nextGameId);
-                if (playoffsGames[nextRound].some(game => game.id === nextGameId)) {
-                    playoffsGames[nextRound] = playoffsGames[nextRound].filter(game => game.id !== nextGameId) 
-                }
-            }
-        } 
 
+                playoffsGames[nextRound].push(...nextGames)
+                const nextPlayoffsPair = new PlayoffsPair(nextPairId, nextGames)
+                nextPlayoffsPair.teams = setTeams(nextGames)
+
+                if (!playoffsPairs[nextRound]) {
+                    playoffsPairs[nextRound] = []
+                }
+                playoffsPairs[nextRound].push(nextPlayoffsPair)
+            } else {
+                playoffsGames[nextRound].map((game, i) => {
+                    if (game.pairId === nextPairId && !game.extraTime) {
+                        if (pairId % 2 === 0) {
+                            if (i === 0 && game.awayTeam.team !== winner.team) {
+                                game.awayTeam.team = winner.team
+                                game.awayTeam.goals = 0
+                                game.played = false
+                                game.winner = null
+                            } else if (i === 1 && game.homeTeam.team !== winner.team) {
+                                game.homeTeam.team = winner.team
+                                game.homeTeam.goals = 0
+                                game.played = false
+                                game.winner = null
+                            }
+                        } else if (pairId % 2 !== 0 && i === 0 && game.homeTeam.team !== winner.team) {
+                            if (i === 0 && game.homeTeam.team !== winner.team) {
+                                game.homeTeam.team = winner.team
+                                game.homeTeam.goals = 0
+                                game.played = false
+                                game.winner = null
+                            } else if (i === 1 && game.awayTeam.team !== winner.team) {
+                                game.awayTeam.team = winner.team
+                                game.awayTeam.goals = 0
+                                game.played = false
+                                game.winner = null
+                            }
+                        }
+
+                        return game
+                    }
+                    return game
+                })
+
+                const nextGameWrapper = form.querySelector(`[data-pair-id="${nextPairId}"][data-round="${nextRound}"]`)
+                nextGameWrapper.innerHTML = ''
+                const nextPairData = playoffsPairs[nextRound].find(pair => pair.id === nextPairId)
+
+                const nextGameWrapperUpdated = [...createGameWrappers(nextPairData.games, nextRound, nextPairData.extraTime).children]
+
+                nextGameWrapperUpdated.forEach(child => {
+                    lastGameWrapper.append(child)
+                })
+            }
+        }
+
+        // let currentGame
+        // if (roundNr === 'extra-time') {
+        //     currentGame = roundGames.find(game => game.pairId === pairId && game.roundNr === 'extra-time')
+        // } else {
+        //     const gameId = +gameEl.dataset.gameId
+        //     currentGame = roundGames.find(game => game.id === gameId)
+        // }
+
+
+        // const pairGames = pairId && roundGames.filter(game => game.pairId === pairId && game.roundNr !== 'extra-time')
+
+        // const pairGamesPlayed = pairGames && pairGames.every(game => game.played)
+        
+        // let changed = false
+        // let game = currentGame
+
+        // const extraTimeGame = roundGames.find(game => game.pairId === pairId && game.roundNr === 'extra-time')
+
+
+        // if (pairGames.length > 1 && roundNr !== 'extra-time') {
+        //     const secondGame = pairGames.reduce((acc, curr) => acc.id > curr.id ? acc : curr)
+
+        //     if (pairGamesPlayed) {
+        //         game = secondGame 
+        //     }
+
+        //     const firstGame = pairGames.reduce((acc, curr) => acc.id < curr.id ? acc : curr)
+
+        //     const secondGameElement = document.querySelector(`.game[data-pair-id="${pairId}"][data-game-id="${firstGame.id+1}"]`)
+
+        //     const inputs = [...secondGameElement.querySelectorAll('.result-input')]
+
+        //     inputs.forEach(input => {
+        //         if (firstGame.played) {
+        //             input.removeAttribute('disabled')
+        //         } else {
+        //             input.setAttribute('disabled', true)
+        //             input.value = ''
+        //             playoffsGames[currentRound][secondGame.id-1].homeTeam.goals = 0
+        //             playoffsGames[currentRound][secondGame.id-1].awayTeam.goals = 0
+        //             playoffsGames[currentRound][secondGame.id-1].played = false
+        //             playoffsGames[currentRound][secondGame.id-1].winner = null
+        //         }
+        //     })
+        // }
+    
+        // if ((pairGamesPlayed || (!pairId && currentGame.played)) && !extraTimeGame) {
+        //     if (!game.winner) {
+        //         const extraTimeGame = new Game(game.homeTeam, game.awayTeam, null, game.pairId, 'extra-time', currentRound)
+        //         roundGames.push(extraTimeGame)
+        //         game = extraTimeGame
+
+        //         changed = true
+
+        //         if (!playoffsPairs)
+        //         console.log(playoffsPairs[currentRound], currentRound);
+        //         const pairData = playoffsPairs[currentRound].find(pairData => pairData.id === game.pairId)
+        //         pairData.games.push(extraTimeGame)
+        //     }
+        // } 
+
+        // if ((currentGame.winner || !currentGame.played) && game.roundNr !== 'extra-time') {
+        //     const filteredRoundGames = roundGames.filter(game => {
+        //         if (game.roundNr === 'extra-time') {
+        //             return game.pairId !== pairId
+        //         }
+
+        //         return game
+        //     })
+
+        //     if (filteredRoundGames.length !== roundGames.length) {
+        //         playoffsGames[currentRound] = filteredRoundGames
+        //         changed = true
+        //     }
+        // }
+
+
+        // const nextRound =  gamesAmount === 2 ? 'final' : `1/${gamesAmount/2}`
+        // const nextRoundTotalGames = roundsData[nextRound].gamesAmount*roundsData[nextRound].knockouts
+
+        // let nextGameId
+        // if (game.id) {
+        //     nextGameId = game.id+nextRoundTotalGames+(totalGames-game.id)-1
+        //     if (game.id % 2 == 0) {
+        //         nextGameId-=1
+        //     }
+        // } else {
+        //     nextGameId = (pairId*2)+nextRoundTotalGames+(totalGames-(pairId*2))
+
+        // }
+
+        // const pairGames1 = playoffsGames[currentRound].filter(game => {
+        //     if (pairId % 2 === 0) {
+        //         if (game.pairId === pairId -1) {
+        //             return game
+        //         }
+        //     } else {
+        //         if (game.pairId === pairId) {
+        //             return game
+        //         } 
+        //     }
+        // })
+
+        // const pairgames1Played = pairGames1.every(game => game.played)
+
+        // const pairGames2 = playoffsGames[currentRound].filter(game => {
+        //     if (pairId % 2 === 0) {
+        //         if (game.pairId === pairId) {
+        //             return game
+        //         }
+        //     } else {
+        //         if (game.pairId === pairId+1) {
+        //             return game
+        //         } 
+        //     }
+        // })
+
+        // const pairgames2Played = pairGames2.every(game => game.played)
+
+        // if (extraTimeGame?.winner || (!extraTimeGame && pairGamesPlayed)) {
+        //     if (!playoffsGames[nextRound]) {
+        //         playoffsGames[nextRound] = []
+        //     }
+        //     const nextRoundNr = Math.ceil(nextGameId / 5)
+        //     const winner = playoffTeams.find(team => team.team === game.winner)
+            
+        //     if (!playoffsGames[nextRound].some(game => game.id === nextGameId)) {
+        //         const nextPairId = Math.ceil(nextGameId/2)
+
+        //         let nextGame
+        //         if (pairId % 2 === 0) {
+        //             nextGame = new Game(null, winner, nextGameId, nextPairId, nextRoundNr)
+        //         } else {
+        //             nextGame = new Game(winner, null, nextGameId, nextPairId, nextRoundNr)
+        //         }
+        //         console.log(winner);
+        //         if (!playoffsPairs[nextRound]) {
+        //             playoffsPairs[nextRound] = []
+        //         }
+        //         const nextPairData = playoffsPairs[nextRound].find(pairData => pairData.id === nextPairId)
+
+        //         playoffsGames[nextRound].push(nextGame)
+
+        //         // if (!nextPairData) {
+        //         //     playoffsPairs[nextRound].push(new PlayoffsPair(nextPairId, [nextGame]))
+        //         // } else {
+        //         //     nextPairData.games.push(nextGame)
+        //         // }
+                
+        //     } else {
+        //         const nextGameIndex = playoffsGames[nextRound].findIndex(game => game.id === nextGameId)
+        //         if (pairId % 2 === 0) {
+        //             if (playoffsGames[nextRound][nextGameIndex].awayTeam.team !== winner.team) {
+        //                 playoffsGames[nextRound][nextGameIndex].awayTeam.team = winner.team
+        //                 playoffsGames[nextRound][nextGameIndex].winner = null
+        //                 playoffsGames[nextRound][nextGameIndex].played = false
+        //             }
+        //         } else {
+        //             if (playoffsGames[nextRound][nextGameIndex].homeTeam.team !== winner.team) {
+        //                 playoffsGames[nextRound][nextGameIndex].homeTeam.team = winner.team
+        //                 playoffsGames[nextRound][nextGameIndex].winner = null
+        //                 playoffsGames[nextRound][nextGameIndex].played = false
+        //             }
+        //         }
+        //     }
+
+
+        // } else if ((!pairgames1Played && !pairgames2Played)) {
+        //     if (playoffsGames[nextRound]) {
+        //         if (playoffsGames[nextRound].some(game => game.id === nextGameId)) {
+        //             playoffsGames[nextRound] = playoffsGames[nextRound].filter(game => game.id !== nextGameId) 
+        //         }
+        //     }
+        // } else if (!currentGame.played) {
+        //     const nextGameIndex = playoffsGames[nextRound].findIndex(game => game.id === nextGameId)
+            
+        //     if (pairId % 2 === 0) {
+        //             playoffsGames[nextRound][nextGameIndex].awayTeam.team = ''
+        //     } else {
+        //         playoffsGames[nextRound][nextGameIndex].homeTeam.team = ''
+        //     }
+        //     playoffsGames[nextRound][nextGameIndex].winner = null
+        //     playoffsGames[nextRound][nextGameIndex].played = false
+        // }
+
+
+        // if (changed) {
+        //     form.innerHTML = ''
+        //     Object.entries(sortedData).forEach(([round]) => {
+        //         const roundGames = playoffsGames[round]
+        //         const innerRounds = roundGames && [...new Set(roundGames.map(game => game.roundNr))] 
+        
+    
+        //         accordion(form, roundGames, innerRounds, round)
+        //     })
+        // }
+        localStorage.setItem('playoffs-pairs-data', JSON.stringify(playoffsPairs))
         localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))
 
-        if (changed) {
-            form.innerHTML = ''
-            Object.entries(sortedData).forEach(([round]) => {
-                const roundGames = playoffsGames[round]
-                const innerRounds = roundGames && [...new Set(roundGames.map(game => game.roundNr))] 
-        
-        
-                accordion(form, roundGames, innerRounds, round)
-            })
-        }
         changePlayoffsTable(container, sortedData, playoffsGames, playoffTeams)
 
 
@@ -404,6 +652,46 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
 
     //     localStorage.setItem('playoffs-games-data', JSON.stringify(playoffsGames))        
     })
+}
+
+function setTeams(games, extraTime) {
+    const team1  = games[0].homeTeam.team
+    const team2  = games[0].awayTeam.team
+    let goals1Sum = 0
+    let goals2Sum = 0
+    games.forEach(game => {
+        if (game.homeTeam.team === team1) {
+            goals1Sum+=game.homeTeam.goals
+            goals2Sum+=game.awayTeam.goals
+        }
+        if (game.awayTeam.team === team1) {
+            goals1Sum+=game.awayTeam.goals
+            goals2Sum+=game.homeTeam.goals
+        }
+    })
+
+    if (extraTime) {
+        const homeTeam = extraTime.homeTeam
+        const awayTeam = extraTime.homeTeam
+        const team1Goals = homeTeam.team === team1 ? homeTeam.goals : awayTeam.goals
+        const team2Goals = homeTeam.team === team2 ? homeTeam.goals : awayTeam.goals
+
+        goals1Sum+=team1Goals
+        goals2Sum+=team2Goals
+    }
+
+    return (
+        [
+           {
+               team: team1,
+               score: goals1Sum,
+           },
+           {
+               team: team2,
+               score: goals2Sum
+           }
+       ]
+    )
 }
 
 

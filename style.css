@@ -126,10 +126,10 @@
 }
 
 
-#games-wrapper {
-  display: flex;
+#games-form {
+  /* display: flex;
   flex-direction: column;
-  gap: 50px;
+  gap: 50px; */
   max-width: 1200px;
   width: 100%;
 }

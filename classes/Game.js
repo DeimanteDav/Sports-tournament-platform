@@ -1,11 +1,11 @@
 export default class Game {
-  constructor(homeTeam, awayTeam, id, pairId, roundNr, round) {
+  constructor(homeTeam, awayTeam, id, pairId, roundNr, round, extraTime) {
     this.homeTeam = {
-      team: homeTeam && homeTeam.team,
+      team: homeTeam ? homeTeam.team : '',
       goals: 0,
     };
     this.awayTeam = {
-      team: awayTeam && awayTeam.team,
+      team: awayTeam ? awayTeam.team : '',
       goals: 0,
     };
     this.played = false;
@@ -14,5 +14,6 @@ export default class Game {
     this.roundNr = roundNr
     this.round = round
     this.winner = null
+    this.extraTime = extraTime ? true : null
   }
 }

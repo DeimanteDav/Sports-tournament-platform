@@ -26,9 +26,12 @@ function generateAccordion(btnText, panelDisplay, games, round, panelClassName, 
     panelClassName && panel.classList.add(panelClassName)
 
     if (round) {
+        const extraTimeGames = games.filter(game => game.extraTime)
+
         games.forEach(game => {
-            if (`${round}` === `${game.roundNr}`) {
-                panel.append(createGameWrappers(games, game, outerRound))
+            if (`${round}` === `${game.roundNr}` && !game.extraTime) {
+                const extraTime = extraTimeGames.find(extraGame => extraGame.id === game.id)
+                panel.append(createGameWrappers(game, outerRound, extraTime))
             }
         })
     }
@@ -48,24 +51,18 @@ function generateAccordion(btnText, panelDisplay, games, round, panelClassName, 
 }
 
 
-function createGameWrappers(games, game, round) {
+export function createGameWrappers(game, round, extraTimeGame) {
     const gameWrapper = document.createElement('div')
     gameWrapper.classList.add('game-wrapper')
 
     const idsWrapper = document.createElement('div')
     
     const gameIdElement = document.createElement('p')
-    const gameEl = document.createElement('div')
-    
-    if (game.id) {
-        gameEl.dataset.gameId = game.id
-        gameIdElement.textContent = `${game.id}.`
-        idsWrapper.append(gameIdElement)
-    }
-    gameEl.dataset.roundNr = game.roundNr
-    gameEl.dataset.round = round
 
-    gameEl.classList.add('game')
+    gameIdElement.textContent = `${game.id}.`
+    idsWrapper.append(gameIdElement)
+
+
 
     if (game.pairId) {
         const pairIdElement = document.createElement('p')
@@ -73,10 +70,30 @@ function createGameWrappers(games, game, round) {
 
         idsWrapper.append(pairIdElement)
 
-        gameEl.dataset.pairId = game.pairId
+        
+    }
+    gameWrapper.append(idsWrapper)
+
+    const games = extraTimeGame ? [game, extraTimeGame] : [game]
+    for (const game of games) {
+        const gameEl = createGameElement(game, round)
+
+        gameWrapper.append(gameEl)
     }
 
-    gameWrapper.append(idsWrapper, gameEl)
+    return gameWrapper
+}
+
+function createGameElement(game, round) {
+    const gameEl = document.createElement('div')
+    gameEl.dataset.gameId = game.id
+    gameEl.dataset.roundNr = game.roundNr
+    gameEl.dataset.round = round
+    gameEl.classList.add('game')
+
+    game.extraTime && (gameEl.dataset.extraTime = true)
+    game.pairId && (gameEl.dataset.pairId = game.pairId)
+
 
     for (let team in game) {
         if (team === 'homeTeam' || team === 'awayTeam') {
@@ -99,17 +116,25 @@ function createGameWrappers(games, game, round) {
             
             input.value = game.played ? game[team].goals : ''
 
-            const pairGames = games.filter(otherGame => otherGame.pairId === game.pairId)
-            const firstGame = pairGames.reduce((acc, curr) => acc.id < curr.id ? acc : curr)
-            const secondGameId = firstGame.id+1
-    
-            if (!firstGame.played && secondGameId === game.id) {
-                input.setAttribute('disabled', true)
+            
+            if (game.pairId) {
+                const playoffPairs = JSON.parse(localStorage.getItem('playoffs-pairs-data'))
+                console.log(round, game.pairId);
+                const pairGames = playoffPairs[round].find(pairData => pairData.id === game.pairId).games
+
+                if (pairGames.length > 1) {
+                    const firstGame = pairGames[0]
+                    const secondGame = pairGames[1]
+
+                    if (!firstGame.played && secondGame.id === game.id) {
+                        input.setAttribute('disabled', true)
+                    }
+                }
             }
 
             teamWrapper.append(label, input)
             gameEl.append(teamWrapper) 
         }
     }
-    return gameWrapper
-}
+    return gameEl
+}   
