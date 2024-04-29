@@ -3,27 +3,20 @@ import PlayoffsPair from "../classes/PlayoffsPair.js"
 import accordion, { createGameWrappers } from "../components/accordion.js"
 import updateGameData from "../functions/updateGameData.js"
 
+// TABLE PLAYOFFS LAUKELIUOSE
+// BENDRAS REZ. JEI LYGUS TAD EXTRA TIME
 
-// playoffs table komandos toliau numeruotus o ne is naujo
-
-// Kai vienas zaidimas suzaistas atvaizduotu ta komanda ir kitos kuri laimes
-
-// ANTRO zaidimo tarp komandu neleisti zaisti KOL pirmas nesuzaistas
-
-// JEI DOUBLE ELIMINATION sukeisti awayTeam ir homeTeam antram zaidime IR ATSKIRTI KVADRATELIUS  
+// prie zaidimo prideti: rato nr, roundo nr, poros numberis, zaidimo numeri.
 
 
 // JEIGU LYGIOSIOS (Prie antro zaidimo):
 // extra time du inputai
+
 // JEI VEL LYGIOS:
 // penalty shootout
 
 
-// prie zaidimo prideti: rato nr, roundo nr, poros numberis, zaidimo numeri.
-
 // table atvaizduoti extra time; Penalty; BENDRas rezultatas
-
-// class playoffPair, joje rungtynes ideti
 
 // krepsinio tipai ETAPU:
     // vienos rungtynes (kaip futbole, kas laimi tas praena, jei lygios, tai overtime)
@@ -157,8 +150,6 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         const pairData = playoffsPairs[currentRound].find(games => games.id === pairId)
         const pairGames = pairData.games
         
-        const totalGames = gamesAmount*knockouts
-        
 
         const currentGame = !gameExtra ? pairGames.find(game => {
             if (game.id === gameId && game.extraTime === gameExtra) {
@@ -236,11 +227,30 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         const nextRoundKnockouts = roundsData[nextRound].knockouts
         const nextRoundTotalGames = nextRoundGamesAmount*nextRoundKnockouts
 
-        const nextGameId = totalGames+Math.round(pairId/2)
-        const nextPairId = Math.ceil(nextGameId/2)
-      
-        let nextGames = playoffsGames[nextRound] && playoffsGames[nextRound].filter(game => game.pairId === nextPairId)
+        // const nextGameId = totalGames+Math.round(pairId/2)
+        
+        let playoffsGamesAmount = 0
+        let playoffsTotalGamesAmount = 0
+        for (const [round, data] of Object.entries(roundsData)) {
+            playoffsGamesAmount+=data.gamesAmount
+            playoffsTotalGamesAmount+=(data.gamesAmount*data.knockouts)
 
+            if (round === currentRound ) {
+                break;
+            }
+        }
+        
+        let lastPairId = pairId % 2 === 0 ? pairId : pairId+1
+        if (playoffsGamesAmount !== gamesAmount) {
+            lastPairId-=(playoffsGamesAmount-gamesAmount)
+        }
+        let nextPairId = playoffsGamesAmount+(lastPairId/2)
+
+        let nextGameId = playoffsTotalGamesAmount-gamesAmount+pairId
+
+
+        let nextGames = playoffsGames[nextRound] && playoffsGames[nextRound].filter(game => game.pairId === nextPairId)
+        console.log(nextGameId, nextPairId, allGames);
         const nextGameWrapper = document.querySelector(`[dataset]`)
 
         if (allGames.every(game => game.played)) {
@@ -252,8 +262,8 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
             if (!nextGames || nextGames.length === 0) {
                 nextGames = []
                 for (let i = 0; i < nextRoundKnockouts; i++) {
+                    const nextGamesData = [nextGameId+i, nextPairId, i+1, nextRound]
 
-                    const nextGamesData = [nextGameId, nextPairId-i, i+1, nextRound]
                     if (pairId % 2 === 0) {
                         if (i === 0) {
                             nextGames.push(new Game(null, winner, ...nextGamesData))
@@ -280,6 +290,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                 playoffsPairs[nextRound].push(nextPlayoffsPair)
             } else {
                 playoffsGames[nextRound].map((game, i) => {
+                    console.log(nextPairId, game.pairId, winner);
                     if (game.pairId === nextPairId && !game.extraTime) {
                         if (pairId % 2 === 0) {
                             if (i === 0 && game.awayTeam.team !== winner.team) {
@@ -287,11 +298,12 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                                 game.awayTeam.goals = 0
                                 game.played = false
                                 game.winner = null
-                            } else if (i === 1 && game.homeTeam.team !== winner.team) {
-                                game.homeTeam.team = winner.team
-                                game.homeTeam.goals = 0
-                                game.played = false
-                                game.winner = null
+                                if (i==1) {
+                                    game.homeTeam.team = winner.team
+                                    game.homeTeam.goals = 0
+                                    game.played = false
+                                    game.winner = null
+                                }
                             }
                         } else if (pairId % 2 !== 0 && i === 0 && game.homeTeam.team !== winner.team) {
                             if (i === 0 && game.homeTeam.team !== winner.team) {
@@ -299,29 +311,40 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                                 game.homeTeam.goals = 0
                                 game.played = false
                                 game.winner = null
-                            } else if (i === 1 && game.awayTeam.team !== winner.team) {
-                                game.awayTeam.team = winner.team
-                                game.awayTeam.goals = 0
-                                game.played = false
-                                game.winner = null
+                                if (i === 1) {
+                                    game.awayTeam.team = winner.team
+                                    game.awayTeam.goals = 0
+                                    game.played = false
+                                    game.winner = null
+                                }
                             }
                         }
-
                         return game
                     }
                     return game
                 })
-
-                const nextGameWrapper = form.querySelector(`[data-pair-id="${nextPairId}"][data-round="${nextRound}"]`)
-                nextGameWrapper.innerHTML = ''
-                const nextPairData = playoffsPairs[nextRound].find(pair => pair.id === nextPairId)
-
-                const nextGameWrapperUpdated = [...createGameWrappers(nextPairData.games, nextRound, nextPairData.extraTime).children]
-
-                nextGameWrapperUpdated.forEach(child => {
-                    lastGameWrapper.append(child)
-                })
             }
+            console.log(nextGameWrapper, nextPairId, nextRound);
+
+            const nextPairData = playoffsPairs[nextRound].find(pair => pair.id === nextPairId)
+
+            // nextPairData.games.forEach((game, i) => {
+            //     const nextGameEl = form.querySelector(`[data-pair-id="${nextPairId}"][data-round="${nextRound}"]`)
+            //     let nextGameWRapper = nextGameEl && nextGameEl.parentElement
+            //     nextGameWRapper.innerHTML = ''
+
+            //     let nextGameWrapperUpdated
+            //     if (nextPairData.games.length > 1 && i === 0) {
+            //         nextGameWrapperUpdated = [...createGameWrappers(game, nextRound, nextPairData.extraTime).children]
+            //     } else if (nextPairData.games.length === 1) {
+            //         nextGameWrapperUpdated = [...createGameWrappers(game, nextRound).children]
+            //     }
+
+            //     nextGameWrapperUpdated.forEach(child => {
+            //         nextGameWrapper.append(child)
+            //     })
+            // })
+
         }
 
         // let currentGame
@@ -557,7 +580,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
     //     }
     //     if (gamesAmount > 1) {
             // const nextRound =  gamesAmount === 2 ? 'final' : `1/${gamesAmount/2}`
-    //         const nextGameId = currentGameId % 2 === 0 ? currentGameId/2 : (currentGameId+1)/2
+            // const nextGameId = currentGameId % 2 === 0 ? currentGameId/2 : (currentGameId+1)/2
     //         const nextGames = playoffsGames[nextRound] && playoffsGames[nextRound][nextGameId]
 
     //         const nextRoundInfo = nextRound && roundsData[nextRound]
@@ -955,8 +978,6 @@ function changePlayoffsTable(container, roundsData, playoffsGames) {
         wideScreen.addEventListener('change', (e) => {
             rowIndex = 1
         })
-
-     
         
         for (let i = 0; i < gamesAmount; i++) {
             pairId+=1
@@ -970,7 +991,6 @@ function changePlayoffsTable(container, roundsData, playoffsGames) {
             if (index === 0) {
                 gridWrapper.classList.add('first-row')
             }
-
 
             wideScreen.addEventListener('change', repositionResultWrapper)
             repositionResultWrapper(wideScreen)
