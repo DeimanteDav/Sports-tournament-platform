@@ -44,7 +44,15 @@ export default function generateTeams(container) {
     } else if (playoffsGamesData) {
         const teamsAmount = playoffsGamesData.teamsAmount
         const difference = teamNames.length - teamsAmount
-        const playoffTeams = teamNames.slice(0, -difference).map(name => new Team(name, 0, teamsAmount))
+
+        let teams
+        if (difference > 0) {
+            teams = teamNames.slice(0, -difference)
+        } else {
+            teams = teamNames
+        }
+
+        const playoffTeams = teams.map(name => new Team(name, 0, teamsAmount))
 
         localStorage.setItem('playoffs-teams-data', JSON.stringify(playoffTeams))
         resetDataBtn(container)

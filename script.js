@@ -29,7 +29,7 @@ import accordion from "./components/accordion.js"
 
     // jei tie break neissiaiskina, tai kartoti breakus tarp likusiu komandu nuo 3. punko TARPUSAVY
 
-// POINTS imesti ir OVERTIME POINTS imesti atskirai rasos ir tie breakuose points skaicuojas, o laimejimuose TOTAL 
+// POINTS imesti ir OVERTIME POINTS imesti atskirai rasos ir tie breakuose points skaicuojas, o laimejimuose TOTAL
 
 
 // ADD CONDITION:

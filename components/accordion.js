@@ -1,4 +1,5 @@
 export default function accordion(container, games, innerRounds, btnText) {
+    console.log(games);
     const accordionWrapper = generateAccordion(btnText, 'block')
     const panel = accordionWrapper.querySelector('.panel')
 
@@ -26,12 +27,9 @@ function generateAccordion(btnText, panelDisplay, games, round, panelClassName, 
     panelClassName && panel.classList.add(panelClassName)
 
     if (round) {
-        const extraTimeGames = games.filter(game => game.extraTime)
-
         games.forEach(game => {
-            if (`${round}` === `${game.roundNr}` && !game.extraTime) {
-                const extraTime = extraTimeGames.find(extraGame => extraGame.id === game.id)
-                panel.append(createGameWrappers(game, outerRound, extraTime))
+            if (`${round}` === `${game.roundNr}`) {
+                panel.append(createGameWrappers(game, outerRound))
             }
         })
     }
@@ -94,7 +92,6 @@ function createGameElement(game, round) {
     game.extraTime && (gameEl.dataset.extraTime = true)
     game.pairId && (gameEl.dataset.pairId = game.pairId)
 
-
     for (let team in game) {
         if (team === 'homeTeam' || team === 'awayTeam') {
             const teamWrapper = document.createElement('div')
@@ -114,12 +111,12 @@ function createGameElement(game, round) {
             label.textContent = game[team].team
             input.dataset.team = game[team].team
             
-            input.value = game.played ? game[team].goals : ''
+            input.value = game[team].goals ? game[team].goals : ''
 
             
             if (game.pairId) {
                 const playoffPairs = JSON.parse(localStorage.getItem('playoffs-pairs-data'))
-                console.log(round, game.pairId);
+
                 const pairGames = playoffPairs[round].find(pairData => pairData.id === game.pairId).games
 
                 if (pairGames.length > 1) {
@@ -132,7 +129,21 @@ function createGameElement(game, round) {
                 }
             }
 
+            if (!game.homeTeam.team || !game.awayTeam.team) {
+                input.setAttribute('disabled', true)
+            }
+        
             teamWrapper.append(label, input)
+
+            if (game.extraTime) {
+                const extraTimeInput = document.createElement('input')               
+                extraTimeInput.type = 'number'
+                extraTimeInput.classList.add('result-input', 'extra-time')
+                extraTimeInput.value = game.extraTime.played ? game.extraTime[team].goals : ''
+
+                teamWrapper.append(extraTimeInput)
+            }
+
             gameEl.append(teamWrapper) 
         }
     }
