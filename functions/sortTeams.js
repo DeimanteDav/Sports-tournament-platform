@@ -4,6 +4,8 @@ export default function sortTeams(teams, games, params = {}) {
     const {compareBetweenGames} = params
     const samePointsTeams = []
 
+    const sportId = JSON.parse(localStorage.getItem('sport')).id
+
     const result = teams.sort((a, b) => {
         if (a.points > b.points) {
             return -1
@@ -43,7 +45,6 @@ export default function sortTeams(teams, games, params = {}) {
                     return 1
                 }
             }
-
             
             if (a.goalDifference > b.goalDifference) {
                 return -1

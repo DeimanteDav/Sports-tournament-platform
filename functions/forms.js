@@ -1,11 +1,71 @@
 import toggleSwitch from "../components/toggleSwitch.js"
-import { TEAM_NAMES } from "../config.js"
+import { SPORTS, TEAM_NAMES } from "../config.js"
 import generateTeams from "./generate.js"
 
-export function teamsAmountForm(container) {
+export function sportTypeForm(container) {
     localStorage.clear()
+
     const form = document.createElement('form')
     form.classList.add('form')
+
+    const text = document.createElement('p')
+    text.textContent = 'Select sport'
+
+    const buttonsWrapper = document.createElement('div')
+    buttonsWrapper.classList.add('btn-wrapper')
+
+    const basketBallBtn = document.createElement('button')
+    basketBallBtn.type = 'button'
+    basketBallBtn.textContent = 'Basketball'
+
+    const footballBtn = document.createElement('button')
+    footballBtn.type = 'button'
+    footballBtn.textContent = 'Football'
+    
+
+    const submitBtn = document.createElement('button')
+    submitBtn.type = 'submit'
+    submitBtn.textContent = 'OK'
+
+    buttonsWrapper.append(basketBallBtn, footballBtn)
+    form.append(text, buttonsWrapper, submitBtn)
+    container.append(form)
+
+    let selectedSport = null
+
+    basketBallBtn.addEventListener('click', () => {
+        form.classList.remove('error')
+
+        selectedSport = SPORTS.basketball
+        basketBallBtn.classList.add('clicked')
+        footballBtn.classList.remove('clicked')
+    })
+    footballBtn.addEventListener('click', () => {
+        form.classList.remove('error')
+
+        selectedSport = SPORTS.football
+        footballBtn.classList.add('clicked')
+        basketBallBtn.classList.remove('clicked')
+    })
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        if (selectedSport) {
+            form.classList.remove('error')
+            form.remove()
+            localStorage.setItem('sport', JSON.stringify(selectedSport))
+
+            teamsAmountForm(container)
+        } else {
+            form.classList.add('error')
+        }
+    })
+}
+
+export function teamsAmountForm(container) {
+    const form = document.createElement('form')
+    form.classList.add('form')
+
     const wrapper = document.createElement('div')
     const text = document.createElement('p')
     text.textContent = 'How many teams in tournament?'
@@ -14,6 +74,8 @@ export function teamsAmountForm(container) {
     input.type = 'number'
     input.min = 2
     input.max = 40
+
+
 
     wrapper.append(text, input)
     
@@ -24,13 +86,22 @@ export function teamsAmountForm(container) {
     form.append(wrapper, submitBtn)
     container.append(form)
 
+    input.addEventListener('input', (e) => {
+        if ([...form.classList].includes('error')) {
+            form.classList.remove('error')
+        }
+    })
+
     form.addEventListener('submit', (e) => {
         e.preventDefault()
         const amount = e.target.amount.value
     
         if (amount) {
+
             form.remove()
             teamNamesForm(container, Number(amount))
+        } else {
+            form.classList.add('error')
         }
     })
 }
@@ -497,6 +568,7 @@ function tournamentType(container, teamsAmount) {
             playoffsInfoWrapper.append(teamsAmountWrapper)
             
             generatePlayoffsData(playoffsInfoWrapper, 2, playoffsData)
+
             possibleAmountsSelect.addEventListener('change', (e) => {
                 const amount = Number(e.target.value)
 
@@ -581,6 +653,8 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
         roundElement.textContent = round
 
         const buttonsWrapper = document.createElement('div')
+        buttonsWrapper.classList.add('btn-wrapper')
+
         const singleKnockoutBtn = document.createElement('button')
         singleKnockoutBtn.type = 'button'
         singleKnockoutBtn.textContent = 'single'

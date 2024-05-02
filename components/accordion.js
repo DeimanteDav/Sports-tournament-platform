@@ -1,5 +1,4 @@
 export default function accordion(container, games, innerRounds, btnText) {
-    console.log(games);
     const accordionWrapper = generateAccordion(btnText, 'block')
     const panel = accordionWrapper.querySelector('.panel')
 
@@ -23,7 +22,6 @@ function generateAccordion(btnText, panelDisplay, games, round, panelClassName, 
 
     const panel = document.createElement('div')
     panel.classList.add('panel')
-    // roundNumber && (panel.dataset.roundNr = roundNumber)
     panelClassName && panel.classList.add(panelClassName)
 
     if (round) {
@@ -37,8 +35,15 @@ function generateAccordion(btnText, panelDisplay, games, round, panelClassName, 
     accordionBtn.addEventListener('click', (e) => {
         e.target.classList.toggle('active')
 
+        const innerButtons = [...panel.querySelectorAll('button.accordion')]
+        const innerPanels = [...panel.querySelectorAll('.panel')]
+        
         if (panel.style.display === panelDisplay) {
-            panel.style.display = "none";
+            innerButtons && innerButtons.forEach((btn, i) => {
+                btn.classList.remove('active')
+                innerPanels[i].style.display = 'none'
+            })
+            panel.style.display = 'none';
         } else {
             panel.style.display = panelDisplay;
         }
@@ -60,6 +65,9 @@ export function createGameWrappers(game, round) {
     gameIdElement.textContent = `${game.id}.`
     idsWrapper.append(gameIdElement)
 
+    if (game.played) {
+        gameWrapper.classList.add('played')
+    }
 
 
     if (game.pairId) {
@@ -67,8 +75,6 @@ export function createGameWrappers(game, round) {
         pairIdElement.textContent = `Pair ${game.pairId}`
 
         idsWrapper.append(pairIdElement)
-
-        
     }
     gameWrapper.append(idsWrapper)
 

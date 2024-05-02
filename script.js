@@ -3,7 +3,7 @@ import { createModernTable, createOldTable } from "./functions/table.js"
 import getInbetweenTeamsGames from "./functions/getInbetweenTeamsGames.js"
 import sortTeams from "./functions/sortTeams.js"
 import compareGamesData from "./functions/compareGamesData.js"
-import { teamsAmountForm } from "./functions/forms.js"
+import { sportTypeForm } from "./functions/forms.js"
 import updateGameData from "./functions/updateGameData.js"
 import playoffsForm from "./playoffs/playoffsForm.js"
 import resetDataBtn from "./components/resetDataBtn.js"
@@ -18,7 +18,6 @@ import accordion from "./components/accordion.js"
     // tasku neatvaizduoja, bet imesti taskai 
     // OT (overtime points) 
 
-
 // SORTINTI:
     // 1. taskai (ne imesti)
     // 2. laimejimu procentas;
@@ -30,7 +29,6 @@ import accordion from "./components/accordion.js"
     // jei tie break neissiaiskina, tai kartoti breakus tarp likusiu komandu nuo 3. punko TARPUSAVY
 
 // POINTS imesti ir OVERTIME POINTS imesti atskirai rasos ir tie breakuose points skaicuojas, o laimejimuose TOTAL
-
 
 // ADD CONDITION:
 // PATSS IRASAI VISKA
@@ -73,7 +71,7 @@ function getLocalStorageData(container) {
             playoffsForm(container, playoffGamesData, playoffsTeamsData)
         }
     } else {
-        teamsAmountForm(container)
+        sportTypeForm(container)
     }
 }
 getLocalStorageData(container)
@@ -89,73 +87,10 @@ export function tournamentForm(container, games, teams) {
     for (let i = 0; i < roundsAmount; i++) {
         const btnText = `Round ${i+1}`
         const roundGames = games.filter(game => game.round === i+1)
+
         const innerRounds = [...new Set(roundGames.map(game => game.roundNr))]
 
         accordion(gamesForm, roundGames, innerRounds, btnText)
-        // const accordionWrapper = accordion(accordiontText, 'block')
-        // const panel = accordionWrapper.querySelector('.panel')
-
-        // accordion(gamesForm, games, innerRounds, round)
-
-
-        // for (let j = 0; j < games.length/(roundsAmount*5); j++) {
-        //     const innerAccordionWrapper = accordion(`Round ${j+1}`, 'flex', 'round')
-        //     innerAccordionWrapper.style.margin = '0 20px'
-        //     const innerPanel = innerAccordionWrapper.querySelector('.panel')
-
-        //     for (let m = 0; m < games.length; m++) {
-        //         const game = games[m];
-        //         const gameWrapper = document.createElement('div')
-        //         gameWrapper.classList.add('game-wrapper')
-        //         const gameNumber = document.createElement('p')
-
-        //         const gameEl = document.createElement('div')
-        //         gameEl.classList.add('game')
-
-                
-        //         game.played && gameWrapper.classList.add('played')
-                
-        //         gameEl.dataset.gameId = game.id
-        //         gameNumber.textContent = `${game.id}.`
-                
-        //         for (let team in game) {
-        //             if (team == 'homeTeam' || team === 'awayTeam') {
-        //                 const teamWrapper = document.createElement('div')
-        //                 teamWrapper.classList.add('team')
-            
-        //                 if (team === 'homeTeam') {
-        //                     teamWrapper.classList.add('home-team')
-        //                 } else {
-        //                     teamWrapper.classList.add('away-team')
-        //                 }
-            
-        //                 const label = document.createElement('label')
-        //                 const input = document.createElement('input')  
-
-        //                 input.type = 'number'
-        //                 input.id = `${game.id}-${game[team].team}`
-        //                 input.dataset.team = game[team].team
-        //                 label.htmlFor = input.id
-        //                 label.textContent = game[team].team
-        //                 input.classList.add('result-input')
-        //                 input.value = game.played ? game[team].goals : ''           
-                        
-        //                 teamWrapper.append(label, input)
-
-        //                 gameEl.append(teamWrapper) 
-        //                 gameWrapper.append(gameEl)
-        //             }
-        //         }
-        //         if (j === Math.floor(m/5)) {
-        //             innerPanel.append(gameWrapper)
-        //         }
-        //     }
-
-        //     panel.append(innerAccordionWrapper)
-        // }
-
-        // gamesForm.append(accordionWrapper)
-
     }
 
     gamesForm.addEventListener('change', (e) => {
@@ -318,7 +253,8 @@ export function changeTable(container, teams, games) {
 
     sortedTeams.forEach((sortedTeam, i) => {
         sortedTeam.currentPlace = i + 1
-        if (games.some(game => game.played)) {
+
+        if (games.every(game => game.played)) {
             sortedTeam.maxPlace = i + 1
             sortedTeam.minPlace = i + 1
         }

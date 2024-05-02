@@ -1,9 +1,11 @@
-import { DRAW_POINTS, WIN_POINTS } from "../config.js"
+import { DRAW_POINTS, MODERN_TABLE_HEAD_ITEMS, WIN_POINTS } from "../config.js"
 import { compareTeamsTable } from "../script.js"
 import getInbetweenTeamsGames from "./getInbetweenTeamsGames.js"
 
 export function createModernTable(wrapper, teams, games, params = {}) {
     const {comparinsonBtn, position} = params
+
+    const sportId = JSON.parse(localStorage.getItem('sport')).id
 
     const table = document.createElement('table')
     table.classList.add('table', 'modern-table')
@@ -14,19 +16,20 @@ export function createModernTable(wrapper, teams, games, params = {}) {
     const tableBody = document.createElement('tbody')
     const tHeadRow = document.createElement('tr')
 
-    const headItems = [
-        { text: '#',  title: null },
-        { text: 'Team', title: null },
-        ...(position ? [{ text: 'Highest', title: null }, { text: 'Lowest', title: null }] : []),
-        { text: 'PL', title: 'Played Matches' },
-        { text: 'W', title: 'Wins' },
-        { text: 'D', title: 'Draws' },
-        { text: 'L', title: 'Losses' },
-        { text: 'F', title: 'Goals For' },
-        { text: 'A', title: 'Goals Against' },
-        { text: 'GD', title: 'Goal Difference' },
-        { text: 'P', title: 'Points' },
-    ]
+    const headItems = MODERN_TABLE_HEAD_ITEMS[sportId](position)
+    // const headItems = [
+    //     { text: '#',  title: null },
+    //     { text: 'Team', title: null },
+    //     ...(position ? [{ text: 'Highest', title: null }, { text: 'Lowest', title: null }] : []),
+    //     { text: 'PL', title: 'Played Matches' },
+    //     { text: 'W', title: 'Wins' },
+    //     { text: 'D', title: 'Draws' },
+    //     { text: 'L', title: 'Losses' },
+    //     { text: 'F', title: 'Goals For' },
+    //     { text: 'A', title: 'Goals Against' },
+    //     { text: 'GD', title: 'Goal Difference' },
+    //     { text: 'P', title: 'Points' },
+    // ]
 
     headItems.forEach(item => {
         const th = document.createElement('th')
@@ -45,59 +48,43 @@ export function createModernTable(wrapper, teams, games, params = {}) {
         wrapper.append(conditionsInfoWrapper)
     }
 
+
     for (let i = 0; i < teams.length; i++) {
         const team = teams[i];
+        const row = document.createElement('tr');
 
-        const row = document.createElement('tr')
-        const place = document.createElement('td')
-        place.textContent = i + 1
-        row.append(place)
+        headItems.forEach((item, j) => {
+            const cell = document.createElement('td');
+            let selector = item.selector
 
-        
-        if (team.maxPlace === 1 && team.minPlace === 1) {
-            row.classList.add('winner')
-        }
-
-        if (teams.length > 5 && team.maxPlace === teams.length && team.maxPlace === team.minPlace) {
-            row.classList.add('loser')
-        }
-
-        const rowItems = [team.team, ...(position ? [team.maxPlace, team.minPlace] : []),, team.playedGames, team.wins, team.draws, team.losses, team.goals, team.goalsMissed, team.goalDifference, team.points]
-
-        if (conditions) {
-            conditions.forEach((data, j) => {
-                const {title, teamsFrom, teamsTo, positive, id} = data
-                const fromTeamIndex = teams.length - teamsFrom
-                const toTeamIndex = teams.length - teamsTo
-
-                if (teamsFrom - 1 === i) {
-                    row.classList.add(`condition-began-${id}`)
-                }
-                
-                if (teamsTo - 1 === i) {
-                    row.classList.add(`condition-end-${id}`)
-                }
-            })
-        }
-
-        if (relegations) {
-            const lastPlace = teams.length - relegations
-            if (i === lastPlace) {
-                row.classList.add('relegation')
+            let value
+            if (typeof selector === 'object') {
+                const selected = team[selector.prop]
+                value = `${selected[selector.inside[0]]} - ${selected[selector.inside[1]]}`;
+            } else {
+                value = team[selector]
             }
-        }
+            cell.textContent = value !== undefined ? value : ''
 
-        rowItems.forEach((item, i) => {
-            const cell = document.createElement('td')
-            cell.textContent = item
             row.append(cell)
 
-            if (comparinsonBtn && i === 0) {
-               compareTeamsButtonHandler(wrapper, team, games, cell, 'modern')
+            if (comparinsonBtn && j === 1) {
+                compareTeamsButtonHandler(wrapper, team, games, cell, 'modern')
             }
-        })
-        tableBody.append(row)
+
+            if (relegations) {
+                const lastPlace = teams.length - relegations
+                if (i === lastPlace) {
+                    row.classList.add('relegation')
+                }
+            }
+
+        });
+    
+        
+        tableBody.appendChild(row);
     }
+
     table.append(tableHead, tableBody)
 
     return table
@@ -341,9 +328,9 @@ export function createOldTable(wrapper, teams, games, params = {}) {
 function compareTeamsButtonHandler(wrapper, team, games, btnWrapper, tableType) {
     let comparingTeams = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams')) : []
 
-    let btn = document.createElement('button')
+    const btn = document.createElement('button')
     btn.classList.add('comparison-btn')
-    btnWrapper.append(btn)
+    btn.type = 'button'
     
     btn.textContent = comparingTeams.some(comparingTeam => comparingTeam.team === team.team) ? '-' : '+'
 
@@ -364,10 +351,10 @@ function compareTeamsButtonHandler(wrapper, team, games, btnWrapper, tableType) 
         document.getElementById('comparing-table') && document.getElementById('comparing-table').remove()
         
         if (comparingTeams.length > 0) {
-            let teamsTable = compareTeamsTable(wrapper, comparingTeams, games, tableType)
+            const teamsTable = compareTeamsTable(wrapper, comparingTeams, games, tableType)
             wrapper.append(teamsTable)
         }
     })
 
-    btn.type = 'button'
+    btnWrapper.append(btn)
 }

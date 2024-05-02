@@ -1,4 +1,4 @@
-import { teamsAmountForm } from "../functions/forms.js"
+import { sportTypeForm } from "../functions/forms.js"
 
 export default function resetDataBtn(container) {
     const resetBtn = document.createElement('button')
@@ -11,7 +11,7 @@ export default function resetDataBtn(container) {
         localStorage.clear()
         container.innerHTML = ''
         
-        teamsAmountForm(container)
+        sportTypeForm(container)
     })
 
     container.append(resetBtn)
