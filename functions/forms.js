@@ -102,15 +102,6 @@ export function teamNamesForm(container, teamsAmount) {
     form.append(text, generateWrapper, namesWrapper, submitBtn)
     container.append(form)
 
-    // select.addEventListener('change', (e) => {
-    //     const allOptions = [...select.children]
-    //     allOptions.forEach(option => {
-    //         option.classList.remove('selected')
-    //     })
-    //     const selectedOption = document.getElementById(`generate-names-${e.target.value}`)
-    //     selectedOption.classList.add('selected')
-    // })
-
     generateNamesBtn.addEventListener('click', (e) => {
         const optionValue = select.value
         const inputs = [...namesWrapper.querySelectorAll('input')]

@@ -49,7 +49,7 @@ function generateAccordion(btnText, panelDisplay, games, round, panelClassName, 
 }
 
 
-export function createGameWrappers(game, round, extraTimeGame) {
+export function createGameWrappers(game, round) {
     const gameWrapper = document.createElement('div')
     gameWrapper.classList.add('game-wrapper')
 
@@ -72,12 +72,8 @@ export function createGameWrappers(game, round, extraTimeGame) {
     }
     gameWrapper.append(idsWrapper)
 
-    const games = extraTimeGame ? [game, extraTimeGame] : [game]
-    for (const game of games) {
-        const gameEl = createGameElement(game, round)
-
-        gameWrapper.append(gameEl)
-    }
+    const gameEl = createGameElement(game, round)
+    gameWrapper.append(gameEl)
 
     return gameWrapper
 }
@@ -129,6 +125,7 @@ function createGameElement(game, round) {
                 }
             }
 
+
             if (!game.homeTeam.team || !game.awayTeam.team) {
                 input.setAttribute('disabled', true)
             }
@@ -139,9 +136,18 @@ function createGameElement(game, round) {
                 const extraTimeInput = document.createElement('input')               
                 extraTimeInput.type = 'number'
                 extraTimeInput.classList.add('result-input', 'extra-time')
-                extraTimeInput.value = game.extraTime.played ? game.extraTime[team].goals : ''
+                extraTimeInput.value = game.extraTime[team].goals ? game.extraTime[team].goals : ''
 
                 teamWrapper.append(extraTimeInput)
+            }
+
+            if (game.shootout) {
+                const shootoutInput = document.createElement('input')               
+                shootoutInput.type = 'number'
+                shootoutInput.classList.add('result-input', 'shootout')
+                shootoutInput.value = game.shootout[team].goals ? game.shootout[team].goals : ''
+
+                teamWrapper.append(shootoutInput)
             }
 
             gameEl.append(teamWrapper) 
