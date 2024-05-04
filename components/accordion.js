@@ -155,6 +155,18 @@ function createGameElement(game, round) {
 
                 teamWrapper.append(shootoutInput)
             }
+            if (game.overtime) {
+                game.overtime.forEach((overtime, i) => {
+                    const overtimeInput = document.createElement('input')
+                    overtimeInput.dataset.overtime = i+1
+                    overtimeInput.type = 'number'
+                    overtimeInput.classList.add('result-input', 'overtime')
+                    overtimeInput.value = overtime[team].goals ? overtime[team].goals : ''
+
+                    teamWrapper.append(overtimeInput)
+                })
+
+            }
 
             gameEl.append(teamWrapper) 
         }

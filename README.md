@@ -1,10 +1,11 @@
 # Sports Tournament Page
 
 This web application allows users to create and manage sports tournaments using JavaScript, HTML, and CSS. Users can generate regular games and playoff games. 
-<!-- local storage saugoma. live demo. https://deimantedav.github.io/Sports-tournament-platform/ -->
+Data is stored in local storage. [Live demo](https://deimantedav.github.io/Sports-tournament-platform/)🚀
 
 ## Features
-<!-- extensive settings for regular season and playoffs: rounds, team number -->
+- **Sport Selection**: basketball or football.
+- **Extensive settings for regular season and playoffs games**: comprehensive options for regular season and playoff games, including the number of rounds and teams involved.
 
 ### Regular Season Games
 
@@ -13,9 +14,9 @@ This web application allows users to create and manage sports tournaments using 
 <!-- ss -->
 - **Relegations**: Users can manage relegations within the regular games feature.
 - **Leaderboard** 🏆: The leaderboard can be displayed in a modern or traditional format.
-<!-- screenshotus idet -->
-<!-- possible auksciusia zemiausia vieta, garantuojanti iskritima laimejima -->
-<!-- for better testing exp. generate results. -->
+<!-- ss -->
+-**Position Calculations**: The system calculates the possible highest and lowest positions for teams, guaranteeing wins or losses.
+-**Generate Scores**: For better testing experience
 
 
 ### Playoffs

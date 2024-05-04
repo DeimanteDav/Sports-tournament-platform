@@ -19,18 +19,18 @@ export const SPORTS = {
     id: 1,
     name: 'Football',
     points: {
-      win: 3,
-      draw: 1,
-      loss: 0
+      winPoints: 3,
+      drawPoints: 1,
+      lossPoints: 0
     }
   },
   basketball: {
     id: 2,
     name: 'Basketball',
     points: {
-      win: 2,
-      loss: 1,
-      tecnhicalLoss: 0,
+      winPoints: 2,
+      lossPoints: 1,
+      tecnhicalLossPoints: 0,
     }
   }
 }

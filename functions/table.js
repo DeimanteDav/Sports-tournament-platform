@@ -48,7 +48,7 @@ export function createModernTable(wrapper, teams, games, params = {}) {
         wrapper.append(conditionsInfoWrapper)
     }
 
-
+    console.log(headItems);
     for (let i = 0; i < teams.length; i++) {
         const team = teams[i];
         const row = document.createElement('tr');
@@ -60,7 +60,7 @@ export function createModernTable(wrapper, teams, games, params = {}) {
             let value
             if (typeof selector === 'object') {
                 const selected = team[selector.prop]
-                value = `${selected[selector.inside[0]]} - ${selected[selector.inside[1]]}`;
+                // value = `${selected[selector.inside[0]]} - ${selected[selector.inside[1]]}`;
             } else {
                 value = team[selector]
             }

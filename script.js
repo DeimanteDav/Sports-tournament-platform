@@ -1,4 +1,4 @@
-import { DRAW_POINTS, WIN_POINTS } from "./config.js"
+import { DRAW_POINTS, SPORTS, WIN_POINTS } from "./config.js"
 import { createModernTable, createOldTable } from "./functions/table.js"
 import getInbetweenTeamsGames from "./functions/getInbetweenTeamsGames.js"
 import sortTeams from "./functions/sortTeams.js"
@@ -8,6 +8,7 @@ import updateGameData from "./functions/updateGameData.js"
 import playoffsForm from "./playoffs/playoffsForm.js"
 import resetDataBtn from "./components/resetDataBtn.js"
 import accordion from "./components/accordion.js"
+import Game from "./classes/Game.js"
 
 // FUTBOLO IR KREPSINIO
 // Jei krepsinio, tai skirsis: 
@@ -81,8 +82,8 @@ getLocalStorageData(container)
 export function tournamentForm(container, games, teams) {
     const gamesForm = document.createElement('form')
     gamesForm.id = 'games-form'
-
     const roundsAmount = Number(localStorage.getItem('rounds-amount'))
+    const sportId = JSON.parse(localStorage.getItem('sport')).id
 
     for (let i = 0; i < roundsAmount; i++) {
         const btnText = `Round ${i+1}`
@@ -94,15 +95,31 @@ export function tournamentForm(container, games, teams) {
     }
 
     gamesForm.addEventListener('change', (e) => {
-        console.log(e);
         const gameEl = e.target.parentElement.parentElement
         const gameId = +gameEl.dataset.gameId
         const currentGame = games.find(game => game.id === gameId)
+        const overtimeId = +e.target.dataset.overtime
+
+        if (e.target.dataset.overtime && sportId === SPORTSbasketball.id) {
+            const overtimeGame = currentGame.overtime.find(overtime => overtime.id === overtimeId)
+
+            updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
+
+            if (overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals && overtimeGame.played) {
+                const overtimeGame = new Game(currentGame.homeTeam, currentGame.homeTeam.awayTeam, currentGame.overtime.length+1)
+
+                currentGame.overtime.push(overtimeGame)
+            } else {
+                currentGame.overtime = currentGame.overtime.filter(overtime => overtime.id <= overtimeId)
+            }
+        } else {
+            updateGameData(gameEl, currentGame, sportId)
+        }
         
-        updateGameData(gameEl, currentGame)
+
         localStorage.setItem('league-games-data', JSON.stringify(games))
 
-        updateTeamsData(games, teams)
+        updateTeamsData(games, teams, sportId)
     })
 
     const changeTableBtn = document.createElement('button')
@@ -128,38 +145,37 @@ export function tournamentForm(container, games, teams) {
     generateScoresBtn.addEventListener('click', (e) => {
         const scoresEl = [...gamesForm.querySelectorAll('.result-input')]
         
-        
         scoresEl.forEach(element => {
             const gameEl = element.parentElement.parentElement
             const randomScore = Math.floor(Math.random() * 30)
             element.value = randomScore
 
             const currentGame = games[gameEl.dataset.gameId-1]
-            updateGameData(gameEl, currentGame)
+
+            updateGameData(gameEl, currentGame, sportId)
             localStorage.setItem('league-games-data', JSON.stringify(games))
 
-            updateTeamsData(games, teams)
+            updateTeamsData(games, teams, sportId)
         });
-        
-
     })
+    gamesForm.after()
+    container.append(gamesForm, generateScoresBtn)
 
-
-
-    // gamesForm.after(generateScoresBtn, changeTableBtn)
-    container.append(gamesForm, generateScoresBtn, changeTableBtn)
     changeTable(container, teams, games)
 }
 
-function updateTeamsData(games, teams) {
+function updateTeamsData(games, teams, sportId) {
     teams.forEach(team => {
         for (const [key, value] of Object.entries(team)) {
-            if (key !== 'team' || key !== 'totalGames') {
+            if (key !== 'team' && key !== 'totalGames') {
                 if (Number(value)) {
                     team[key] = 0
-                }
-                if (typeof value === 'boolean') {
+                } else if (typeof value === 'boolean') {
                     team[key] = false
+                } else if (typeof value === 'object') {
+                    Object.keys(value).forEach(a => {
+                        value[a] = 0
+                    })
                 }
             }
         }
@@ -182,7 +198,7 @@ function updateTeamsData(games, teams) {
 
         // homeTeamData.setPotentialPoints(WIN_POINTS)
         // awayTeamData.setPotentialPoints(WIN_POINTS)
-
+        console.log(games);
         if (game.played) {
             const homeTeamScored = gameHomeTeam.goals
             const awayTeamScored = gameAwayTeam.goals
@@ -192,8 +208,7 @@ function updateTeamsData(games, teams) {
     
             homeTeamData.goals += homeTeamScored
             awayTeamData.goals += awayTeamScored
-            awayTeamData.awayGoals += awayTeamScored
-    
+            sportId === SPORTS.football.id && (awayTeamData.awayGoals += awayTeamScored)
     
             homeTeamData.goalsMissed += awayTeamScored
             awayTeamData.goalsMissed += homeTeamScored
@@ -204,16 +219,57 @@ function updateTeamsData(games, teams) {
             if (homeTeamScored > awayTeamScored) {
                 homeTeamData.wins++
                 awayTeamData.losses++
+
+                if (sportId === SPORTS.basketball.id) {
+                    homeTeamData.homeGames.won++
+                    awayTeamData.awayGames.lost++
+                }
             } else if (homeTeamScored < awayTeamScored) {
                 homeTeamData.losses++
                 awayTeamData.wins++
-                awayTeamData.awayWins++
-            } else if (homeTeamScored === awayTeamScored) {
+                
+                if (sportId === SPORTS.basketball.id) {
+                    homeTeamData.homeGames.lost++
+                    awayTeamData.awayGames.won++
+                } else if (sportId === SPORTS.football.id) {
+                    awayTeamData.awayWins++
+                }
+            } else if (homeTeamScored === awayTeamScored && sportId === SPORTS.football.id) {
                 homeTeamData.draws++
                 awayTeamData.draws++
             }
-            homeTeamData.points = homeTeamData.wins*WIN_POINTS + homeTeamData.draws*DRAW_POINTS
-            awayTeamData.points = awayTeamData.wins*WIN_POINTS + awayTeamData.draws*DRAW_POINTS
+
+            if (sportId === SPORTS.basketball.id) {
+                homeTeamData.winPerc = calcWinningPerc(homeTeamData.wins, homeTeamData.playedGames)
+                awayTeamData.winPerc = calcWinningPerc(awayTeamData.wins, awayTeamData.playedGames)
+
+                game.overtime.forEach(overtime => {
+                    if (homeTeamData.team === overtime.homeTeam.team) {
+                        homeTeamData.overtime.scored += overtime.homeTeam.goals     
+                        homeTeamData.overtime.missed += overtime.awayTeam.goals    
+
+                        awayTeamData.overtime.missed += overtime.homeTeam.goals                    
+                        awayTeamData.overtime.scored += overtime.awayTeam.goals                       
+                    } else {
+                        homeTeamData.overtime.missed += overtime.homeTeam.goals                       
+                        homeTeamData.overtime.scored += overtime.awayTeam.goals                       
+    
+                        awayTeamData.overtime.scored += overtime.homeTeam.goals                       
+                        awayTeamData.overtime.missed += overtime.awayTeam.goals                       
+                    }
+                });
+
+                const {winPoints, lossPoints} = SPORTS.basketball.points
+
+                homeTeamData.points = homeTeamData.wins*winPoints + homeTeamData.losses*lossPoints
+                awayTeamData.points = awayTeamData.wins*winPoints + awayTeamData.losses*lossPoints
+            } else if (sportId === SPORTS.football.id) {
+                const {winPoints, drawPoints} = SPORTS.football.points
+
+                homeTeamData.points = homeTeamData.wins*winPoints + homeTeamData.draws*drawPoints
+
+                awayTeamData.points = awayTeamData.wins*winPoints + awayTeamData.draws*drawPoints
+            }
         }
 
         homeTeamData.gamesLeft = homeTeamData.totalGames - homeTeamData.playedGames
@@ -225,6 +281,7 @@ function updateTeamsData(games, teams) {
         homeTeamData.maxPotentialPoints = homeTeamData.potentialPoints + homeTeamData.points
         awayTeamData.maxPotentialPoints = awayTeamData.potentialPoints + awayTeamData.points
     })
+
 
     changeTable(container, teams, games)
 
@@ -247,6 +304,11 @@ function updateTeamsData(games, teams) {
     localStorage.setItem('teams-data', JSON.stringify(teams))
 }
 
+
+const calcWinningPerc = (wins, played) => {
+    const result = Math.round((wins/played)*1000)/10
+    return result
+}
 
 export function changeTable(container, teams, games) {
     const sortedTeams = sortTeams(teams, games, {compareBetweenGames: true})

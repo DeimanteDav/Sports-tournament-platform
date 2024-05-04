@@ -1,5 +1,5 @@
 import { SPORTS } from "../config.js";
-
+ 
 const sport = JSON.parse(localStorage.getItem('sport'))
 
 export default class Game {
@@ -24,7 +24,7 @@ export default class Game {
       this.extraTime = null
       this.shootout = null
     } else if (sport.id === SPORTS.basketball.id) {
-      this.overtime = null
+      this.overtime = []
     }
   }
 }
