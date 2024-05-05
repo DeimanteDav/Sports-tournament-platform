@@ -12,15 +12,15 @@ Data is stored in local storage. [Live demo](https://deimantedav.github.io/Sport
 - **Create Regular Games**: Users can create regular season games between specified teams.
 - **Leaderboard** 🏆: The leaderboard can be displayed in a modern or traditional format.
 <p float="left">
-    <img src="images/football-league-table.png" width='50%' />
-    <img src="images/basketball-league-table.png" width='50%' />
+    <img src="images/football-league-table.png" width='40%' />
+    <img src="images/basketball-league-table.png" width='40%' />
 </p>
 
 
 - **Compare Teams**: A separate table allows users to compare chosen teams.
 <p float="left">
-    <img src="images/football-comparison-table.png"  width='50%' />
-    <img src="images/basketball-comparison-table.png" width='50%' />
+    <img src="images/football-comparison-table.png"  width='40%' />
+    <img src="images/basketball-comparison-table.png" width='40%' />
 </p>
 
 - **Relegations**: Users can manage relegations within the regular games feature.
