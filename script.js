@@ -9,6 +9,7 @@ import playoffsForm from "./playoffs/playoffsForm.js"
 import resetDataBtn from "./components/resetDataBtn.js"
 import accordion from "./components/accordion.js"
 import Game from "./classes/Game.js"
+import checkTeamPosition from "./functions/checkTeamPosition.js"
 
 // FUTBOLO IR KREPSINIO
 // Jei krepsinio, tai skirsis: 
@@ -100,13 +101,12 @@ export function tournamentForm(container, games, teams) {
         const currentGame = games.find(game => game.id === gameId)
         const overtimeId = +e.target.dataset.overtime
 
-        if (e.target.dataset.overtime && sportId === SPORTSbasketball.id) {
+        if (e.target.dataset.overtime && sportId === SPORTS.basketball.id) {
             const overtimeGame = currentGame.overtime.find(overtime => overtime.id === overtimeId)
-
             updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
 
             if (overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals && overtimeGame.played) {
-                const overtimeGame = new Game(currentGame.homeTeam, currentGame.homeTeam.awayTeam, currentGame.overtime.length+1)
+                const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
 
                 currentGame.overtime.push(overtimeGame)
             } else {
@@ -172,7 +172,7 @@ function updateTeamsData(games, teams, sportId) {
                     team[key] = 0
                 } else if (typeof value === 'boolean') {
                     team[key] = false
-                } else if (typeof value === 'object') {
+                } else if (typeof value === 'object' && value !== null) {
                     Object.keys(value).forEach(a => {
                         value[a] = 0
                     })
@@ -180,7 +180,9 @@ function updateTeamsData(games, teams, sportId) {
             }
         }
     })
-    
+
+    let winPoints = sportId === SPORTS.basketball.id ? SPORTS.basketball.points.winPoints : SPORTS.football.points.winPoints
+
     games.forEach(game => {
         const gameHomeTeam = game.homeTeam
         const gameAwayTeam = game.awayTeam
@@ -198,10 +200,22 @@ function updateTeamsData(games, teams, sportId) {
 
         // homeTeamData.setPotentialPoints(WIN_POINTS)
         // awayTeamData.setPotentialPoints(WIN_POINTS)
-        console.log(games);
         if (game.played) {
             const homeTeamScored = gameHomeTeam.goals
             const awayTeamScored = gameAwayTeam.goals
+
+            let homeTeamTotalScored = gameHomeTeam.goals
+            let awayTeamTotalScored = gameAwayTeam.goals
+
+            if (sportId === SPORTS.basketball.id) {
+                let homeTeamOverTime = 0
+                let awayTeamOverTime = 0
+                game.overtime.forEach(overtime => homeTeamOverTime+=overtime.homeTeam.goals);
+                game.overtime.forEach(overtime => awayTeamOverTime+=overtime.awayTeam.goals);
+
+                homeTeamTotalScored += homeTeamOverTime
+                awayTeamTotalScored += awayTeamOverTime
+            }
    
             homeTeamData.playedGames++
             awayTeamData.playedGames++
@@ -209,14 +223,14 @@ function updateTeamsData(games, teams, sportId) {
             homeTeamData.goals += homeTeamScored
             awayTeamData.goals += awayTeamScored
             sportId === SPORTS.football.id && (awayTeamData.awayGoals += awayTeamScored)
-    
+
             homeTeamData.goalsMissed += awayTeamScored
             awayTeamData.goalsMissed += homeTeamScored
         
             homeTeamData.goalDifference = homeTeamData.goals - homeTeamData.goalsMissed
             awayTeamData.goalDifference = awayTeamData.goals - awayTeamData.goalsMissed
     
-            if (homeTeamScored > awayTeamScored) {
+            if (homeTeamTotalScored > awayTeamTotalScored) {
                 homeTeamData.wins++
                 awayTeamData.losses++
 
@@ -224,7 +238,7 @@ function updateTeamsData(games, teams, sportId) {
                     homeTeamData.homeGames.won++
                     awayTeamData.awayGames.lost++
                 }
-            } else if (homeTeamScored < awayTeamScored) {
+            } else if (homeTeamTotalScored < awayTeamTotalScored) {
                 homeTeamData.losses++
                 awayTeamData.wins++
                 
@@ -234,7 +248,8 @@ function updateTeamsData(games, teams, sportId) {
                 } else if (sportId === SPORTS.football.id) {
                     awayTeamData.awayWins++
                 }
-            } else if (homeTeamScored === awayTeamScored && sportId === SPORTS.football.id) {
+            } else if (homeTeamTotalScored === awayTeamTotalScored && sportId === SPORTS.football.id) {
+                console.log(homeTeamData);
                 homeTeamData.draws++
                 awayTeamData.draws++
             }
@@ -244,19 +259,11 @@ function updateTeamsData(games, teams, sportId) {
                 awayTeamData.winPerc = calcWinningPerc(awayTeamData.wins, awayTeamData.playedGames)
 
                 game.overtime.forEach(overtime => {
-                    if (homeTeamData.team === overtime.homeTeam.team) {
-                        homeTeamData.overtime.scored += overtime.homeTeam.goals     
-                        homeTeamData.overtime.missed += overtime.awayTeam.goals    
+                    homeTeamData.overtime.scored += overtime.homeTeam.goals
+                    homeTeamData.overtime.missed += overtime.awayTeam.goals    
 
-                        awayTeamData.overtime.missed += overtime.homeTeam.goals                    
-                        awayTeamData.overtime.scored += overtime.awayTeam.goals                       
-                    } else {
-                        homeTeamData.overtime.missed += overtime.homeTeam.goals                       
-                        homeTeamData.overtime.scored += overtime.awayTeam.goals                       
-    
-                        awayTeamData.overtime.scored += overtime.homeTeam.goals                       
-                        awayTeamData.overtime.missed += overtime.awayTeam.goals                       
-                    }
+                    awayTeamData.overtime.missed += overtime.homeTeam.goals                    
+                    awayTeamData.overtime.scored += overtime.awayTeam.goals             
                 });
 
                 const {winPoints, lossPoints} = SPORTS.basketball.points
@@ -267,16 +274,17 @@ function updateTeamsData(games, teams, sportId) {
                 const {winPoints, drawPoints} = SPORTS.football.points
 
                 homeTeamData.points = homeTeamData.wins*winPoints + homeTeamData.draws*drawPoints
-
                 awayTeamData.points = awayTeamData.wins*winPoints + awayTeamData.draws*drawPoints
+
             }
         }
 
+    
         homeTeamData.gamesLeft = homeTeamData.totalGames - homeTeamData.playedGames
         awayTeamData.gamesLeft = awayTeamData.totalGames - awayTeamData.playedGames
 
-        homeTeamData.potentialPoints = homeTeamData.gamesLeft*WIN_POINTS
-        awayTeamData.potentialPoints = awayTeamData.gamesLeft*WIN_POINTS
+        homeTeamData.potentialPoints = homeTeamData.gamesLeft*winPoints
+        awayTeamData.potentialPoints = awayTeamData.gamesLeft*winPoints
 
         homeTeamData.maxPotentialPoints = homeTeamData.potentialPoints + homeTeamData.points
         awayTeamData.maxPotentialPoints = awayTeamData.potentialPoints + awayTeamData.points
@@ -316,7 +324,7 @@ export function changeTable(container, teams, games) {
     sortedTeams.forEach((sortedTeam, i) => {
         sortedTeam.currentPlace = i + 1
 
-        if (games.every(game => game.played)) {
+        if (games.some(game => game.played)) {
             sortedTeam.maxPlace = i + 1
             sortedTeam.minPlace = i + 1
         }
@@ -325,23 +333,6 @@ export function changeTable(container, teams, games) {
     if (games.some(game => game.played)) {
         checkTeamPosition(sortedTeams, games)
     }
-
-    /*/ jei lygus taskai
-        TARPUSAVIO varzybose
-        - jei zaide kartu tai kuris surinko  tasku daugiau
-        - ivarciu santykis tarp komandu daugiau
-            A, B (1:0) 2, 0
-            B, C (1:0) 2, 1    
-            C, A (1:0) 1, 0     
-        - kas imuse daugiau ivarciu 
-
-        VISUOSE zaidimuose
-        - ivarciu skirtumas
-        - daugiau ivarciu
-        - daugiau away goals imuse (galima away goals i team isirasyti)
-        - daugiau laimejimu
-        - daugiau away laimejimu
-    /*/
 
     let prevTableWrapper = document.querySelector('.table-wrapper')
     let tableWrapper
@@ -379,62 +370,6 @@ export function changeTable(container, teams, games) {
     }
 }
 
-function checkTeamPosition(teams, games) {
-    // KURIOS KOMANDOS ISKRENTA
-    // KURIOS I EROPOS CEMPTIONATA ISEINA
-
-    // paikrint kiekviena komanda ar ja gali aplenkti points, maxpotential
-    // maxPoints < points, komandą negali aplnekti
-    // maxPoints > points, komandą gali aplenekti
-
-    // maxPoints = points, ar ta komanda su kitom suzaidusios DAUGIAU NEI PUSE tarpusavy.
-    // Ar ta komanda surinkusi daugiau nei puse tasku tarpusavy, tai Uzsitikrinusi vieta ir nenukris
-    // Jei surinkusi komanda puse ar maziau tai neuzsitikrinusi savo vietos
-    
-    // Jei daugiau nei dvi ar daugiau su maxPotential = points, tai tikrinti: 1.ar tos dvi su maxpoints suzaidusios viskaa tarpusavy tai tada  KOmanda minPlace nukrent
-    const roundsAmount = localStorage.getItem('rounds-amount')
-
-    for (let i = 0; i < teams.length; i++) {
-        const team = teams[i];
-
-        for (let j = i + 1; j < teams.length; j++) {
-            const otherTeam = teams[j];
-
-            const canSucceed = otherTeam.maxPotentialPoints > team.points
-            const equalPoints = otherTeam.maxPotentialPoints === team.points
-
-            if (canSucceed) {
-                team.minPlace += 1
-                otherTeam.maxPlace -= 1
-            } else if (equalPoints) {
-                const inbetweenGames = getInbetweenTeamsGames([otherTeam, team], games)
-
-            
-                const otherTeamGamesWon = inbetweenGames.filter(game => {
-                    const teamGameData = game.homeTeam.team === team.team ? game.homeTeam : game.awayTeam
-                    const otherTeamGameData = game.homeTeam.team === otherTeam.team ? game.homeTeam : game.awayTeam
-
-                    if (otherTeamGameData.goals > teamGameData.goals) {
-                        return game
-                    }
-                })
-
-                if (otherTeamGamesWon.length > roundsAmount/2) {
-                    team.minPlace += 1
-                    otherTeam.maxPlace -=1
-                } else {
-                    // team.minPlace
-                }
-            }
-        }    
-
-    }
-
-    // patikrtinti ar suzaidusios visus zaidimus tarpusavy
-    // jei suzaidusios naudoti maxpotentialPoints
-    // jei nesuzaidusios tikrinti tas komandas kartu ir prideti
-    // kad rast max min place
-}
 
 function getTeamGames(team, games, params = {}) {
     const {allGames} = params

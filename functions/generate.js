@@ -9,11 +9,11 @@ export default function generateTeams(container) {
 
     const leagueRoundsAmount = localStorage.getItem('rounds-amount')
     const playoffsGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
-
+    const sportId = JSON.parse(localStorage.getItem('sport')).id
 
     if (leagueRoundsAmount && playoffsGamesData) {
         const totalGames = (teamNames.length-1)*leagueRoundsAmount
-        const teams = teamNames.map(name => new Team(name, totalGames, teamNames.length))
+        const teams = teamNames.map(name => new Team(sportId, name, totalGames, teamNames.length))
         const games = generateGames(teams, leagueRoundsAmount)
    
 
@@ -30,7 +30,7 @@ export default function generateTeams(container) {
     } else if (leagueRoundsAmount) {
         const totalGames = (teamNames.length-1)*leagueRoundsAmount
     
-        const teams = teamNames.map(name => new Team(name, totalGames, teamNames.length))
+        const teams = teamNames.map(name => new Team(sportId, name, totalGames, teamNames.length))
 
         const games = generateGames(teams, leagueRoundsAmount)
         localStorage.setItem('league-games-data', JSON.stringify(games))
@@ -52,7 +52,7 @@ export default function generateTeams(container) {
             teams = teamNames
         }
 
-        const playoffTeams = teams.map(name => new Team(name, 0, teamsAmount))
+        const playoffTeams = teams.map(name => new Team(sportId, name, 0, teamsAmount))
 
         localStorage.setItem('playoffs-teams-data', JSON.stringify(playoffTeams))
         resetDataBtn(container)
@@ -64,6 +64,8 @@ export default function generateTeams(container) {
 
 
 function generateGames(teams, roundsAmount) {
+    const sportId = JSON.parse(localStorage.getItem('sport')).id
+
     let games = []
 
     let gameId = 0
@@ -78,9 +80,9 @@ function generateGames(teams, roundsAmount) {
                 let roundNr = Math.ceil(gameId/5)
                 let game
                 if ((i % 2) === 0) {
-                    game = new Game(homeTeam, awayTeam, gameId, null, roundNr, round)
+                    game = new Game(sportId, homeTeam, awayTeam, gameId, null, roundNr, round)
                 } else {
-                    game = new Game(awayTeam, homeTeam, gameId, null, roundNr, round)
+                    game = new Game(sportId, awayTeam, homeTeam, gameId, null, roundNr, round)
                 }
                 games.push(game)
             }

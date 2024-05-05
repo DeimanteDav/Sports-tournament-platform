@@ -27,6 +27,8 @@ import updateGameData from "../functions/updateGameData.js"
 export default function playoffsForm(container, gamesData, playoffTeams, params = {}) {
     const {roundsData, teamsAmount} = gamesData
     const {leagueTableUpdated} = params
+    const sportId = JSON.parse(localStorage.getItem('sport')).id
+
     const oldForm = document.querySelector('.playoffs-form')
     let form
 
@@ -64,7 +66,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
     roundsDataConverted.forEach(([round, data], index) => {
         const {gamesAmount, knockouts} = data
 
-        if (!playoffsPairs[round]) {
+        if (!playoffsPairs[round] || leagueTableUpdated) {
             playoffsPairs[round] = []
 
             
@@ -100,7 +102,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                 const teams = index === 0 && round1TeamPairs[i]
                 for (let roundNr = 1; roundNr <= knockouts; roundNr++) {
                     gameId +=1
-                    const game = new Game('', '', gameId, pairId, roundNr, round, null)
+                    const game = new Game(sportId, '', '', gameId, pairId, roundNr, round, null)
 
                     if (index === 0) {
                         if (roundNr % 2 === 0) {
@@ -177,7 +179,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
             const extraTime = lastGame.extraTime
        
             if (extraTime.played && extraTime.homeTeam.goals === extraTime.awayTeam.goals && extraTime.homeTeam.goals !== null) {
-                lastGame.shootout = new Game(extraTime.homeTeam, extraTime.awayTeam)
+                lastGame.shootout = new Game(sportId, extraTime.homeTeam, extraTime.awayTeam)
 
                 lastGameInputs.forEach(input => {
                     const shootoutInput = document.createElement('input')
@@ -219,7 +221,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         if (currentGame.id === lastGame.id) {
             if (currentGame.homeTeam.goals === currentGame.awayTeam.goals && currentGame.homeTeam.goals !== null) {
                 if (!currentGame.extraTime) {
-                    currentGame.extraTime = new Game(currentGame.homeTeam, currentGame.awayTeam)
+                    currentGame.extraTime = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam)
 
                     lastGameInputs.forEach(input => {
                         const extraTimeInput = document.createElement('input')

@@ -1,9 +1,7 @@
 import { SPORTS } from "../config.js";
 
-const sport = JSON.parse(localStorage.getItem('sport'))
-console.log(sport, SPORTS);
 export default class Team {
-    constructor(team, totalGames, minPlace) {
+    constructor(sportId, team, totalGames, minPlace) {
         this.team = team
         this.playedGames = 0
         this.wins = 0
@@ -24,11 +22,11 @@ export default class Team {
 
         this.totalGames = totalGames
 
-        if (sport.id === SPORTS.football.id) {
+        if (sportId === SPORTS.football.id) {
             this.draws = 0
             this.awayGoals = 0
             this.awayWins = 0
-        } else if (sport.id === SPORTS.basketball.id) {
+        } else if (sportId === SPORTS.basketball.id) {
             this.techLosses = 0
             this.winPerc = 0
             this.overtime = {
