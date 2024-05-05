@@ -390,7 +390,6 @@ function getTeamGames(team, games, params = {}) {
 
 export function compareTeamsTable(wrapper, teams, games, tableType) {
     const teamsGamesDataObject = compareGamesData(teams, games)
-
     const teamsData = Object.entries(teamsGamesDataObject).map(([team, stats]) => ({
         team,
         ...stats

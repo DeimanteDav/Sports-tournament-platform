@@ -27,7 +27,7 @@ export default function checkTeamPosition(teams, games) {
 
             if (team.gamesLeft === 0) {
                 team.minPlace = team.currentPlace
-                otherTeam.maxPlace = team.currentPlace
+                team.maxPlace = team.currentPlace
             } else if (canSucceed ) {
                 team.minPlace += 1
                 otherTeam.maxPlace -= 1

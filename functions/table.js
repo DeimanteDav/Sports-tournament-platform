@@ -59,7 +59,6 @@ export function createModernTable(wrapper, teams, games, params = {}) {
             let value
             if (typeof selector === 'object' && selector !== null) {
                 const selected = team[selector.prop]
-                console.log(selector, selected, team);
                 value = `${selected[selector.inside[0]]} - ${selected[selector.inside[1]]}`;
             } else {
                 value = team[selector]

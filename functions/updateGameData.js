@@ -2,8 +2,8 @@ import Game from "../classes/Game.js"
 import { SPORTS } from "../config.js"
 
 export default function updateGameData(gameEl, currentGame, sportId, params = {}) {
+    console.log(currentGame);
     const {overtime} = params
-
     const homeTeamInput = gameEl.querySelector(`.home-team ${overtime ? `[data-overtime="${currentGame.id}"]` : '.result-input'}`)
     const awayTeamInput = gameEl.querySelector(`.away-team ${overtime ? `[data-overtime="${currentGame.id}"]` : '.result-input'}`)
     const homeTeamScored = Number(homeTeamInput.value)
@@ -19,8 +19,7 @@ export default function updateGameData(gameEl, currentGame, sportId, params = {}
     if (homeTeamInput.value && awayTeamInput.value) {
         if (sportId === SPORTS.basketball.id) {
             if (homeTeamScored === awayTeamScored && !overtime) {
-                console.log('nee');
-                const overtimeGame = new Game(homeTeamData, awayTeamData, currentGame.overtime.length+1)
+                const overtimeGame = new Game(sportId, homeTeamData, awayTeamData, currentGame.overtime.length+1)
     
                 currentGame.overtime.push(overtimeGame)
                 gameEl.parentElement.classList.remove('played')
