@@ -52,14 +52,14 @@ export function createModernTable(wrapper, teams, games, params = {}) {
         const team = teams[i];
         const row = document.createElement('tr');
 
-        console.log(headItems, teams);
         headItems.forEach((item, j) => {
             const cell = document.createElement('td');
             let selector = item.selector
 
             let value
-            if (typeof selector === 'object') {
+            if (typeof selector === 'object' && selector !== null) {
                 const selected = team[selector.prop]
+                console.log(selector, selected, team);
                 value = `${selected[selector.inside[0]]} - ${selected[selector.inside[1]]}`;
             } else {
                 value = team[selector]
@@ -72,7 +72,7 @@ export function createModernTable(wrapper, teams, games, params = {}) {
                 compareTeamsButtonHandler(wrapper, team, games, cell, 'modern')
             }
 
-            if (relegations) {
+            if (relegations && comparinsonBtn) {
                 const lastPlace = teams.length - relegations
                 if (i === lastPlace) {
                     row.classList.add('relegation')

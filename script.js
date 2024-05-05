@@ -159,7 +159,7 @@ export function tournamentForm(container, games, teams) {
         });
     })
     gamesForm.after()
-    container.append(gamesForm, generateScoresBtn)
+    container.append(gamesForm, generateScoresBtn, changeTableBtn)
 
     changeTable(container, teams, games)
 }

@@ -10,11 +10,15 @@ Data is stored in local storage. [Live demo](https://deimantedav.github.io/Sport
 ### Regular Season Games
 
 - **Create Regular Games**: Users can create regular season games between specified teams.
-- **Compare Teams**: A separate table allows users to compare chosen teams.
-<!-- ss -->
-- **Relegations**: Users can manage relegations within the regular games feature.
 - **Leaderboard** 🏆: The leaderboard can be displayed in a modern or traditional format.
-<!-- ss -->
+<img src="images/football-league-table.png" width='50%'/>
+
+
+- **Compare Teams**: A separate table allows users to compare chosen teams.
+<img src="images/football-comparison-table.png"  width='50%'/>
+
+- **Relegations**: Users can manage relegations within the regular games feature.
+
 -**Position Calculations**: The system calculates the possible highest and lowest positions for teams, guaranteeing wins or losses.
 -**Generate Scores**: For better testing experience
 
