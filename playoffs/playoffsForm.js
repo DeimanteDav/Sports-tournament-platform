@@ -100,20 +100,38 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                 const pairData = new PlayoffsPair(pairId, [], prevGamesIds, nextGameId)
 
                 const teams = index === 0 && round1TeamPairs[i]
-                for (let roundNr = 1; roundNr <= knockouts; roundNr++) {
-                    gameId +=1
-                    const game = new Game(sportId, '', '', gameId, pairId, roundNr, round, null)
-
-                    if (index === 0) {
-                        if (roundNr % 2 === 0) {
-                            game.homeTeam.team = teams[1].team
-                            game.awayTeam.team = teams[0].team
-                        } else {
-                            game.homeTeam.team = teams[0].team
-                            game.awayTeam.team = teams[1].team
+                if (knockouts) {
+                    for (let roundNr = 1; roundNr <= knockouts; roundNr++) {
+                        gameId +=1
+                        const game = new Game(sportId, '', '', gameId, pairId, roundNr, round, null)
+    
+                        if (index === 0) {
+                            if (roundNr % 2 === 0) {
+                                game.homeTeam.team = teams[1].team
+                                game.awayTeam.team = teams[0].team
+                            } else {
+                                game.homeTeam.team = teams[0].team
+                                game.awayTeam.team = teams[1].team
+                            }
                         }
+                        pairData.games.push(game)
                     }
-                    pairData.games.push(game)
+                } else if (data.tillWins) {
+                    for (let roundNr = 1; roundNr <= data.tillWins*2; roundNr++) {
+                        gameId +=1
+                        const game = new Game(sportId, '', '', gameId, pairId, roundNr, round, null)
+    
+                        if (index === 0) {
+                            if (roundNr % 2 === 0) {
+                                game.homeTeam.team = teams[1].team
+                                game.awayTeam.team = teams[0].team
+                            } else {
+                                game.homeTeam.team = teams[0].team
+                                game.awayTeam.team = teams[1].team
+                            }
+                        }
+                        pairData.games.push(game)
+                    }
                 }
                 playoffsPairs[round].push(pairData)
                 pairData.teams = setTeams(pairData.games)
@@ -122,7 +140,6 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         
         localStorage.setItem('playoffs-pairs-data', JSON.stringify(playoffsPairs))
 
-        console.log(playoffsPairs);
         
         let roundGames = []
          playoffsPairs[round].forEach(round => {
@@ -607,14 +624,14 @@ function changePlayoffsTable(container, roundsData, playoffsPairs) {
 
                 if (game.extraTime) {
                     const extraTimeEl = document.createElement('th')
-                    extraTimeEl.textContent = 'extra'
+                    extraTimeEl.textContent = 'Extra'
                     extraTimeEl.setAttribute('scope', 'col')
                     headRow.append(extraTimeEl)
                 }
                 
                 if (game.shootout) {
                     const shootOutEl = document.createElement('th')
-                    shootOutEl.textContent = 's'
+                    shootOutEl.textContent = 'P'
                     shootOutEl.setAttribute('scope', 'col')
                     headRow.append(shootOutEl)
                 }
@@ -631,8 +648,10 @@ function changePlayoffsTable(container, roundsData, playoffsPairs) {
                 const teamEl = document.createElement('th')
                 teamEl.setAttribute('scope', 'row')
                 teamEl.textContent = teamData.team
-
-           
+                
+                const totalScoreEl = document.createElement('th')
+                totalScoreEl.textContent = teamData.totalScore
+                totalScoreEl.style.padding = '0 10px'
 
                 for (let j = 0; j < teamData.scores.length; j++) {
                     const gameData = teamData.scores[j];
@@ -647,7 +666,9 @@ function changePlayoffsTable(container, roundsData, playoffsPairs) {
 
                     bodyRow.append(gameResultEl)
                 }
+                
                 bodyRow.prepend(teamEl)
+                bodyRow.append(totalScoreEl)
 
                 if (i === 0) {
                     bodyRow.prepend(pairIdEl)

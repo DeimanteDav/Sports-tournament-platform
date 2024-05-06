@@ -517,12 +517,14 @@ function tournamentType(container, teamsAmount) {
     playoffsWrapper.classList.add('form-control')
     const playoffsText = document.createElement('p')
     playoffsText.textContent = 'Playoffs'
+    const sportId = JSON.parse(localStorage.getItem('sport')).id
 
     const playoffsSwitchHandler = (checked) => {
+        console.log(checked);
         if (checked) {
             const playoffsData = {
                 teamsAmount: 0,
-                roundsData: {},
+                roundsData: {}
             }
 
             const playoffsInfoWrapper = document.createElement('div')
@@ -547,9 +549,7 @@ function tournamentType(container, teamsAmount) {
                     possibleAmounts.push(minAmount)
                     minAmount = minAmount*2
                 }
-            }
-
-           
+            }           
 
             const possibleAmountsSelect = document.createElement('select')
 
@@ -566,17 +566,16 @@ function tournamentType(container, teamsAmount) {
             teamsAmountWrapper.append(teamsAmountText, possibleAmountsSelect)
         
             playoffsInfoWrapper.append(teamsAmountWrapper)
-            
-            generatePlayoffsData(playoffsInfoWrapper, 2, playoffsData)
+
+
+            generatePlayoffsData(playoffsInfoWrapper, 2, playoffsData, sportId)
 
             possibleAmountsSelect.addEventListener('change', (e) => {
                 const amount = Number(e.target.value)
 
-                generatePlayoffsData(playoffsInfoWrapper, amount, playoffsData)
-              
+                generatePlayoffsData(playoffsInfoWrapper, amount, playoffsData, sportId)
             })
-
-     
+    
             playoffsWrapper.append(playoffsInfoWrapper)
         } else {
             const oldPlayoffsInfoWrapper = document.getElementById('playoffs-info')
@@ -610,12 +609,15 @@ function tournamentType(container, teamsAmount) {
     })
 }
 
-function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
+function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData, sportId) {
     playoffsData.teamsAmount = teamsAmount
     let roundGamesAmount = teamsAmount/2
     let prevRoundGamesAmount
     let roundsInfo = []
-
+    // vienos rungtynes (kaip futbole, kas laimi tas praena, jei lygios, tai overtime)
+    // dvi rungtynes (kaip futbole, kas laimi tas praena, jei lygios PO DVIEJU, tai overtime)
+    // Iki 2 pergaliu/3 pergaliu/4 pergaliu (kuri pirmiau iskovojo tiek pergaliu praeina, JEI PO ZAIDIMO LYGIOSIOS, TAI OVERTIME)
+    
     for (let i = 0; i < teamsAmount/2; i++) {
         if (i > 0) {
             roundGamesAmount = roundGamesAmount/2
@@ -630,8 +632,10 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
     playoffsData.roundsData = {}
     roundsInfo.forEach(gamesAmount => {
         const property = gamesAmount === 1 ? 'final' : `1/${gamesAmount}`
+
         playoffsData.roundsData[property] = {}
         playoffsData.roundsData[property].gamesAmount = gamesAmount
+
         playoffsData.roundsData[property].knockouts = 1
     })
     localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
@@ -666,7 +670,10 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
 
 
         singleKnockoutBtn.addEventListener('click', (e) => {
-            doubleKnockoutBtn.classList.remove('clicked')
+            const buttons = [...buttonsWrapper.children]
+            buttons.forEach(button => {
+                button.classList.remove('clicked')
+            })
             singleKnockoutBtn.classList.add('clicked')
 
             playoffsData.roundsData[round].knockouts = 1
@@ -674,15 +681,47 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData) {
         })
 
         doubleKnockoutBtn.addEventListener('click', (e) => {
-            singleKnockoutBtn.classList.remove('clicked')
+            const buttons = [...buttonsWrapper.children]
+            buttons.forEach(button => {
+                button.classList.remove('clicked')
+            })
+
             doubleKnockoutBtn.classList.add('clicked')
 
             playoffsData.roundsData[round].knockouts = 2
 
             localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
         })
-        
+
         buttonsWrapper.append(singleKnockoutBtn, doubleKnockoutBtn)
+
+
+        if (sportId === SPORTS.basketball.id) {
+            const types = [2, 3, 4]
+            types.forEach(type => {
+                const tillWinsButton = document.createElement('button')
+                tillWinsButton.type = 'button'
+                tillWinsButton.textContent = `Till ${type} wins` 
+
+
+                tillWinsButton.addEventListener('click', () => {
+                    const buttons = [...buttonsWrapper.children]
+                    buttons.forEach(button => {
+                        button.classList.remove('clicked')
+                    })
+        
+                    tillWinsButton.classList.add('clicked')
+
+                    playoffsData.roundsData[round].knockouts = null 
+                    playoffsData.roundsData[round].tillWins = type
+        
+                    localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
+                })
+
+                buttonsWrapper.append(tillWinsButton)
+            })
+        }
+        
         roundWrapper.prepend(roundElement, buttonsWrapper)
         roundsInfoWrapper.append(roundWrapper)
     })
