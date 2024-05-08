@@ -27,7 +27,7 @@ function generateAccordion(btnText, panelDisplay, games, round, panelClassName, 
     if (round) {
         games.forEach(game => {
             if (`${round}` === `${game.roundNr}`) {
-                panel.append(createGameWrappers(game, outerRound))
+                panel.append(createGameWrappers(game, outerRound, round))
             }
         })
     }
@@ -122,12 +122,12 @@ function createGameElement(game, round) {
                 const pairGames = playoffPairs[round].find(pairData => pairData.id === game.pairId).games
 
                 if (pairGames.length > 1) {
-                    const firstGame = pairGames[0]
-                    const secondGame = pairGames[1]
+                    pairGames.forEach((pairGame, j) => {
+                        if (j !== 0 && !pairGames[j-1].played && pairGame.id === game.id) {
+                            input.setAttribute('disabled', true)
+                        }
+                    })
 
-                    if (!firstGame.played && secondGame.id === game.id) {
-                        input.setAttribute('disabled', true)
-                    }
                 }
             }
 
