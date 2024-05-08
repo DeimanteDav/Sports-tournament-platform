@@ -32,7 +32,6 @@ export default function checkTeamPosition(teams, games) {
                 team.minPlace += 1
                 otherTeam.maxPlace -= 1
             } else if (equalPoints) {
-                console.log('suveikia', team, otherTeam);
                 const inbetweenGames = getInbetweenTeamsGames([otherTeam, team], games)
 
                 let otherTeamGamesWon = 0
@@ -61,7 +60,6 @@ export default function checkTeamPosition(teams, games) {
             //     team.minPlace += 1
             //     otherTeam.maxPlace -= 1
             // } else if (equalPoints) {
-            //     console.log('suveikia', team, otherTeam);
             //     const inbetweenGames = getInbetweenTeamsGames([otherTeam, team], games)
             //     let otherTeamGamesWon = 0
             

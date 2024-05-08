@@ -25,8 +25,9 @@ import checkTeamPosition from "./functions/checkTeamPosition.js"
     // 2. laimejimu procentas;
     // TIE BREAKS: 
     // 3. kas daugiau laimejo tarpusavio zaidimuose
-    // 4. didesnis santykis imestu ir praleistu tasku tarp VISU zaidimu (+/-)
-    // 5. daugiau imestu tasku tarp VISU zaidimu
+    // 4. didesnis santykis tarp TARPusavio zaidimo. 
+    // 5. didesnis santykis imestu ir praleistu tasku tarp VISU zaidimu (+/-)
+    // 6. daugiau imestu tasku tarp VISU zaidimu
 
     // jei tie break neissiaiskina, tai kartoti breakus tarp likusiu komandu nuo 3. punko TARPUSAVY
 
@@ -210,8 +211,19 @@ function updateTeamsData(games, teams, sportId) {
             if (sportId === SPORTS.basketball.id) {
                 let homeTeamOverTime = 0
                 let awayTeamOverTime = 0
-                game.overtime.forEach(overtime => homeTeamOverTime+=overtime.homeTeam.goals);
-                game.overtime.forEach(overtime => awayTeamOverTime+=overtime.awayTeam.goals);
+                game.overtime.forEach(overtime => {
+                    homeTeamOverTime+=overtime.homeTeam.goals
+                    awayTeamOverTime+=overtime.awayTeam.goals
+
+
+                    if (overtime.homeTeam.goals > overtime.awayTeam.goals) {
+                        homeTeamData.overtime.won++
+                        awayTeamData.overtime.lost++
+                    } else if (overtime.homeTeam.goals < overtime.awayTeam.goals) {
+                        awayTeamData.overtime.won++
+                        homeTeamData.overtime.lost++
+                    }
+                });
 
                 homeTeamTotalScored += homeTeamOverTime
                 awayTeamTotalScored += awayTeamOverTime

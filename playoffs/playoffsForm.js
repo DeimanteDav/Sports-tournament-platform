@@ -64,8 +64,8 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
     let gameId = 0
     const roundsDataConverted = Object.entries(sortedData)
     roundsDataConverted.forEach(([round, data], index) => {
-        const {gamesAmount, knockouts} = data
-
+        const {gamesAmount, knockouts, bestOutOf} = data
+        console.log(data);
         if (!playoffsPairs[round] || leagueTableUpdated) {
             playoffsPairs[round] = []
 
@@ -114,10 +114,11 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                                 game.awayTeam.team = teams[1].team
                             }
                         }
+
                         pairData.games.push(game)
                     }
-                } else if (data.tillWins) {
-                    for (let roundNr = 1; roundNr <= data.tillWins*2; roundNr++) {
+                } else if (bestOutOf) {
+                    for (let roundNr = 1; roundNr <= bestOutOf*2-1; roundNr++) {
                         gameId +=1
                         const game = new Game(sportId, '', '', gameId, pairId, roundNr, round, null)
     
@@ -392,7 +393,6 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
 
 function clearNextPair(pair, gamesAmount, playoffsPairs) {
     const round = gamesAmount === 1 ? 'final' : `1/${gamesAmount}` 
-    console.log(pair, gamesAmount);
     const gameElements = getNextGameElements(pair.id, round)
     
     pair.games.forEach((game, i) => {
@@ -400,7 +400,6 @@ function clearNextPair(pair, gamesAmount, playoffsPairs) {
 
         const labels = [...gameEl.querySelectorAll('label')]
         const inputs = [...gameEl.querySelectorAll('.result-input')]
-        console.log(gameEl, inputs, labels);
         inputs.forEach((input, i) => {
             input.setAttribute('disabled', true)
             input.value = null
@@ -428,7 +427,6 @@ function clearNextPair(pair, gamesAmount, playoffsPairs) {
     if (gamesAmount >= 2) {
         const nextRound = gamesAmount === 2 ? 'final' : `1/${gamesAmount/2}` 
         const nextPair = playoffsPairs[nextRound].find(nextPair => nextPair.id === pair.nextId)
-        console.log(nextPair, nextRound);
     
         clearNextPair(nextPair, gamesAmount/2, playoffsPairs)
     }
@@ -436,7 +434,6 @@ function clearNextPair(pair, gamesAmount, playoffsPairs) {
 
 function getNextGameElements(pairId, round) {
     const nextGameElements = [...document.querySelectorAll(`[data-round="${round}"][data-pair-id="${pairId}"]`)]
-    console.log(nextGameElements);
 
     return nextGameElements
 }
@@ -638,7 +635,7 @@ function changePlayoffsTable(container, roundsData, playoffsPairs) {
             })
 
             const pairIdEl = document.createElement('th')
-            pairIdEl.textContent = pair.id
+            pairIdEl.textContent = pair.id + '.'
             pairIdEl.setAttribute('rowSpan', 3)
 
             for (let i = 0; i < pair.teams.length; i++) {
@@ -646,18 +643,22 @@ function changePlayoffsTable(container, roundsData, playoffsPairs) {
                 const bodyRow = document.createElement('tr')
 
                 const teamEl = document.createElement('th')
+                teamEl.style.padding = '0 10px'
                 teamEl.setAttribute('scope', 'row')
-                teamEl.textContent = teamData.team
-                
+                teamEl.textContent = teamData.team ? teamData.team : `${pair.prevIds[i]} winner`
+             
+          
                 const totalScoreEl = document.createElement('th')
                 totalScoreEl.textContent = teamData.totalScore
                 totalScoreEl.style.padding = '0 10px'
+                totalScoreEl.style.fontWeight = 'bold'
+
 
                 for (let j = 0; j < teamData.scores.length; j++) {
                     const gameData = teamData.scores[j];
                     const gameResultEl = document.createElement('td')  
 
-                    if (gameData.playedIn === 'extra' || gameData.playedIn === 's') {
+                    if (gameData.playedIn === 'extra' || gameData.playedIn === 's' && gameData.team) {
                         gameResultEl.textContent = gameData.score ? gameData.score : '-'
                     } else {
                         gameResultEl.textContent = gameData.playedIn + ' ' + (gameData.score ? gameData.score : '-')

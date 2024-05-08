@@ -18,12 +18,6 @@ export default function sortTeams(teams, games, params = {}) {
             const teamsGameData = compareGamesData(samePointsTeams, games);
             if (sportId === SPORTS.football.id) {
                 if (compareBetweenGames) {
-                    // jei abi suzaide
-                    // jei suzaide visas 
-        
-                    // jei maxpotential vienodas patikrint ar suzaide visus kartu
-                    // uzdet du maxpotential kurie gali buti
-        
                     if (teamsGameData.length === 0) {
                         return 0
                     }
@@ -98,6 +92,11 @@ export default function sortTeams(teams, games, params = {}) {
                     if (teamsGameData[a.team].wins > teamsGameData[b.team].wins) {
                         return -1
                     } else if (teamsGameData[a.team].wins < teamsGameData[b.team].wins) {
+                        return 1
+                    }
+                    if (teamsGameData[a.team].goalDifference > teamsGameData[b.team].goalDifference) {
+                        return -1
+                    } else if (teamsGameData[a.team].goalDifference < teamsGameData[b.team].goalDifference) {
                         return 1
                     }
                 }

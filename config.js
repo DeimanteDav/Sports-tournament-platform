@@ -74,6 +74,6 @@ export const MODERN_TABLE_HEAD_ITEMS = {
     generateHeadItem('+/-', 'Points Difference', 'goalDifference'),
     generateHeadItem('H', 'Home Games', {prop: 'homeGames', inside:['won', 'lost']}),
     generateHeadItem('A', 'Away Games', {prop: 'awayGames', inside:['won', 'lost']}),
-    generateHeadItem('OT', 'Overtime', {prop: 'overtime', inside:['scored', 'missed']}),
+    generateHeadItem('OT', 'Overtime', {prop: 'overtime', inside:['won', 'lost']}),
   ]
 }

@@ -520,7 +520,6 @@ function tournamentType(container, teamsAmount) {
     const sportId = JSON.parse(localStorage.getItem('sport')).id
 
     const playoffsSwitchHandler = (checked) => {
-        console.log(checked);
         if (checked) {
             const playoffsData = {
                 teamsAmount: 0,
@@ -637,6 +636,7 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData, sp
         playoffsData.roundsData[property].gamesAmount = gamesAmount
 
         playoffsData.roundsData[property].knockouts = 1
+        playoffsData.roundsData[property].bestOutOf = null
     })
     localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
 
@@ -647,17 +647,21 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData, sp
     roundsInfoWrapper.id = 'rounds-info-wrapper'
 
     const roundsInfoTitle = document.createElement('p')
-    roundsInfoTitle.textContent = 'Knockouts single/double?'
+    roundsInfoTitle.textContent = sportId === SPORTS.football.id ?'Knockouts single/double?' : 'Knockouts or Best out of number of games?'
 
     roundsInfoWrapper.append(roundsInfoTitle)
 
-    Object.keys(playoffsData.roundsData).forEach(round => {
+    Object.entries(playoffsData.roundsData).forEach(([round, data]) => {
         const roundWrapper = document.createElement('div')
         const roundElement = document.createElement('span')
         roundElement.textContent = round
-
+        
         const buttonsWrapper = document.createElement('div')
         buttonsWrapper.classList.add('btn-wrapper')
+
+        const knockoutsWrapper = document.createElement('div')
+        knockoutsWrapper.classList.add('btn-wrapper')
+        knockoutsWrapper.id = `knockouts-${data.gamesAmount}`
 
         const singleKnockoutBtn = document.createElement('button')
         singleKnockoutBtn.type = 'button'
@@ -670,7 +674,7 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData, sp
 
 
         singleKnockoutBtn.addEventListener('click', (e) => {
-            const buttons = [...buttonsWrapper.children]
+            const buttons = buttonsWrapper.querySelectorAll('button')
             buttons.forEach(button => {
                 button.classList.remove('clicked')
             })
@@ -681,7 +685,7 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData, sp
         })
 
         doubleKnockoutBtn.addEventListener('click', (e) => {
-            const buttons = [...buttonsWrapper.children]
+            const buttons = buttonsWrapper.querySelectorAll('button')
             buttons.forEach(button => {
                 button.classList.remove('clicked')
             })
@@ -693,36 +697,115 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData, sp
             localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
         })
 
-        buttonsWrapper.append(singleKnockoutBtn, doubleKnockoutBtn)
-
+        knockoutsWrapper.append(singleKnockoutBtn, doubleKnockoutBtn)
+        buttonsWrapper.append(knockoutsWrapper)
 
         if (sportId === SPORTS.basketball.id) {
-            const types = [2, 3, 4]
-            types.forEach(type => {
-                const tillWinsButton = document.createElement('button')
-                tillWinsButton.type = 'button'
-                tillWinsButton.textContent = `Till ${type} wins` 
+            const gameTypesWrapper = document.createElement('div')
+            const gameTypes = [
+                {type: 'Knockouts', id: `knockouts-${data.gamesAmount}`},
+                {type: 'Best out of n games', id: `best-out-of-${data.gamesAmount}`}
+            ]
 
+            gameTypes.forEach((gameType, i) => {
+                const gameTypeWrapper = document.createElement('div')
 
-                tillWinsButton.addEventListener('click', () => {
-                    const buttons = [...buttonsWrapper.children]
+                const label = document.createElement('label')
+                label.textContent = gameType.type
+                label.htmlFor = `game-type-${gameType.id}`
+
+                const radioInput = document.createElement('input')
+                radioInput.type = 'radio'
+                radioInput.name = `game-type-${round}`
+                radioInput.id = `game-type-${gameType.id}`
+
+                if (i === 0) {
+                    radioInput.checked = true
+                    console.log(radioInput);
+                }
+
+                radioInput.addEventListener('change', (e) => {
+                    const selectedTypeBtnWrapper = document.querySelector(`#${gameType.id}`)
+                    console.log([...selectedTypeBtnWrapper.children]);
+                    const selectedTypeButtons = [...selectedTypeBtnWrapper.children]
+
+                    selectedTypeButtons.forEach((btn, j) => {
+                        if (j === 0) {
+                            btn.classList.add('clicked')
+                            if (gameType.id === 'knockouts') {
+                                playoffsData.roundsData[round].knockouts = 1 
+                                playoffsData.roundsData[round].bestOutOf = null
+                            } else {
+                                playoffsData.roundsData[round].knockouts = null
+                                playoffsData.roundsData[round].bestOutOf = 2 
+                            }
+                            localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
+                        }
+                        btn.removeAttribute('disabled')
+                    })
+
+                   const otherTypes = gameTypes.filter(otherGameType => otherGameType.id !== gameType.id)
+
+                   otherTypes.forEach(otherType => {
+                    const otherBtnWrapper = document.querySelector(`#${otherType.id}`) 
+                    const otherButtons = [...otherBtnWrapper.children]
+
+                    otherButtons.forEach(btn => {
+                        btn.setAttribute('disabled', true)
+                        btn.classList.remove('clicked')
+                    });
+                   })
+                })
+
+                gameTypeWrapper.append(radioInput, label)
+                gameTypesWrapper.append(gameTypeWrapper)
+            })
+
+            // const knockoutsLabel = document.createElement('label')
+            // knockoutsLabel.textContent = 'Knockouts'
+            // const knockoutsCheckbox = document.createElement('input')
+            // knockoutsCheckbox.type = 'checkbox'
+
+            // const bestOutOfLabel = document.createElement('label')
+            // bestOutOfLabel.textContent = 'Knockouts'
+            // const bestOutOfCheckbox = document.createElement('input')
+            // bestOutOfCheckbox.type = 'checkbox'
+
+            const bestOutOfWrapper = document.createElement('div')
+            bestOutOfWrapper.style.marginLeft = '20px'
+            bestOutOfWrapper.classList.add('btn-wrapper')
+            bestOutOfWrapper.id = `best-out-of-${data.gamesAmount}`
+
+            const amounts = [2, 3, 4]
+            amounts.forEach(amount => {
+                const bestOutOfButton = document.createElement('button')
+                bestOutOfButton.type = 'button'
+                bestOutOfButton.textContent = `Best out of ${amount*2-1} games` 
+                bestOutOfButton.setAttribute('disabled', true)
+
+                bestOutOfButton.addEventListener('click', () => {
+                    const buttons = buttonsWrapper.querySelectorAll('button')
                     buttons.forEach(button => {
                         button.classList.remove('clicked')
                     })
-        
-                    tillWinsButton.classList.add('clicked')
+
+                    bestOutOfButton.classList.add('clicked')
 
                     playoffsData.roundsData[round].knockouts = null 
-                    playoffsData.roundsData[round].tillWins = type
+                    playoffsData.roundsData[round].bestOutOf = amount
         
                     localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
                 })
 
-                buttonsWrapper.append(tillWinsButton)
+                bestOutOfWrapper.append(bestOutOfButton)
             })
+
+            roundWrapper.append(gameTypesWrapper)
+            buttonsWrapper.append(bestOutOfWrapper)
         }
         
-        roundWrapper.prepend(roundElement, buttonsWrapper)
+        roundWrapper.prepend(roundElement)
+        roundWrapper.append(buttonsWrapper)
         roundsInfoWrapper.append(roundWrapper)
     })
 

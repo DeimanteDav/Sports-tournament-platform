@@ -298,8 +298,6 @@ export function createOldTable(wrapper, teams, games, params = {}) {
     expandAllBtn.addEventListener('click', (e) => {
         const innerTableBodies = [...tableBody.querySelectorAll('#rounds-info')]
         const teamExpandBtns = [...tableBody.querySelectorAll('.expand-btn')]
-        console.log(teamExpandBtns);
-
 
         if (expandAllBtn.textContent === 'Hide All') {
             innerTableBodies.forEach((item, i) => {

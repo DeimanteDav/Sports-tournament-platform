@@ -30,8 +30,8 @@ export default class Team {
             this.techLosses = 0
             this.winPerc = 0
             this.overtime = {
-                scored: 0,
-                missed: 0,
+                won: 0,
+                lost: 0,
             }
             this.homeGames = {
                 won: 0,

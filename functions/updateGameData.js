@@ -2,7 +2,6 @@ import Game from "../classes/Game.js"
 import { SPORTS } from "../config.js"
 
 export default function updateGameData(gameEl, currentGame, sportId, params = {}) {
-    console.log(currentGame);
     const {overtime} = params
     const homeTeamInput = gameEl.querySelector(`.home-team ${overtime ? `[data-overtime="${currentGame.id}"]` : '.result-input'}`)
     const awayTeamInput = gameEl.querySelector(`.away-team ${overtime ? `[data-overtime="${currentGame.id}"]` : '.result-input'}`)
