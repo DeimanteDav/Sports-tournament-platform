@@ -123,7 +123,14 @@ function createGameElement(game, round) {
 
                 if (pairGames.length > 1) {
                     pairGames.forEach((pairGame, j) => {
-                        if (j !== 0 && !pairGames[j-1].played && pairGame.id === game.id) {
+                        if (pairGames[j-1]?.id === 1) {
+                            console.log(j !== 0 && !pairGames[j-1].played && pairGame.id === game.id && (pairGames[j-1].overtime.length > 0 ? pairGames[j-1].overtime.some(overtimeGame => !overtimeGame.played) : true));
+
+
+                            console.log(pairGames[j-1], pairGames[j], (pairGames[j-1].overtime.length > 0 ? pairGames[j-1].overtime.some(overtimeGame => !overtimeGame.played) : true));
+                        } 
+                        
+                        if (j !== 0 && (!pairGames[j-1].played || (pairGames[j-1].overtime.length > 0 ? pairGames[j-1].overtime.some(overtimeGame => !overtimeGame.played) : false)) && pairGame.id === game.id) {
                             input.setAttribute('disabled', true)
                         }
                     })

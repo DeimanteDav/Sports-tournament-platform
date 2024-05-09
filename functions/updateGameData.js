@@ -3,7 +3,7 @@ import { SPORTS } from "../config.js"
 
 export default function updateGameData(gameEl, currentGame, sportId, params = {}) {
     const {overtime} = params
-    console.log(currentGame, overtime);
+
     const homeTeamInput = gameEl.querySelector(`.home-team ${overtime ? `[data-overtime="${currentGame.id}"]` : '.result-input'}`)
     const awayTeamInput = gameEl.querySelector(`.away-team ${overtime ? `[data-overtime="${currentGame.id}"]` : '.result-input'}`)
     const homeTeamScored = Number(homeTeamInput.value)
@@ -18,13 +18,18 @@ export default function updateGameData(gameEl, currentGame, sportId, params = {}
     
     if (homeTeamInput.value && awayTeamInput.value) {
         if (sportId === SPORTS.basketball.id) {
-            if (homeTeamScored === awayTeamScored && !overtime) {
-                const overtimeGame = new Game(sportId, homeTeamData, awayTeamData, currentGame.overtime.length+1)
+            if (currentGame.overtime.length > 0) {
+                if (currentGame.overtime.every(overtimeGame => overtimeGame.played)) {
+                    gameEl.parentElement.classList.add('played')
+                } else {
+                    gameEl.parentElement.classList.remove('played')
+                }
+                // const overtimeGame = new Game(sportId, homeTeamData, awayTeamData, currentGame.overtime.length+1)
     
-                currentGame.overtime.push(overtimeGame)
-                gameEl.parentElement.classList.remove('played')
+                // currentGame.overtime.push(overtimeGame)
+                // gameEl.parentElement.classList.remove('played')
             } else {
-                currentGame.overtime = []
+                // currentGame.overtime = []
                 gameEl.parentElement.classList.add('played')
             }
         } else if (sportId === SPORTS.football.id) {
@@ -40,7 +45,6 @@ export default function updateGameData(gameEl, currentGame, sportId, params = {}
         }
 
         currentGame.played = true
-
     } else {
         currentGame.played = false
         currentGame.winner = null

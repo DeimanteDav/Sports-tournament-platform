@@ -7,18 +7,6 @@ import updateGameData from "../functions/updateGameData.js"
 // TABLE PLAYOFFS LAUKELIUOSE
 // BENDRAS REZ. JEI LYGUS TAD EXTRA TIME
 
-// prie zaidimo prideti: rato nr, roundo nr, poros numberis, zaidimo numeri.
-
-
-// JEIGU LYGIOSIOS (Prie antro zaidimo):
-// extra time du inputai
-
-// JEI VEL LYGIOS:
-// penalty shootout
-
-
-// table atvaizduoti extra time; Penalty; BENDRas rezultatas
-
 // krepsinio tipai ETAPU:
     // vienos rungtynes (kaip futbole, kas laimi tas praena, jei lygios, tai overtime)
     // dvi rungtynes (kaip futbole, kas laimi tas praena, jei lygios PO DVIEJU, tai overtime)
@@ -26,7 +14,7 @@ import updateGameData from "../functions/updateGameData.js"
     
 
 export default function playoffsForm(container, gamesData, playoffTeams, params = {}) {
-    const {roundsData, teamsAmount} = gamesData
+    const {roundsData} = gamesData
     const {leagueTableUpdated} = params
     const sportId = JSON.parse(localStorage.getItem('sport')).id
 
@@ -166,7 +154,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         
         const pairData = playoffsPairs[currentRound].find(pair => pair.id === pairId)
         const pairGames = pairData.games
-        const firstGame = [...pairGames].shift()
+        // const firstGame = [...pairGames].shift()
         const lastGame = [...pairGames].pop()
 
         const currentGame = pairGames.find(game => game.roundNr === roundNr)
@@ -174,8 +162,11 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         const nextPair = playoffsPairs[nextRound].find(pair => pair.id === pairData.nextId)
         
         const lastGameEl = document.querySelector(`.game[data-game-id="${lastGame.id}"][data-round="${currentRound}"]`)
+        const curretnGameEl = document.querySelector(`.game[data-game-id="${currentGame.id}"][data-round="${currentRound}"]`)
 
         const lastGameInputs = [...lastGameEl.querySelectorAll('.result-input')]
+
+        const currentGameGameInputs = [...curretnGameEl.querySelectorAll('.result-input')]
         
         const teamWrapper = e.target.parentElement
         const value = e.target.value ? +e.target.value : null
@@ -230,15 +221,14 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
             }
         } else if (overtimeId) {
             const overtimeGame = currentGame.overtime.find(overtime => overtime.id === overtimeId)
-            console.log(overtimeId, overtimeGame, currentGame);
             updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
     
             const currentInputs = [...lastGameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]
 
             if (overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals && overtimeGame.played) {
                 const overtimeGame = new Game(sportId, lastGame.homeTeam, lastGame.awayTeam, lastGame.overtime.length+1)
-                console.log(overtimeGame, overtimeId);
                 currentGame.overtime.push(overtimeGame)
+
                 currentInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
                     overtimeInput.dataset.overtime = overtimeId+1
@@ -246,13 +236,17 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                     input.after(overtimeInput)
                 })
             } else {
-                currentGame.overtime = currentGame.overtime.filter(overtime => overtime.id <= overtimeId)
+                currentGame.overtime = currentGame.overtime.filter(overtime => {
+                    return overtime.id <= overtimeId
+                })
                 
-                lastGameInputs.forEach(input => {
+                currentGameGameInputs.forEach(input => {
                     if (+input.dataset.overtime > overtimeId) {
                         input.remove()
                     }
                 })
+
+                console.log('SUVEIKIa', currentGame, currentGame.overtime, playoffsPairs);
             }
         }
 
@@ -261,41 +255,10 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         } else {
             pairData.playedAll = false
         }
-        updateGameData(gameEl, currentGame)
+        updateGameData(gameEl, currentGame, sportId)
 
 
-        if (pairGames.length > 0) {
-            const otherGameElement = document.querySelector(`.game[data-round-nr="${roundNr+1}"][data-pair-id="${pairId}"]`)
-            console.log(currentGame.id, currentRound, pairId);
-            const otherGameInputs = otherGameElement && [...otherGameElement.querySelectorAll('.result-input')]
-            console.log(otherGameInputs, otherGameElement);
-
-            if (otherGameInputs) {
-                if (!currentGame.played) {
-                    otherGameInputs.forEach(input => {
-                        input.value = ''
-                        input.setAttribute('disabled', true)
-    
-                        const inputClasses = [...input.classList]
-                        if (inputClasses.includes('extra-time') || inputClasses.includes('shootout')) {
-                            input.remove()
-                        }
-                    })
-    
-                    lastGame.extraTime = null
-                    lastGame.shootout = null
-                    lastGame.overtime = []
-    
-                    updateGameData(lastGameEl, lastGame)
-                } else {
-                    otherGameInputs.forEach(input => {
-                        input.removeAttribute('disabled')
-                    })
-                }
-            }
-        }
-
-        pairData.teams = setTeams(pairGames, lastGame.extraTime, lastGame.shootout, lastGame.overtime)
+        pairData.teams = setTeams(pairGames, lastGame.extraTime, lastGame.shootout)
 
         if (sportId === SPORTS.football.id) {
             if (pairData.playedAll &&  pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
@@ -320,15 +283,13 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                     }
                 })
             }
-        } else if (sportId === SPORTS.basketball.id && !overtimeId) {
-            console.log(overtimeId);
-            if (pairGames.every(game => game.played) && pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
-                console.log('suveikia');
+        } else if (sportId === SPORTS.basketball.id && !overtimeId && bestOutOf) {
+            console.log(currentGame);
+            if (currentGame.homeTeam.goals === currentGame.awayTeam.goals && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true) && currentGame.homeTeam.goals !== null) {
+                const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
+                currentGame.overtime.push(overtimeGame)
 
-                const overtimeGame = new Game(sportId, lastGame.homeTeam, lastGame.awayTeam, lastGame.overtime.length+1)
-                lastGame.overtime.push(overtimeGame)
-
-                lastGameInputs.forEach(input => {
+                currentGameGameInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
                     overtimeInput.dataset.overtime = lastGame.overtime.length
                     overtimeInput.classList.add('result-input', 'overtime')
@@ -336,14 +297,53 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                 })
             } else {
                 currentGame.overtime = []
-
-                lastGameInputs.forEach(input => {
+                currentGameGameInputs.forEach(input => {
                     if (input.dataset.overtime) {
                         input.remove()
                     }
                 })
             }
         }   
+
+        
+        if (pairGames.length > 0) {
+            const otherGame = pairGames.find(game => game.roundNr === roundNr+1)
+
+            const otherGameElement = document.querySelector(`.game[data-round-nr="${roundNr+1}"][data-pair-id="${pairId}"]`)
+
+            const otherGameInputs = otherGameElement && [...otherGameElement.querySelectorAll('.result-input')]
+
+            if (otherGameInputs) {
+                if (!currentGame.played || (currentGame?.overtime.length > 0 ? currentGame.overtime.some(overtimeGame => !overtimeGame.played) : false)) {
+                    otherGameInputs.forEach(input => {
+                        input.value = ''
+                        input.setAttribute('disabled', true)
+                        otherGame.played = false
+                        otherGame.homeTeam.goals = null
+                        otherGame.awayTeam.goals = null
+                        otherGame.overtime = []
+
+                        const inputClasses = [...input.classList]
+                        if (inputClasses.includes('extra-time') || inputClasses.includes('shootout') || input.dataset.overtime) {
+                            input.remove()
+                        }
+                    })
+                    pairGames.teams = setTeams(pairGames)
+    
+                    lastGame.extraTime = null
+                    lastGame.shootout = null
+                    lastGame.overtime = []
+                    
+                    updateGameData(lastGameEl, lastGame, sportId)
+                } else if (currentGame.played && (currentGame.overtime.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.played) : true)) {
+                    otherGameInputs.forEach(input => {
+                        input.removeAttribute('disabled')
+                    })
+                }
+            }
+        }
+
+
         const team1 = pairData.teams[0]
         const team2 = pairData.teams[1]
         
@@ -360,13 +360,17 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         const otherClass = playingAs === 'homeTeam' ? 'away-team' : 'home-team'
 
         let winner = null
-        if (pairGamesPlayed && team1.totalScore !== team2.totalScore) {
+        if (bestOutOf && (team1.wins >= bestOutOf || team2.wins >= bestOutOf)) {
+            winner = team1.wins >= bestOutOf ? team1.team : team2.team
+        } else if (knockouts && pairGamesPlayed) {
             if (team1.totalScore > team2.totalScore) {
                 winner = team1.team
             } else if (team2.totalScore > team1.totalScore) {
                 winner = team2.team
             }
-
+        }
+        console.log('WINEERR',winner, team1, team2, pairData);
+        if (winner) {
             if (nextPair.games[0][playingAs].team !== winner) {
                 nextPair.games.forEach((game, i) => {
                     const nextPairElement = nextPairElements[i]
@@ -402,8 +406,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
             }
         } else if (nextPair.teams.some(team => team.team) && !otherPairPlayed) {
             clearNextPair(nextPair, gamesAmount/2, playoffsPairs)
-
-        } else if (!pairGamesPlayed) {
+        } else {
             nextPair.games.forEach((game, i) => {
                 const nextPairElement = nextPairElements[i]
                 const nextPairLabel1 = nextPairElement.querySelector(`.${teamClass} label`)
@@ -437,9 +440,21 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
             })
             nextPair.teams = setTeams(nextPair.games)
         }
+
+        nextPairElements && nextPairElements.forEach(nextPairElement => {
+            const nextPairInputs = nextPairElement.querySelectorAll('.result-input')
+            if (nextPairInputs) {
+                nextPairInputs.forEach(input => {
+                    if (nextPair.teams.every(team => team.team)) {
+                        input.removeAttribute('disabled')
+                    } else {
+                        input.setAttribute('disabled', true)
+                    }
+                })
+            }
+        })
     
-
-
+        console.log(playoffsPairs);
         changePlayoffsTable(container, sortedData, playoffsPairs)
 
         localStorage.setItem('playoffs-pairs-data', JSON.stringify(playoffsPairs))
@@ -494,7 +509,7 @@ function getNextGameElements(pairId, round) {
 }
 
 
-function setTeams(games, extraTime, shootout, overtimes) {
+function setTeams(games, extraTime, shootout) {
     const team1  = games[0].homeTeam.team
     const team2  = games[0].awayTeam.team
     const scores1 = []
@@ -502,11 +517,21 @@ function setTeams(games, extraTime, shootout, overtimes) {
 
     let goals1Sum = 0
     let goals2Sum = 0
+    let team1Won = 0
+    let team2Won = 0
 
     games.forEach(game => {
         const team1Data = {score: 0, playedIn: ''}
         const team2Data = {score: 0, playedIn: ''}
-        
+
+        let homeOvertimeGoals = 0
+        let awayOvertimeGoals = 0
+
+        game.overtime.forEach(overtimeGame => {
+            homeOvertimeGoals+=overtimeGame.homeTeam.goals
+            awayOvertimeGoals+=overtimeGame.awayTeam.goals
+        })
+
         if (game.homeTeam.team === team1) {
             team1Data.score = game.homeTeam.goals
             team1Data.playedIn = 'H'
@@ -516,6 +541,14 @@ function setTeams(games, extraTime, shootout, overtimes) {
 
             goals1Sum+=game.homeTeam.goals
             goals2Sum+=game.awayTeam.goals
+
+            if ((game.overtime?.length > 0 ? game.overtime.every(overtimeGame => overtimeGame.played) : true) && game.played) {
+                if ((game.homeTeam.goals + homeOvertimeGoals) > (game.awayTeam.goals + awayOvertimeGoals)) {
+                    team1Won++
+                } else if ((game.homeTeam.goals + homeOvertimeGoals) < (game.awayTeam.goals + awayOvertimeGoals)) {
+                    team2Won++
+                }
+            }
         }
         if (game.awayTeam.team === team1) {
             team1Data.score = game.awayTeam.goals
@@ -526,10 +559,30 @@ function setTeams(games, extraTime, shootout, overtimes) {
 
             goals1Sum+=game.awayTeam.goals
             goals2Sum+=game.homeTeam.goals
+
+            if ((game.homeTeam.goals + homeOvertimeGoals) > (game.awayTeam.goals + awayOvertimeGoals)) {
+                team2Won++
+            } else if ((game.homeTeam.goals + homeOvertimeGoals) < (game.awayTeam.goals + awayOvertimeGoals)) {
+                team1Won++
+            }
         }
 
         scores1.push(team1Data)
         scores2.push(team2Data)
+
+        if (game.overtime) {
+            game.overtime.forEach(overtime => {
+                const homeTeam = overtime.homeTeam
+                const awayTeam = overtime.awayTeam
+                const team1Goals = homeTeam.team === team1 ? homeTeam.goals : awayTeam.goals
+                const team2Goals = awayTeam.team === team2 ? awayTeam.goals : homeTeam.goals
+                
+                goals1Sum+=team1Goals
+                goals2Sum+=team2Goals
+                scores1.push({score: team1Goals, playedIn: 'OT'})
+                scores2.push({score: team2Goals, playedIn: 'OT'})
+            })
+        }
     })
 
     if (extraTime) {
@@ -559,31 +612,21 @@ function setTeams(games, extraTime, shootout, overtimes) {
         scores1.push({score: team1Goals, playedIn: 'p'})
         scores2.push({score: team2Goals, playedIn: 'p'})
     }
-    if (overtimes) {
-        overtimes.forEach(overtime => {
-            const homeTeam = overtime.homeTeam
-            const awayTeam = overtime.awayTeam
-            const team1Goals = homeTeam.team === team1 ? homeTeam.goals : awayTeam.goals
-            const team2Goals = awayTeam.team === team2 ? awayTeam.goals : homeTeam.goals
-            
-            goals1Sum+=team1Goals
-            goals2Sum+=team2Goals
-            scores1.push({score: team1Goals, playedIn: 'OT'})
-            scores2.push({score: team2Goals, playedIn: 'OT'})
-        })
 
-    }
+  
 
     const result = [
         {
             team: team1,
             scores: scores1,
             totalScore: goals1Sum,
+            wins: team1Won
         },
         {
             team: team2,
             scores: scores2,
-            totalScore: goals2Sum
+            totalScore: goals2Sum,
+            wins: team2Won
         }
     ]
 
@@ -702,6 +745,7 @@ function changePlayoffsTable(container, roundsData, playoffsPairs) {
                     shootOutEl.setAttribute('scope', 'col')
                     headRow.append(shootOutEl)
                 }
+
                 if (game.overtime) {
                     game.overtime.forEach(game => {
                         const overtimeEl = document.createElement('th')
