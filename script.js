@@ -11,35 +11,11 @@ import accordion from "./components/accordion.js"
 import Game from "./classes/Game.js"
 import checkTeamPosition from "./functions/checkTeamPosition.js"
 
-// FUTBOLO IR KREPSINIO
-// Jei krepsinio, tai skirsis: 
-    // taskai;
-    // lygiuju nera;
-    // points: WIN 2, LOSS 1, TECHNINIS PRALAIMEJIMAS 0 (pazymet, kad neatvyko i rungtynes 0-20 taskai, kuriuos imeta);
-    // Laimejimu procentas;
-    // tasku neatvaizduoja, bet imesti taskai 
-    // OT (overtime points) 
-
-// SORTINTI:
-    // 1. taskai (ne imesti)
-    // 2. laimejimu procentas;
-    // TIE BREAKS: 
-    // 3. kas daugiau laimejo tarpusavio zaidimuose
-    // 4. didesnis santykis tarp TARPusavio zaidimo. 
-    // 5. didesnis santykis imestu ir praleistu tasku tarp VISU zaidimu (+/-)
-    // 6. daugiau imestu tasku tarp VISU zaidimu
-
-    // jei tie break neissiaiskina, tai kartoti breakus tarp likusiu komandu nuo 3. punko TARPUSAVY
-
-// POINTS imesti ir OVERTIME POINTS imesti atskirai rasos ir tie breakuose points skaicuojas, o laimejimuose TOTAL
-
 // ADD CONDITION:
 // PATSS IRASAI VISKA
 // tEIGIAMAS NEIGIAMAS
 // PATENka i europos lyga aukstesne / zemesne NUO KELINTOS IKI KELINTA
 
-// Prie games round, RATAI
-// Pervadinti rounds i ratus kazkaip angliskai
 
 
 const container = document.querySelector('.container')
@@ -48,9 +24,6 @@ const container = document.querySelector('.container')
 
 // Daugiau lenteliu jei pvz.: 16komandu i 4 grupes.
 // kiek teamsu iseina i kita etapa PASIRINKTI.
-
-// rungtyniu nr prideti
-
 
 
 function getLocalStorageData(container) {
@@ -101,21 +74,62 @@ export function tournamentForm(container, games, teams) {
         const gameId = +gameEl.dataset.gameId
         const currentGame = games.find(game => game.id === gameId)
         const overtimeId = +e.target.dataset.overtime
+        
+        const currentGameGameInputs = [...gameEl.querySelectorAll('.result-input')]
 
         if (e.target.dataset.overtime && sportId === SPORTS.basketball.id) {
+            const currentInputs = [...gameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]
             const overtimeGame = currentGame.overtime.find(overtime => overtime.id === overtimeId)
             updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
 
             if (overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals && overtimeGame.played) {
                 const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
 
+                currentInputs.forEach(input => {
+                    const overtimeInput = document.createElement('input')
+                    overtimeInput.dataset.overtime = overtimeId+1
+                    overtimeInput.classList.add('result-input', 'overtime')
+                    input.after(overtimeInput)
+                })
+
                 currentGame.overtime.push(overtimeGame)
             } else {
                 currentGame.overtime = currentGame.overtime.filter(overtime => overtime.id <= overtimeId)
+                
+                currentGameGameInputs.forEach(input => {
+                    if (+input.dataset.overtime > overtimeId) {
+                        input.remove()
+                    }
+                })
             }
         } else {
             updateGameData(gameEl, currentGame, sportId)
         }
+
+        if (sportId === SPORTS.basketball.id && !overtimeId) {
+            if (currentGame.homeTeam.goals === currentGame.awayTeam.goals && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true)) {
+                const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
+
+                currentGame.overtime.push(overtimeGame)
+                currentGame.played = false
+                gameEl.parentElement.classList.remove('played')
+              
+                currentGameGameInputs.forEach(input => {
+                    const overtimeInput = document.createElement('input')
+                    overtimeInput.dataset.overtime = currentGame.overtime.length
+                    overtimeInput.classList.add('result-input', 'overtime')
+                    input.after(overtimeInput)
+                })
+            } else {
+                currentGame.overtime = []
+                currentGameGameInputs.forEach(input => {
+                    if (input.dataset.overtime) {
+                        input.remove()
+                    }
+                })
+            }
+        }
+        console.log(currentGame);
         
 
         localStorage.setItem('league-games-data', JSON.stringify(games))

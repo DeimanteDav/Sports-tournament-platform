@@ -162,11 +162,12 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         const nextPair = playoffsPairs[nextRound].find(pair => pair.id === pairData.nextId)
         
         const lastGameEl = document.querySelector(`.game[data-game-id="${lastGame.id}"][data-round="${currentRound}"]`)
-        const curretnGameEl = document.querySelector(`.game[data-game-id="${currentGame.id}"][data-round="${currentRound}"]`)
+        // const curretnGameEl = document.querySelector(`.game[data-game-id="${currentGame.id}"][data-round="${currentRound}"]`)
 
         const lastGameInputs = [...lastGameEl.querySelectorAll('.result-input')]
 
-        const currentGameGameInputs = [...curretnGameEl.querySelectorAll('.result-input')]
+        // const currentGameGameInputs = [...curretnGameEl.querySelectorAll('.result-input')]
+        const currentGameGameInputs = [...gameEl.querySelectorAll('.result-input')]
         
         const teamWrapper = e.target.parentElement
         const value = e.target.value ? +e.target.value : null
@@ -245,8 +246,6 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                         input.remove()
                     }
                 })
-
-                console.log('SUVEIKIa', currentGame, currentGame.overtime, playoffsPairs);
             }
         }
 
@@ -284,8 +283,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                 })
             }
         } else if (sportId === SPORTS.basketball.id && !overtimeId && bestOutOf) {
-            console.log(currentGame);
-            if (currentGame.homeTeam.goals === currentGame.awayTeam.goals && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true) && currentGame.homeTeam.goals !== null) {
+            if (currentGame.homeTeam.goals !== null && currentGame.homeTeam.goals === currentGame.awayTeam.goals && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true)) {
                 const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
                 currentGame.overtime.push(overtimeGame)
 
