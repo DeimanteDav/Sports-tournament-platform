@@ -224,10 +224,10 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
             const overtimeGame = currentGame.overtime.find(overtime => overtime.id === overtimeId)
             updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
     
-            const currentInputs = [...lastGameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]
+            const currentInputs = [...gameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]
 
             if (overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals && overtimeGame.played) {
-                const overtimeGame = new Game(sportId, lastGame.homeTeam, lastGame.awayTeam, lastGame.overtime.length+1)
+                const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
                 currentGame.overtime.push(overtimeGame)
 
                 currentInputs.forEach(input => {
@@ -240,7 +240,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                 currentGame.overtime = currentGame.overtime.filter(overtime => {
                     return overtime.id <= overtimeId
                 })
-                
+
                 currentGameGameInputs.forEach(input => {
                     if (+input.dataset.overtime > overtimeId) {
                         input.remove()
@@ -258,6 +258,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
 
 
         pairData.teams = setTeams(pairGames, lastGame.extraTime, lastGame.shootout)
+        console.log(currentGame, currentGame.overtime, !overtimeId, overtimeId);
 
         if (sportId === SPORTS.football.id) {
             if (pairData.playedAll &&  pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
@@ -285,11 +286,11 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         } else if (sportId === SPORTS.basketball.id && !overtimeId && bestOutOf) {
             if (currentGame.homeTeam.goals !== null && currentGame.homeTeam.goals === currentGame.awayTeam.goals && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true)) {
                 const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
-                currentGame.overtime.push(overtimeGame)
 
+                currentGame.overtime.push(overtimeGame)
                 currentGameGameInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
-                    overtimeInput.dataset.overtime = lastGame.overtime.length
+                    overtimeInput.dataset.overtime = overtimeGame.id
                     overtimeInput.classList.add('result-input', 'overtime')
                     input.after(overtimeInput)
                 })
@@ -367,7 +368,6 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                 winner = team2.team
             }
         }
-        console.log('WINEERR',winner, team1, team2, pairData);
         if (winner) {
             if (nextPair.games[0][playingAs].team !== winner) {
                 nextPair.games.forEach((game, i) => {

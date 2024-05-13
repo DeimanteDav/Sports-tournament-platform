@@ -77,14 +77,13 @@ export function tournamentForm(container, games, teams) {
         
         const currentGameGameInputs = [...gameEl.querySelectorAll('.result-input')]
 
+
         if (e.target.dataset.overtime && sportId === SPORTS.basketball.id) {
             const currentInputs = [...gameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]
             const overtimeGame = currentGame.overtime.find(overtime => overtime.id === overtimeId)
-            updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
 
             if (overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals && overtimeGame.played) {
                 const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
-
                 currentInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
                     overtimeInput.dataset.overtime = overtimeId+1
@@ -95,23 +94,24 @@ export function tournamentForm(container, games, teams) {
                 currentGame.overtime.push(overtimeGame)
             } else {
                 currentGame.overtime = currentGame.overtime.filter(overtime => overtime.id <= overtimeId)
-                
+
                 currentGameGameInputs.forEach(input => {
                     if (+input.dataset.overtime > overtimeId) {
                         input.remove()
                     }
                 })
             }
-        } else {
-            updateGameData(gameEl, currentGame, sportId)
+
+            updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
         }
+
+        updateGameData(gameEl, currentGame, sportId)
 
         if (sportId === SPORTS.basketball.id && !overtimeId) {
             if (currentGame.homeTeam.goals === currentGame.awayTeam.goals && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true)) {
                 const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
 
                 currentGame.overtime.push(overtimeGame)
-                currentGame.played = false
                 gameEl.parentElement.classList.remove('played')
               
                 currentGameGameInputs.forEach(input => {
@@ -215,6 +215,7 @@ function updateTeamsData(games, teams, sportId) {
 
         // homeTeamData.setPotentialPoints(WIN_POINTS)
         // awayTeamData.setPotentialPoints(WIN_POINTS)
+        
         if (game.played) {
             const homeTeamScored = gameHomeTeam.goals
             const awayTeamScored = gameAwayTeam.goals

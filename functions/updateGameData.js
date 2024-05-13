@@ -12,25 +12,22 @@ export default function updateGameData(gameEl, currentGame, sportId, params = {}
     const homeTeamData = currentGame.homeTeam
     const awayTeamData = currentGame.awayTeam
     
-    
     homeTeamData.goals = homeTeamInput.value ? homeTeamScored : null
     awayTeamData.goals = awayTeamInput.value ?  awayTeamScored : null
-    
+
     if (homeTeamInput.value && awayTeamInput.value) {
         if (sportId === SPORTS.basketball.id) {
-            if (currentGame.overtime.length > 0) {
+            if (currentGame.overtime.length > 0 && !overtime) {
                 if (currentGame.overtime.every(overtimeGame => overtimeGame.played)) {
                     gameEl.parentElement.classList.add('played')
+                    currentGame.playedAll = true
                 } else {
                     gameEl.parentElement.classList.remove('played')
+                    currentGame.playedAll = false
                 }
-                // const overtimeGame = new Game(sportId, homeTeamData, awayTeamData, currentGame.overtime.length+1)
-    
-                // currentGame.overtime.push(overtimeGame)
-                // gameEl.parentElement.classList.remove('played')
             } else {
-                // currentGame.overtime = []
                 gameEl.parentElement.classList.add('played')
+                currentGame.playedAll = true
             }
         } else if (sportId === SPORTS.football.id) {
             gameEl.parentElement.classList.add('played')
@@ -43,8 +40,8 @@ export default function updateGameData(gameEl, currentGame, sportId, params = {}
         } else {
             currentGame.winner = null
         }
-
         currentGame.played = true
+
     } else {
         currentGame.played = false
         currentGame.winner = null
