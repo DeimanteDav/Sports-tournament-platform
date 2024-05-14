@@ -111,7 +111,6 @@ function generateGames(teams, roundsAmount) {
         games.forEach((game, i) => {
 
             let availableRound = [...Object.keys(innerRoundTeams)].find(round => {
-                console.log(innerRoundTeams[round], round, game);
                 if (!innerRoundTeams[+round].includes(game.awayTeam.team) && !innerRoundTeams[+round].includes(game.homeTeam.team)) {
                     return round
                 }
@@ -124,7 +123,6 @@ function generateGames(teams, roundsAmount) {
             }
             innerRoundTeams[roundNr].push(game.homeTeam.team)
             innerRoundTeams[roundNr].push(game.awayTeam.team)
-           
         })
     })
 

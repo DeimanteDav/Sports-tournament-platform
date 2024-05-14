@@ -442,6 +442,10 @@ table {
   min-width: 90px;
 }
 
+.playoffs-table {
+  margin: 40px 0;
+}
+
 .playoffs-table .playoffs-header {
   display: flex;
   flex-direction: row;

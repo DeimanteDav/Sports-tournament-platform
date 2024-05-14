@@ -16,6 +16,8 @@ function generateAccordion(btnText, panelDisplay, games, round, panelClassName, 
     const accordionWrapper = document.createElement('div')
 
     const accordionBtn = document.createElement('button')
+    round && (accordionBtn.dataset.roundNr = round)
+
     accordionBtn.classList.add('accordion')
     accordionBtn.type = 'button'
     accordionBtn.textContent = btnText

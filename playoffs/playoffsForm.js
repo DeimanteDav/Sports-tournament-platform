@@ -1,6 +1,6 @@
 import Game from "../classes/Game.js"
 import PlayoffsPair from "../classes/PlayoffsPair.js"
-import accordion, { createGameWrappers } from "../components/accordion.js"
+import accordion from "../components/accordion.js"
 import { SPORTS } from "../config.js"
 import updateGameData from "../functions/updateGameData.js"
 
@@ -131,17 +131,31 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
 
         
         let roundGames = []
-         playoffsPairs[round].forEach(round => {
+        playoffsPairs[round].forEach(round => {
             roundGames.push(...round.games)
         })
 
         const innerRounds = roundGames && [...new Set(roundGames.map(game => game.roundNr))] 
         accordion(form, roundGames, innerRounds, round)
+
+        // if (bestOutOf) {
+        //     playoffsPairs[round].forEach((round, i) => {
+        //         round.games.forEach((game, j) => {
+        //             const roundAccordion = document.querySelector(`.panel button[data-round-nr="${game.roundNr}"]`)
+        //             console.log(j+1, bestOutOf);
+        //             if (j+1 > bestOutOf) {
+        //                 console.log(roundAccordion.textContent, roundAccordion);
+        //                 roundAccordion.textContent = 'If needed'
+        //             } 
+        //         })
+        //     })
+        // }
     })
 
     changePlayoffsTable(container, sortedData, playoffsPairs)
 
     form.addEventListener('change', (e) => {
+
         const gameEl = e.target.parentElement.parentElement
         const pairId = +gameEl.dataset.pairId
 
@@ -159,7 +173,8 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
 
         const currentGame = pairGames.find(game => game.roundNr === roundNr)
         const nextRound = gamesAmount === 2 ? 'final' : `1/${gamesAmount/2}`
-        const nextPair = playoffsPairs[nextRound].find(pair => pair.id === pairData.nextId)
+       
+        const nextPair = gamesAmount >= 2 && playoffsPairs[nextRound].find(pair => pair.id === pairData.nextId)
         
         const lastGameEl = document.querySelector(`.game[data-game-id="${lastGame.id}"][data-round="${currentRound}"]`)
         // const curretnGameEl = document.querySelector(`.game[data-game-id="${currentGame.id}"][data-round="${currentRound}"]`)
@@ -249,16 +264,28 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
             }
         }
 
-        if (pairGames.every(game => game.played) && (lastGame.extraTime ? lastGame.extraTime.played : true) && (lastGame.shootout ? lastGame.shootout.played : true) && (lastGame.overtime.length > 0 ? lastGame.overtime.every(game => game.played) : true)) {
+        updateGameData(gameEl, currentGame, sportId)
+
+        const playedOvertimes = sportId === SPORTS.basketball.id ? (
+            pairGames.every(game => (
+                game.overtime.length > 0 ? game.overtime.every(overtime => overtime.played) : true
+            ))
+        ) : true
+
+        if (pairGames.every(game => game.played)
+            &&
+            (lastGame.extraTime ? lastGame.extraTime.played : true)
+            &&
+            (lastGame.shootout ? lastGame.shootout.played : true)
+            && playedOvertimes) {
             pairData.playedAll = true
         } else {
             pairData.playedAll = false
         }
-        updateGameData(gameEl, currentGame, sportId)
+
 
 
         pairData.teams = setTeams(pairGames, lastGame.extraTime, lastGame.shootout)
-        console.log(currentGame, currentGame.overtime, !overtimeId, overtimeId);
 
         if (sportId === SPORTS.football.id) {
             if (pairData.playedAll &&  pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
@@ -283,25 +310,44 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
                     }
                 })
             }
-        } else if (sportId === SPORTS.basketball.id && !overtimeId && bestOutOf) {
-            if (currentGame.homeTeam.goals !== null && currentGame.homeTeam.goals === currentGame.awayTeam.goals && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true)) {
-                const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
+        } else if (sportId === SPORTS.basketball.id) {
+            if (!overtimeId && bestOutOf) {
+                if (currentGame.homeTeam.goals !== null && currentGame.homeTeam.goals === currentGame.awayTeam.goals && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true)) {
+                    const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
+                    
+                    currentGame.overtime.push(overtimeGame)
+                    currentGameGameInputs.forEach(input => {
+                        const overtimeInput = document.createElement('input')
+                        overtimeInput.dataset.overtime = overtimeGame.id
+                        overtimeInput.classList.add('result-input', 'overtime')
+                        input.after(overtimeInput)
+                    })
+                } else {
+                    currentGame.overtime = []
+                    currentGameGameInputs.forEach(input => {
+                        if (input.dataset.overtime) {
+                            input.remove()
+                        }
+                    })
+                }
+            } else if (!bestOutOf && pairData.playedAll &&  pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
+                const overtimeGame = new Game(sportId, lastGame.homeTeam, lastGame.awayTeam, lastGame.overtime.length+1)
+                lastGame.overtime.push(overtimeGame)
 
-                currentGame.overtime.push(overtimeGame)
-                currentGameGameInputs.forEach(input => {
+                lastGameInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
                     overtimeInput.dataset.overtime = overtimeGame.id
                     overtimeInput.classList.add('result-input', 'overtime')
                     input.after(overtimeInput)
                 })
-            } else {
-                currentGame.overtime = []
-                currentGameGameInputs.forEach(input => {
-                    if (input.dataset.overtime) {
-                        input.remove()
-                    }
-                })
             }
+        } else {
+            lastGame.overtime = []
+            lastGameInputs.forEach(input => {
+                if (input.dataset.overtime) {
+                    input.remove()
+                }
+            })
         }   
 
         
@@ -346,115 +392,137 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
         const team1 = pairData.teams[0]
         const team2 = pairData.teams[1]
         
-        const otherPairData = playoffsPairs[currentRound].find(pair => pair.id === pairId % 2 === 0 ? pairId - 1 : pairId + 1)
+        const otherPairData = playoffsPairs[currentRound].find(pair => pair.id === (pairId % 2 === 0 ? pairId - 1 : pairId + 1))
 
-        const otherPairPlayed = otherPairData.playedAll
+        const otherPairPlayed = otherPairData && otherPairData.playedAll
         const pairGamesPlayed = pairData.playedAll
 
         const nextPairElements = getNextGameElements(nextPair.id, nextRound)
 
-        let playingAs = pairId % 2 !== 0 ? 'homeTeam' : 'awayTeam'
-        let otherPlayer = pairId % 2 !== 0 ? 'awayTeam' : 'homeTeam'
+        const playingAs = pairId % 2 !== 0 ? 'homeTeam' : 'awayTeam'
+        const otherPlayer = pairId % 2 !== 0 ? 'awayTeam' : 'homeTeam'
         const teamClass = playingAs === 'homeTeam' ? 'home-team' : 'away-team'
         const otherClass = playingAs === 'homeTeam' ? 'away-team' : 'home-team'
 
-        let winner = null
+        
         if (bestOutOf && (team1.wins >= bestOutOf || team2.wins >= bestOutOf)) {
-            winner = team1.wins >= bestOutOf ? team1.team : team2.team
+            pairData.winner = team1.wins >= bestOutOf ? team1.team : team2.team
         } else if (knockouts && pairGamesPlayed) {
             if (team1.totalScore > team2.totalScore) {
-                winner = team1.team
+                pairData.winner = team1.team
             } else if (team2.totalScore > team1.totalScore) {
-                winner = team2.team
+                pairData.winner = team2.team
             }
+        } else {
+            pairData.winner = null
         }
-        if (winner) {
-            if (nextPair.games[0][playingAs].team !== winner) {
+
+        if (gamesAmount >= 2) {
+            if (pairData.winner) {
+                if (nextPair.games[0][playingAs].team !== pairData.winner) {
+                    console.log('cia suveikiia');
+                    nextPair.games.forEach((game, i) => {
+                        const nextPairElement = nextPairElements[i]
+                        const nextPairLabel1 = nextPairElement.querySelector(`.${teamClass} label`)
+                        
+                        const nextPairLabel2 = nextPairElement.querySelector(`.${otherClass} label`)
+    
+                        const inputs = [...nextPairElement.querySelectorAll('.result-input')]
+    
+                        inputs.forEach((input, i) => {
+                            input.value = null
+    
+                            const inputClasses = [...input.classList]
+                            if (inputClasses.includes('shootout') || inputClasses.includes('extra-time')) {
+                                input.remove()
+                            } 
+                        })
+    
+                        if (i % 2 === 0) {
+                            game[playingAs].team = pairData.winner
+                            game[playingAs].goals = null
+                            nextPairLabel1.textContent = pairData.winner
+                        } else {
+                            game[otherPlayer].team = pairData.winner
+                            game[otherPlayer].goals = null
+                            nextPairLabel2.textContent = pairData.winner
+                        }
+                        console.log(game, playingAs, otherPlayer, pairData.winner);
+                        game.played = false
+                        
+                        if (sportId === SPORTS.football.id) {
+                            game.extraTime = null
+                            game.shootout = null
+                        } else {
+                            game.overtime = []
+                        }
+                    })
+                    nextPair.teams = setTeams(nextPair.games)
+                }
+            } else if (!pairGamesPlayed || !otherPairPlayed) {
+                console.log(!pairGamesPlayed, !otherPairPlayed);
                 nextPair.games.forEach((game, i) => {
                     const nextPairElement = nextPairElements[i]
                     const nextPairLabel1 = nextPairElement.querySelector(`.${teamClass} label`)
                     
                     const nextPairLabel2 = nextPairElement.querySelector(`.${otherClass} label`)
-
+    
                     const inputs = [...nextPairElement.querySelectorAll('.result-input')]
-
-                    inputs.forEach((input, i) => {
-                        input.value = null
-
+    
+                    inputs.forEach(input => {
                         const inputClasses = [...input.classList]
-                        if (inputClasses.includes('shootout') || inputClasses.includes('extra-time')) {
+                        input.value = null
+                        input.setAttribute('disabled', true)
+                        if (inputClasses.includes('shootout') || inputClasses.includes('extra-time') || input.dataset.overtime) {
                             input.remove()
                         } 
                     })
 
-                    if (i % 2 === 0) {
-                            game[playingAs].team = winner
+                    if (!pairGamesPlayed && !otherPairPlayed) {
+                        game[playingAs].team = ''
+                        game[playingAs].goals = null
+                        nextPairLabel1.textContent = ''
+
+                        game[otherPlayer].team = ''
+                        game[otherPlayer].goals = null
+                        nextPairLabel2.textContent = ''
+                    } else if (!pairGamesPlayed) {
+                        if (i % 2 === 0) {
+                            game[playingAs].team = ''
                             game[playingAs].goals = null
-                            nextPairLabel1.textContent = winner
+                            nextPairLabel1.textContent = ''
                         } else {
-                            game[otherPlayer].team = winner
+                            game[otherPlayer].team = ''
                             game[otherPlayer].goals = null
-                            nextPairLabel2.textContent = winner
+                            nextPairLabel2.textContent = ''
                         }
-                        game.played = false
+                    }
+    
+                    if (sportId === SPORTS.football.id) {
                         game.extraTime = null
-                        game.shootOut = null
+                        game.shootout = null
+                    } else {
+                        game.overtime = []
+                    }
                 })
                 nextPair.teams = setTeams(nextPair.games)
             }
-        } else if (nextPair.teams.some(team => team.team) && !otherPairPlayed) {
-            clearNextPair(nextPair, gamesAmount/2, playoffsPairs)
-        } else {
-            nextPair.games.forEach((game, i) => {
-                const nextPairElement = nextPairElements[i]
-                const nextPairLabel1 = nextPairElement.querySelector(`.${teamClass} label`)
-                
-                const nextPairLabel2 = nextPairElement.querySelector(`.${otherClass} label`)
-
-                const inputs = [...nextPairElement.querySelectorAll('.result-input')]
-
-                inputs.forEach(input => {
-                    const inputClasses = [...input.classList]
-                    input.value = null
-                    input.setAttribute('disabled', true)
-                    if (inputClasses.includes('shootout') || inputClasses.includes('extra-time')) {
-                        input.remove()
-                    } 
-                })
-
-                if (i % 2 === 0) {
-                    game[playingAs].team = ''
-                    game[playingAs].goals = null
-                    nextPairLabel1.textContent = ''
-                } else {
-                    game[otherPlayer].team = ''
-                    game[otherPlayer].goals = null
-                    nextPairLabel2.textContent = ''
-                }
-
-                game.played = false
-                game.extraTime = null
-                game.shootout = null
-            })
-            nextPair.teams = setTeams(nextPair.games)
         }
 
-        nextPairElements && nextPairElements.forEach(nextPairElement => {
-            const nextPairInputs = nextPairElement.querySelectorAll('.result-input')
-            if (nextPairInputs) {
-                nextPairInputs.forEach(input => {
-                    if (nextPair.teams.every(team => team.team)) {
-                        input.removeAttribute('disabled')
-                    } else {
-                        input.setAttribute('disabled', true)
-                    }
-                })
-            }
-        })
-    
-        console.log(playoffsPairs);
-        changePlayoffsTable(container, sortedData, playoffsPairs)
 
+        const nextPairInputs = nextPairElements?.length > 0 && nextPairElements[0].querySelectorAll('.result-input')
+        if (nextPairInputs) {
+            nextPairInputs.forEach(input => {
+                if (nextPair.teams.every(team => team.team)) {
+                    input.removeAttribute('disabled')
+                } else {
+                    input.setAttribute('disabled', true)
+                }
+            })
+        }
+
+        
+        changePlayoffsTable(container, sortedData, playoffsPairs)
         localStorage.setItem('playoffs-pairs-data', JSON.stringify(playoffsPairs))
     })
 }
@@ -462,7 +530,6 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
 function clearNextPair(pair, gamesAmount, playoffsPairs) {
     const round = gamesAmount === 1 ? 'final' : `1/${gamesAmount}` 
     const gameElements = getNextGameElements(pair.id, round)
-    
     pair.games.forEach((game, i) => {
         const gameEl = gameElements[i]
 
@@ -474,7 +541,7 @@ function clearNextPair(pair, gamesAmount, playoffsPairs) {
             labels[i].textContent = ''
 
             const inputClasses = [...input.classList]
-            if (inputClasses.includes('extra-time') || inputClasses.includes('shootout')) {
+            if (inputClasses.includes('extra-time') || inputClasses.includes('shootout') || input.dataset.overtime) {
                 input.remove()
             }
         })
@@ -486,8 +553,12 @@ function clearNextPair(pair, gamesAmount, playoffsPairs) {
         game.played = false
         game.winner = null
 
-        game.extraTime = null
-        game.shootout = null
+        if (sportId === SPORTS.football.id) {
+            game.extraTime = null
+            game.shootout = null
+        } else {
+            game.overtime = []
+        }
     })
 
     pair.teams = setTeams(pair.games)
@@ -767,7 +838,6 @@ function changePlayoffsTable(container, roundsData, playoffsPairs) {
                 teamEl.setAttribute('scope', 'row')
                 teamEl.textContent = teamData.team ? teamData.team : `${pair.prevIds[i]} winner`
              
-          
                 const totalScoreEl = document.createElement('th')
                 totalScoreEl.textContent = teamData.totalScore
                 totalScoreEl.style.padding = '0 10px'
