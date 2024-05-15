@@ -82,6 +82,8 @@ export function tournamentForm(container, games, teams) {
             const currentInputs = [...gameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]
             const overtimeGame = currentGame.overtime.find(overtime => overtime.id === overtimeId)
 
+            updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
+
             if (overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals && overtimeGame.played) {
                 const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
                 currentInputs.forEach(input => {
@@ -101,14 +103,12 @@ export function tournamentForm(container, games, teams) {
                     }
                 })
             }
-
-            updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
         }
 
         updateGameData(gameEl, currentGame, sportId)
 
         if (sportId === SPORTS.basketball.id && !overtimeId) {
-            if (currentGame.homeTeam.goals === currentGame.awayTeam.goals && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true)) {
+            if (currentGame.homeTeam.goals === currentGame.awayTeam.goals && currentGame.homeTeam.goals !== null && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true)) {
                 const overtimeGame = new Game(sportId, currentGame.homeTeam, currentGame.awayTeam, currentGame.overtime.length+1)
 
                 currentGame.overtime.push(overtimeGame)
@@ -440,6 +440,7 @@ export function compareTeamsTable(wrapper, teams, games, tableType) {
         
         updatedTeams = [team]
     }
+    console.log(sortedTeams, teams);
 
     if (tableType === 'old') {
         table = createOldTable(wrapper, updatedTeams, games)
