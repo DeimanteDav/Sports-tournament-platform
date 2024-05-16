@@ -1,5 +1,6 @@
-import getLocalStorageData from "./functions/getLocalStorageData"
+import { Container } from "./config.js";
+import getLocalStorageData from "./functions/getLocalStorageData.js";
 
-const container = document.querySelector('.container') as HTMLDivElement
-
+const container = document.querySelector('.container') as Container
+console.log('lalal');
 getLocalStorageData(container)
