@@ -1,59 +1,49 @@
-import { Container } from "../../config.js";
+import leagueTournament from "../../components/league/leagueTournament.js";
+import resetDataBtn from "../../components/resetDataBtn.js";
+import { Container, SPORTS } from "../../config.js";
+import BasketballTeam from "../classes/BasketballTeam.js";
+import FootballTeam from "../classes/FootballTeam.js";
+import generateGames from "./generateGames.js";
 
 function generateTeams(container: Container) {
-    // const teamNames = JSON.parse(localStorage.getItem('team-names'))
+    const teamNames: string[] = localStorage.getItem('team-names') ? JSON.parse(localStorage.getItem('team-names') || '') : null
 
-    // const leagueRoundsAmount = localStorage.getItem('rounds-amount')
-    // const playoffsGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
-    // const sportId = JSON.parse(localStorage.getItem('sport')).id
+    const leagueRoundsAmount = localStorage.getItem('rounds-amount') ? JSON.parse(localStorage.getItem('rounds-amount') || '') : null
+    const playoffsData = localStorage.getItem('playoffs-data') ? JSON.parse(localStorage.getItem('playoffs-data') || '') : null
+    const sportId = localStorage.getItem('sport') ? JSON.parse(localStorage.getItem('sport') || '').id : null
 
-    // if (leagueRoundsAmount && playoffsGamesData) {
-    //     const totalGames = (teamNames.length-1)*leagueRoundsAmount
-    //     const teams = teamNames.map(name => new Team(sportId, name, totalGames, teamNames.length))
-    //     const games = generateGames(teams, leagueRoundsAmount)
+    let Team = sportId === SPORTS.football.id ? FootballTeam : BasketballTeam
 
-    //     localStorage.setItem('total-games', totalGames)
-    //     localStorage.setItem('teams-data', JSON.stringify(teams))
-    //     localStorage.setItem('league-games-data', JSON.stringify(games))
+    const totalGames = leagueRoundsAmount ? (teamNames.length-1)*leagueRoundsAmount : (teamNames.length-1)
+    const leagueTeams = teamNames.map((name, i) => new Team(name, i+1, totalGames, teamNames.length))
 
-    //     localStorage.setItem('playoffs-teams-data', JSON.stringify( teams.slice(0, playoffsGamesData.teamsAmount)))
-    //     resetDataBtn(container)
+    if (leagueRoundsAmount) {
+        const games = generateGames(sportId, leagueTeams, leagueRoundsAmount)
 
-    //     tournamentForm(container, games, teams)
+        localStorage.setItem('total-games', JSON.stringify(totalGames))
+        localStorage.setItem('teams-data', JSON.stringify(leagueTeams))
+        localStorage.setItem('league-games-data', JSON.stringify(games))
 
-    //     playoffsForm(container, playoffsGamesData, teams.slice(0, playoffsGamesData.teamsAmount))
-    // } else if (leagueRoundsAmount) {
-    //     const totalGames = (teamNames.length-1)*leagueRoundsAmount
-    
-    //     const teams = teamNames.map(name => new Team(sportId, name, totalGames, teamNames.length))
 
-    //     const games = generateGames(teams, leagueRoundsAmount)
-    //     localStorage.setItem('league-games-data', JSON.stringify(games))
-    //     localStorage.setItem('total-games', totalGames)
-    //     localStorage.setItem('teams-data', JSON.stringify(teams))
+        resetDataBtn(container)
 
-    //     resetDataBtn(container)
+        leagueTournament(container, games, leagueTeams)
 
-    //     tournamentForm(container, games, teams)
+        if (playoffsData) {
+            const playoffTeams = leagueTeams.slice(0, playoffsData.teamsAmount)
+            localStorage.setItem('playoffs-teams-data', JSON.stringify(playoffTeams))
+            //     playoffsForm(container, playoffsData, teams.slice(0, playoffsData.teamsAmount))
 
-    // } else if (playoffsGamesData) {
-    //     const teamsAmount = playoffsGamesData.teamsAmount
-    //     const difference = teamNames.length - teamsAmount
+        }
+    } else if (playoffsData) {
+        const playoffTeams = leagueTeams.slice(0, playoffsData.teamsAmount)
 
-    //     let teams
-    //     if (difference > 0) {
-    //         teams = teamNames.slice(0, -difference)
-    //     } else {
-    //         teams = teamNames
-    //     }
+        localStorage.setItem('playoffs-teams-data', JSON.stringify(playoffTeams))
+        
+        resetDataBtn(container)
 
-    //     const playoffTeams = teams.map(name => new Team(sportId, name, 0, teamsAmount))
-
-    //     localStorage.setItem('playoffs-teams-data', JSON.stringify(playoffTeams))
-    //     resetDataBtn(container)
-
-    //     playoffsForm(container, playoffsGamesData, playoffTeams)
-    // }
+    //     playoffsForm(container, playoffsData, playoffTeams)
+    }
 }
 
 export default generateTeams

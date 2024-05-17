@@ -305,7 +305,7 @@ table {
   overflow: hidden;
 }
 
-.panel.inner {
+.panel.games {
   justify-content: flex-start;
   flex-wrap: wrap;
   flex: 1;

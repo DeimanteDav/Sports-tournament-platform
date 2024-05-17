@@ -1,3 +1,5 @@
+import leagueTournament from "../components/league/leagueTournament.js";
+import resetDataBtn from "../components/resetDataBtn.js";
 import { Container } from "../config.js";
 import sportTypeForm from "./initialForms/sportTypeForm.js"
 
@@ -8,22 +10,20 @@ function getLocalStorageData(container: Container) {
     const playoffsData = localStorage.getItem('playoffs-data') ? JSON.parse(localStorage.getItem('playoffs-data') || '') : null
 
     if (leagueGamesData || playoffsData) {
-        // resetDataBtn(container)
-        // if (leagueGamesData && playoffsData) {
-        //     tournamentForm(container, gamesData, teamsData)
-        //     changeTable(container, teamsData, gamesData)
+        resetDataBtn(container)
+        if (leagueGamesData && playoffsData) {
+            // leagueTournament(container, gamesData, teamsData)
+            // changeTable(container, teamsData, gamesData)
     
-        //     playoffsForm(container, playoffGamesData, playoffsTeamsData, teamsData)
-        // } else if (gamesData) {
-        //     tournamentForm(container, gamesData, teamsData)
-        //     changeTable(container, teamsData, gamesData)
-        // } else if (playoffGamesData) {
-        //     playoffsForm(container, playoffGamesData, playoffsTeamsData)
-        // }
-        console.log(leagueGamesData, playoffsData);
+            // playoffsForm(container, playoffsData, playoffsTeamsData, teamsData)
+        } else if (leagueGamesData) {
+            leagueTournament(container, leagueGamesData, teamsData)
+            // changeTable(container, teamsData, gamesData)
+        } else if (playoffsData) {
+            // playoffsForm(container, playoffsData, playoffsTeamsData)
+        }
     } else {
-        console.log(leagueGamesData, playoffsData);
-        // sportTypeForm(container)
+        sportTypeForm(container)
     }
 }
 

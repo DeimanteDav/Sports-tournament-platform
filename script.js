@@ -24,27 +24,6 @@ const container = document.querySelector('.container')
 
 // Daugiau lenteliu jei pvz.: 16komandu i 4 grupes.
 // kiek teamsu iseina i kita etapa PASIRINKTI.
-
-async function test() {
-    const url = 'https://api-basketball.p.rapidapi.com/timezone';
-    const options = {
-        method: 'GET',
-        headers: {
-            'X-RapidAPI-Key': '5e1f57ee67mshbc1909d8642e49dp14362djsne5f01c75a9d9',
-            'X-RapidAPI-Host': 'api-basketball.p.rapidapi.com'
-        }
-    };
-    
-    try {
-        const response = await fetch(url, options);
-        const result = await response.text();
-        console.log(result);
-    } catch (error) {
-        console.error(error);
-    }
-}
-test()
-
 function getLocalStorageData(container) {
 
     const teamsData = localStorage.getItem('teams-data') ? JSON.parse(localStorage.getItem('teams-data')) : null
