@@ -58,9 +58,9 @@ function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number
 
     games.forEach(game => {
         if (`${leg}` === `${game.leg}`) {
-            console.log(game);
-            panel.append(game.gameElement())
-            // panel.append(createGameWrappers(game, game.round))
+            // TODO:
+            // panel.append((game instanceof).gameElement())
+            panel.append(createGameWrappers(game, game.round))
         }
     })
 
@@ -167,7 +167,7 @@ function createGameElement(game: FootballGame | BasketballGame, round: number) {
     
         teamWrapper.append(label, input)
         
-        if (game.extraTime ) {
+        if ((game as FootballGame).extraTime) {
             const extraTimeInput = document.createElement('input')               
             extraTimeInput.type = 'number'
             extraTimeInput.classList.add('result-input', 'extra-time')

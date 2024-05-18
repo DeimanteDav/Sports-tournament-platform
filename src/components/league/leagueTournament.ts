@@ -48,7 +48,7 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
             return
         }
 
-        const oldGame = {...currentGame}
+        const oldGame = Object.assign(currentGame, {})
 
         if (overtimeId && sportId === SPORTS.basketball.id && currentGame instanceof BasketballGame) {
             const currentInputs = gameEl && [...gameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]

@@ -9,11 +9,11 @@ export default class FootballGame extends Game {
         super(homeT, awayT, id, leg, round, pairId)
     }
 
-    gameElement() {
+    static gameElement(game: FootballGame) {
         const gameWrapper = document.createElement('div')
         gameWrapper.classList.add('game-wrapper')
 
-        gameWrapper.textContent = this.homeTeam.team + ' ' + this.awayTeam.team
+        gameWrapper.textContent = game.homeTeam.team + ' ' + game.awayTeam.team
 
         return gameWrapper
     }

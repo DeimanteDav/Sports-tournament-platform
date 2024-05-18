@@ -59,6 +59,7 @@ function teamNamesForm(container: Container, teamsAmount: number) {
         input.type = 'text'
         input.required = true
 
+
         div.append(number, input)
         namesWrapper.append(div)
     }
@@ -90,15 +91,27 @@ function teamNamesForm(container: Container, teamsAmount: number) {
         }
     })
 
+
+
     
     form.addEventListener('submit', (e) => {
         e.preventDefault()
         const teamNamesElements = [...document.querySelectorAll('input')]
         const teamNames = teamNamesElements.map(teamNameElement => teamNameElement.value)
 
-        form.remove()
-        tournamentType(container, teamsAmount)
-        localStorage.setItem('team-names', JSON.stringify(teamNames))
+        const uniqueNames = new Set()
+        for (let i = 0; i < teamNames.length; i++) {
+            const name = teamNames[i];
+            uniqueNames.add(name)
+        }
+
+        if (uniqueNames.size === teamNames.length) {
+            form.remove()
+            tournamentType(container, teamsAmount)
+            localStorage.setItem('team-names', JSON.stringify(teamNames))
+        } else {
+            form.classList.add('error')
+        }
     })
 }
 

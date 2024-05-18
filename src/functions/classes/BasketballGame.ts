@@ -8,12 +8,12 @@ export default class BasketballGame extends Game {
         super(homeT, awayT, id, leg, round, pairId)
     }
 
-    gameElement() {
-        const gameWrapper = document.createElement('div')
-        gameWrapper.classList.add('game-wrapper')
+    // static gameElement(game: BasketballGame) {
+    //     const gameWrapper = document.createElement('div')
+    //     gameWrapper.classList.add('game-wrapper')
 
-        gameWrapper.textContent = this.homeTeam.team + ' ' + this.awayTeam.team
+    //     gameWrapper.textContent = game.homeTeam.team + ' ' + game.awayTeam.team
 
-        return gameWrapper
-    }
+    //     return gameWrapper
+    // }
 }

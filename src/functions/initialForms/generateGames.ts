@@ -1,12 +1,14 @@
 import { SPORTS } from "../../config.js";
 import BasketballGame from "../classes/BasketballGame.js";
+import BasketballTeam from "../classes/BasketballTeam.js";
 import FootballGame from "../classes/FootballGame.js";
-import Team from "../classes/Team.js";
+import FootballTeam from "../classes/FootballTeam.js";
 
-function generateGames(sportId: number, teams: Team[], roundsAmount: number) {
+function generateGames(sportId: number, teams: FootballTeam[] | BasketballTeam[], roundsAmount: number) {
     let games = []
     let gameId = 0
-    let classGame = sportId === SPORTS.football.id ? FootballGame : BasketballGame
+
+    let ClassGame = sportId === SPORTS.football.id ? FootballGame :  BasketballGame
 
     for (let i = 0; i < roundsAmount; i++) {
         for (let j = 0; j < teams.length; j++) {
@@ -21,9 +23,9 @@ function generateGames(sportId: number, teams: Team[], roundsAmount: number) {
 
                 let game
                 if ((i % 2) === 0) {
-                    game = new classGame(homeTeam, awayTeam, gameId, leg, round)
+                    game = new ClassGame(homeTeam, awayTeam, gameId, leg, round)
                 } else {
-                    game = new classGame(awayTeam, homeTeam, gameId, leg, round)
+                    game = new ClassGame(awayTeam, homeTeam, gameId, leg, round)
                 }
                 games.push(game)
             }

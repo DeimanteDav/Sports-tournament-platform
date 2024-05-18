@@ -33,3 +33,5 @@ export const ANIMAL_NAMES = [
 ];
 
 export type Container = HTMLDivElement
+
+

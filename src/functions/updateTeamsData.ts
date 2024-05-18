@@ -11,7 +11,7 @@ function updateTeamsData(updatedGame: BasketballGame | FootballGame, oldGame: Ba
             return team
         }
     })
-
+    console.log(updatedGame, oldGame);
     const oldGameTeams = [oldGame.homeTeam, oldGame.awayTeam]
     const newGameTeams = [updatedGame.homeTeam, updatedGame.awayTeam]
 

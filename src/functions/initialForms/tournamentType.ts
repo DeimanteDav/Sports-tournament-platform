@@ -6,7 +6,6 @@ function tournamentType(container: Container, teamsAmount: number) {
     const form = document.createElement('form')
     form.classList.add('form')
 
-
     const leagueTitleWrapper = document.createElement('div')
     leagueTitleWrapper.classList.add('title')
 
@@ -192,7 +191,6 @@ function playoffsSwitchHadler(checked: boolean, wrapper: HTMLElement, teamsAmoun
 
 // FIXME: roundsData ??????
 function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoffsData: {teamsAmount: number, roundsData: {[k: string]: any}}, sportId: number) {
-
     playoffsData.teamsAmount = teamsAmount
     let roundGamesAmount = teamsAmount/2
     let prevRoundGamesAmount

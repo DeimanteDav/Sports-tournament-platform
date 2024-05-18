@@ -24,7 +24,6 @@ function updateGameData(gameEl: HTMLElement, currentGame: BasketballGame | Footb
     awayTeamData.goals = awayTeamInput.value ?  awayTeamScored : null
 
     if (homeTeamInput.value && awayTeamInput.value) {
-        // FIXME: instanceof???
         if (sportId === SPORTS.basketball.id && currentGame instanceof BasketballGame) {
             if (currentGame.overtime.length > 0 && !overtime) {
                 if (currentGame.overtime.every(overtimeGame => overtimeGame.played)) {
