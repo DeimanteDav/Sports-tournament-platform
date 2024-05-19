@@ -1,3 +1,8 @@
+import BasketballGame from "./functions/classes/BasketballGame";
+import BasketballTeam from "./functions/classes/BasketballTeam";
+import FootballGame from "./functions/classes/FootballGame";
+import FootballTeam from "./functions/classes/FootballTeam";
+
 export const SPORTS = {
   football: {
     id: 1,
@@ -34,4 +39,13 @@ export const ANIMAL_NAMES = [
 
 export type Container = HTMLDivElement
 
-
+// export const SPORT_TYPES = {
+//   [SPORTS.football.id]: {
+//     teamClass: FootballTeam,
+//     gameClass: FootballGame,
+//   },
+//   [SPORTS.basketball.id]: {
+//     teamClass: BasketballTeam,
+//     gameClass: BasketballGame,
+//   },
+// }

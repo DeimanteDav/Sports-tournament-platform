@@ -95,7 +95,6 @@ function createGameWrappers(game: FootballGame | BasketballGame, round: number) 
         gameWrapper.classList.add('played')
     }
 
-
     if (game.pairId) {
         const pairIdElement = document.createElement('p')
         pairIdElement.textContent = `Pair ${game.pairId}`
@@ -110,7 +109,7 @@ function createGameWrappers(game: FootballGame | BasketballGame, round: number) 
     return gameWrapper
 }
 
-function createGameElement(game: FootballGame | BasketballGame, round: number) {
+function createGameElement(game: FootballGame | BasketballGame, round: number): HTMLDivElement {
     const gameEl = document.createElement('div')
     gameEl.dataset.gameId = game.id.toString()
     gameEl.dataset.roundNr = game.leg.toString()
@@ -122,9 +121,9 @@ function createGameElement(game: FootballGame | BasketballGame, round: number) {
 
     const homeTeam = game.homeTeam
     const awayTeam = game.awayTeam
-    const teams = [homeTeam, awayTeam]
+ 
 
-    for (const team of teams) {
+    for (const team of game.teams) {
         const teamWrapper = document.createElement('div')
         teamWrapper.classList.add('team')
         const label = document.createElement('label')
@@ -132,11 +131,11 @@ function createGameElement(game: FootballGame | BasketballGame, round: number) {
         input.type = 'number'
         input.classList.add('result-input')
 
-        // if (team === 'homeTeam') {
-        //     teamWrapper.classList.add('home-team')
-        // } else {
-        //     teamWrapper.classList.add('away-team')
-        // }
+        if (team.home) {
+            teamWrapper.classList.add('home-team')
+        } else {
+            teamWrapper.classList.add('away-team')
+        }
         label.htmlFor = input.id
 
         label.textContent = team.team
@@ -160,7 +159,6 @@ function createGameElement(game: FootballGame | BasketballGame, round: number) {
         //     }
         // }
 
-
         if (!game.homeTeam.team || !game.awayTeam.team) {
             input.setAttribute('disabled', 'true')
         }
@@ -168,34 +166,44 @@ function createGameElement(game: FootballGame | BasketballGame, round: number) {
         teamWrapper.append(label, input)
         
         if ((game as FootballGame).extraTime) {
-            const extraTimeInput = document.createElement('input')               
-            extraTimeInput.type = 'number'
-            extraTimeInput.classList.add('result-input', 'extra-time')
+            const extraTimeTeam = (game as FootballGame).extraTime?.teams.find(extraGameTeam => extraGameTeam.id === team.id)
 
-            // FIXME: KODEL
-            extraTimeInput.value = game.extraTime[team].goals ? game.extraTime[team].goals : ''
-
-            teamWrapper.append(extraTimeInput)
+            if (extraTimeTeam) {
+                const extraTimeInput = document.createElement('input')               
+                extraTimeInput.type = 'number'
+                extraTimeInput.classList.add('result-input', 'extra-time')
+    
+                extraTimeInput.value = extraTimeTeam.goals ? extraTimeTeam.goals.toString() : ''
+    
+                teamWrapper.append(extraTimeInput)
+            }
         }
 
-        if (game.hasOwnProperty('shootout')) {
-            const shootoutInput = document.createElement('input')               
-            shootoutInput.type = 'number'
-            shootoutInput.classList.add('result-input', 'shootout')
-            // FIXME: KODEL
-            shootoutInput.value = game.shootout[team].goals ? game.shootout[team].goals : ''
+        if ((game as FootballGame).shootout) {
+            const shootoutTeam = (game as FootballGame).shootout?.teams.find(shootoutTeam => shootoutTeam.id === team.id)
 
-            teamWrapper.append(shootoutInput)
+            if (shootoutTeam) {
+                const shootoutInput = document.createElement('input')               
+                shootoutInput.type = 'number'
+                shootoutInput.classList.add('result-input', 'shootout')
+
+                shootoutInput.value = shootoutTeam.goals ? shootoutTeam.goals.toString() : ''
+    
+                teamWrapper.append(shootoutInput)
+            }
         }
-        if (game.overtime) {
-            game.overtime.forEach((overtime, i) => {
-                const overtimeInput = document.createElement('input')
-                overtimeInput.dataset.overtime = i+1
-                overtimeInput.type = 'number'
-                overtimeInput.classList.add('result-input', 'overtime')
-                overtimeInput.value = overtime[team].goals ? overtime[team].goals : ''
-
-                teamWrapper.append(overtimeInput)
+        if ((game as BasketballGame).overtime) {
+            (game as BasketballGame).overtime.forEach((overtime, i) => {
+                const overtimeTeam = overtime.teams.find(overtimeTeam => overtimeTeam.id === team.id)
+                if (overtimeTeam) {
+                    const overtimeInput = document.createElement('input')
+                    overtimeInput.dataset.overtime = `${i+1}`
+                    overtimeInput.type = 'number'
+                    overtimeInput.classList.add('result-input', 'overtime')
+                    overtimeInput.value = overtimeTeam.goals ? overtimeTeam.goals.toString() : ''
+    
+                    teamWrapper.append(overtimeInput)
+                }
             })
         }
 

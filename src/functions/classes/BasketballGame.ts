@@ -2,7 +2,7 @@ import BasketballTeam from "./BasketballTeam.js"
 import Game from "./Game.js"
 
 export default class BasketballGame extends Game {
-    overtime: [] | Game[] = []
+    overtime: Game[] = []
 
     constructor(homeT: BasketballTeam, awayT: BasketballTeam, id: number, leg: number, round: number, pairId?: number) {
         super(homeT, awayT, id, leg, round, pairId)

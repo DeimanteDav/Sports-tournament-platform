@@ -4,7 +4,8 @@ import BasketballTeam from "../classes/BasketballTeam.js";
 import FootballGame from "../classes/FootballGame.js";
 import FootballTeam from "../classes/FootballTeam.js";
 
-function generateGames(sportId: number, teams: FootballTeam[] | BasketballTeam[], roundsAmount: number) {
+// FIXME: teams
+function generateGames(sportId: number, teams: FootballTeam[] | BasketballTeam[] | (FootballTeam | BasketballTeam)[], roundsAmount: number) {
     let games = []
     let gameId = 0
 

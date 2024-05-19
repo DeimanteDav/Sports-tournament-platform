@@ -1,5 +1,7 @@
 import leagueTournament from "../components/league/leagueTournament.js";
 import resetDataBtn from "../components/resetDataBtn.js";
+import sportTitle from "../components/sportTitle.js";
+import titleWrapper from "../components/titleWrapper.js";
 import { Container } from "../config.js";
 import sportTypeForm from "./initialForms/sportTypeForm.js"
 
@@ -10,7 +12,8 @@ function getLocalStorageData(container: Container) {
     const playoffsData = localStorage.getItem('playoffs-data') ? JSON.parse(localStorage.getItem('playoffs-data') || '') : null
 
     if (leagueGamesData || playoffsData) {
-        resetDataBtn(container)
+       titleWrapper(container)
+
         if (leagueGamesData && playoffsData) {
             // leagueTournament(container, gamesData, teamsData)
             // changeTable(container, teamsData, gamesData)

@@ -3,7 +3,7 @@ import BasketballGame from "./classes/BasketballGame.js"
 import FootballGame from "./classes/FootballGame.js"
 import Game from "./classes/Game.js"
 
-function updateGameData(gameEl: HTMLElement, currentGame: BasketballGame | FootballGame | Game, sportId: number, params: {overtime: boolean} = {overtime: false}) {
+function updateGameData(gameEl: HTMLElement, currentGame: BasketballGame | FootballGame | Game, sportId: number, params: {overtime: boolean} = {overtime: false}): void {
     const {overtime} = params
     
     // FIXME: <HTMLInputElement>
@@ -17,14 +17,17 @@ function updateGameData(gameEl: HTMLElement, currentGame: BasketballGame | Footb
     const homeTeamScored = Number(homeTeamInput.value)
     const awayTeamScored = Number(awayTeamInput.value)
     
-    const homeTeamData = currentGame.homeTeam
-    const awayTeamData = currentGame.awayTeam
+    const homeTeamData = currentGame.teams[0]
+    const awayTeamData = currentGame.teams[1]
     
     homeTeamData.goals = homeTeamInput.value ? homeTeamScored : null
     awayTeamData.goals = awayTeamInput.value ?  awayTeamScored : null
 
+console.log(overtime, homeTeamInput, homeTeamScored, awayTeamScored);
     if (homeTeamInput.value && awayTeamInput.value) {
-        if (sportId === SPORTS.basketball.id && currentGame instanceof BasketballGame) {
+        currentGame.played = true
+
+        if (sportId === SPORTS.basketball.id) {
             if (currentGame.overtime.length > 0 && !overtime) {
                 if (currentGame.overtime.every(overtimeGame => overtimeGame.played)) {
                     gameEl.parentElement.classList.add('played')
@@ -40,8 +43,6 @@ function updateGameData(gameEl: HTMLElement, currentGame: BasketballGame | Footb
         } else if (sportId === SPORTS.football.id) {
             gameEl.parentElement.classList.add('played')
         }
-        currentGame.played = true
-
     } else {
         currentGame.played = false
         gameEl.parentElement.classList.remove('played')

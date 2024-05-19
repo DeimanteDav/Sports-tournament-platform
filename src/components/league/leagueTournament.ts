@@ -8,13 +8,13 @@ import updateGameData from "../../functions/updateGameData.js";
 import updateTeamsData from "../../functions/updateTeamsData.js";
 import accordion from "../accordion.js";
 
-function leagueTournament(container: Container, games: BasketballGame[] | FootballGame[], teams: FootballTeam[] | BasketballTeam[]): void {
+function leagueTournament(container: Container, games: BasketballGame[] | FootballGame[], teams: FootballTeam[] | BasketballTeam[]) {
     const gamesForm = document.createElement('form')
     gamesForm.id = 'games-form'
     const roundsAmount = Number(localStorage.getItem('rounds-amount') || '')
     const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
 
-    const classGame = sportId === SPORTS.football.id ? FootballGame : BasketballGame
+    const ClassGame = sportId === SPORTS.football.id ? FootballGame : BasketballGame
 
     for (let i = 0; i < roundsAmount; i++) {
         let round = i+1
@@ -50,10 +50,10 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
 
         const oldGame = Object.assign(currentGame, {})
 
-        if (overtimeId && sportId === SPORTS.basketball.id && currentGame instanceof BasketballGame) {
+        if (overtimeId && sportId === SPORTS.basketball.id) {
             const currentInputs = gameEl && [...gameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]
 
-            const overtimeGame = currentGame.overtime.find(overtime => overtime.id === overtimeId)
+            const overtimeGame: Game = currentGame.overtime.find(overtime => overtime.id === overtimeId)
 
             if (!overtimeGame) {
                 return
@@ -61,7 +61,9 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
 
             updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
 
-            if (overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals && overtimeGame.played) {
+            const equalOvertimeGoals = overtimeGame.teams.every(team => currentGame.teams[0].goals === team.goals)
+
+            if (equalOvertimeGoals && overtimeGame.played) {
                 const overtimeGame = new Game(homeTeam, awayTeam, currentGame.overtime.length+1, currentGame.leg, currentGame.round)
 
                 currentInputs.forEach(input => {
@@ -72,7 +74,6 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
                     input.after(overtimeInput)
                 })
 
-                // FIXME: ???
                 currentGame.overtime.push(overtimeGame)
             } else {
                 currentGame.overtime = currentGame.overtime.filter(overtime => overtime.id <= overtimeId)
@@ -87,12 +88,12 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
 
         updateGameData(gameEl, currentGame, sportId)
 
-        if (sportId === SPORTS.basketball.id && !overtimeId && currentGame instanceof BasketballGame) {
+        if (sportId === SPORTS.basketball.id && !overtimeId) {
+            const equalGoals = currentGame.teams.every(team => currentGame.teams[0].goals === team.goals)
 
-            if (currentGame.homeTeam.goals === currentGame.awayTeam.goals && currentGame.homeTeam.goals !== null && (currentGame.overtime?.length > 0 ? currentGame.overtime.every(overtimeGame => overtimeGame.homeTeam.goals === overtimeGame.awayTeam.goals) : true)) {
-                const overtimeGame = new classGame(homeTeam, awayTeam, currentGame.overtime.length+1, currentGame.leg, currentGame.round)
+            if (equalGoals && currentGame.playedAll) {
+                const overtimeGame = new ClassGame(homeTeam, awayTeam, currentGame.overtime.length+1, currentGame.leg, currentGame.round)
 
-                // FIXME: ???
                 currentGame.overtime.push(overtimeGame)
                 gameEl.parentElement && gameEl.parentElement.classList.remove('played')
               
