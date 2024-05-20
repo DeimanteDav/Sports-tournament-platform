@@ -1,12 +1,12 @@
 import { Container } from "../config"
 
-function sportTitle(container: Container) {
+function sportTitle(wrapper: HTMLElement) {
     const sport = JSON.parse(localStorage.getItem('sport') || '')
 
     const title = document.createElement('h1')
     title.textContent = sport.name
 
-    container.append(title)
+    wrapper.append(title)
 }
 
 export default sportTitle

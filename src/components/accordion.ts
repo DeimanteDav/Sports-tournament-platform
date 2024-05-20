@@ -200,7 +200,7 @@ function createGameElement(game: FootballGame | BasketballGame, round: number): 
                     overtimeInput.dataset.overtime = `${i+1}`
                     overtimeInput.type = 'number'
                     overtimeInput.classList.add('result-input', 'overtime')
-                    overtimeInput.value = overtimeTeam.goals ? overtimeTeam.goals.toString() : ''
+                    overtimeInput.value = overtimeTeam.goals !== null ? overtimeTeam.goals.toString() : ''
     
                     teamWrapper.append(overtimeInput)
                 }

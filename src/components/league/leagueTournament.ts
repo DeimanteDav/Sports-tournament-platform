@@ -7,8 +7,9 @@ import Game from "../../functions/classes/Game.js";
 import updateGameData from "../../functions/updateGameData.js";
 import updateTeamsData from "../../functions/updateTeamsData.js";
 import accordion from "../accordion.js";
+import leagueTable from "./leagueTable.js";
 
-function leagueTournament(container: Container, games: BasketballGame[] | FootballGame[], teams: FootballTeam[] | BasketballTeam[]) {
+function leagueTournament(container: Container, games: (BasketballGame | FootballGame)[], teams: (FootballTeam | BasketballTeam)[]) {
     const gamesForm = document.createElement('form')
     gamesForm.id = 'games-form'
     const roundsAmount = Number(localStorage.getItem('rounds-amount') || '')
@@ -23,7 +24,9 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
 
         const legs = [...new Set(roundGames.map(game => game.leg))]
 
-        accordion(gamesForm, btnText, legs, roundGames)
+        const roundGamesClasses = roundGames as FootballGame[] | BasketballGame[]
+
+        accordion(gamesForm, btnText, legs, roundGamesClasses)
     }
 
 
@@ -48,12 +51,14 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
             return
         }
 
-        const oldGame = Object.assign(currentGame, {})
+        const oldGame = JSON.parse(JSON.stringify(currentGame))
 
         if (overtimeId && sportId === SPORTS.basketball.id) {
             const currentInputs = gameEl && [...gameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]
 
-            const overtimeGame: Game = currentGame.overtime.find(overtime => overtime.id === overtimeId)
+            const basketballGame = currentGame as BasketballGame
+
+            const overtimeGame = basketballGame.overtime.find(overtime => overtime.id === overtimeId)
 
             if (!overtimeGame) {
                 return
@@ -64,7 +69,7 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
             const equalOvertimeGoals = overtimeGame.teams.every(team => currentGame.teams[0].goals === team.goals)
 
             if (equalOvertimeGoals && overtimeGame.played) {
-                const overtimeGame = new Game(homeTeam, awayTeam, currentGame.overtime.length+1, currentGame.leg, currentGame.round)
+                const overtimeGame = new Game(homeTeam, awayTeam, basketballGame.overtime.length+1, currentGame.leg, currentGame.round)
 
                 currentInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
@@ -74,9 +79,9 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
                     input.after(overtimeInput)
                 })
 
-                currentGame.overtime.push(overtimeGame)
+                basketballGame.overtime.push(overtimeGame)
             } else {
-                currentGame.overtime = currentGame.overtime.filter(overtime => overtime.id <= overtimeId)
+                basketballGame.overtime = basketballGame.overtime.filter(overtime => overtime.id <= overtimeId)
 
                 currentGameGameInputs.forEach(input => {
                     if (input.dataset.overtime && +input.dataset.overtime > overtimeId) {
@@ -89,22 +94,24 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
         updateGameData(gameEl, currentGame, sportId)
 
         if (sportId === SPORTS.basketball.id && !overtimeId) {
+            const basketballGame = currentGame as BasketballGame
+
             const equalGoals = currentGame.teams.every(team => currentGame.teams[0].goals === team.goals)
 
             if (equalGoals && currentGame.playedAll) {
-                const overtimeGame = new ClassGame(homeTeam, awayTeam, currentGame.overtime.length+1, currentGame.leg, currentGame.round)
+                const overtimeGame = new Game(homeTeam, awayTeam, basketballGame.overtime.length+1, currentGame.leg, currentGame.round)
 
-                currentGame.overtime.push(overtimeGame)
+                basketballGame.overtime.push(overtimeGame)
                 gameEl.parentElement && gameEl.parentElement.classList.remove('played')
               
                 currentGameGameInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
-                    overtimeInput.dataset.overtime = currentGame.overtime.length.toString()
+                    overtimeInput.dataset.overtime = basketballGame.overtime.length.toString()
                     overtimeInput.classList.add('result-input', 'overtime')
                     input.after(overtimeInput)
                 })
             } else {
-                currentGame.overtime = []
+                basketballGame.overtime = []
                 currentGameGameInputs.forEach(input => {
                     if (input.dataset.overtime) {
                         input.remove()
@@ -115,24 +122,24 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
 
         localStorage.setItem('league-games-data', JSON.stringify(games))
 
-        updateTeamsData(currentGame, oldGame, teams, sportId)
+        updateTeamsData(container, games, currentGame, oldGame, teams)
     })
 
     const changeTableBtn = document.createElement('button')
     changeTableBtn.type = 'button'
     changeTableBtn.textContent = 'Change Table View'
 
-    // changeTableBtn.addEventListener('click', (e) => {
-    //     const prevTableType = localStorage.getItem('table-type')
+    changeTableBtn.addEventListener('click', (e) => {
+        const prevTableType = localStorage.getItem('table-type')
 
-    //     if (prevTableType === 'modern' || !prevTableType) {
-    //         localStorage.setItem('table-type', 'old')
-    //         changeTable(container, teams, games)
-    //     } else {
-    //         localStorage.setItem('table-type', 'modern')
-    //         changeTable(container, teams, games)
-    //     }
-    // })
+        if (prevTableType === 'modern' || !prevTableType) {
+            localStorage.setItem('table-type', 'old')
+            leagueTable(container, games, teams)
+        } else {
+            localStorage.setItem('table-type', 'modern')
+            leagueTable(container, games, teams)
+        }
+    })
 
     const generateScoresBtn = document.createElement('button')
     generateScoresBtn.type = 'button'
@@ -159,14 +166,14 @@ function leagueTournament(container: Container, games: BasketballGame[] | Footba
                 updateGameData(gameEl, currentGame, sportId)
                 localStorage.setItem('league-games-data', JSON.stringify(games))
     
-                updateTeamsData(currentGame, oldGame, teams, sportId)
+                updateTeamsData(container, games, currentGame, oldGame, teams)
             }
         });
     })
     gamesForm.after()
     container.append(gamesForm, generateScoresBtn, changeTableBtn)
 
-    // changeTable(container, teams, games)
+    leagueTable(container, games, teams)
 }
 
 export default leagueTournament

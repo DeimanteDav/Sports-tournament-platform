@@ -1,7 +1,7 @@
 import { Container } from "../config.js";
 import sportTypeForm from "../functions/initialForms/sportTypeForm.js";
 
-function resetDataBtn(container: Container) {
+function resetDataBtn(container: Container, wrapper: HTMLElement) {
     const resetBtn = document.createElement('button')
     resetBtn.type = 'button'
     resetBtn.id = 'reset-btn'
@@ -15,7 +15,7 @@ function resetDataBtn(container: Container) {
         sportTypeForm(container)
     })
 
-    container.append(resetBtn)
+    wrapper.append(resetBtn)
 }
 
 export default resetDataBtn

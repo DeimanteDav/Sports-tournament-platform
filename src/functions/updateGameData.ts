@@ -13,7 +13,6 @@ function updateGameData(gameEl: HTMLElement, currentGame: BasketballGame | Footb
     if (!homeTeamInput || !awayTeamInput || !gameEl.parentElement) {
         return
     }
-
     const homeTeamScored = Number(homeTeamInput.value)
     const awayTeamScored = Number(awayTeamInput.value)
     
@@ -22,14 +21,15 @@ function updateGameData(gameEl: HTMLElement, currentGame: BasketballGame | Footb
     
     homeTeamData.goals = homeTeamInput.value ? homeTeamScored : null
     awayTeamData.goals = awayTeamInput.value ?  awayTeamScored : null
-
-console.log(overtime, homeTeamInput, homeTeamScored, awayTeamScored);
     if (homeTeamInput.value && awayTeamInput.value) {
         currentGame.played = true
 
         if (sportId === SPORTS.basketball.id) {
-            if (currentGame.overtime.length > 0 && !overtime) {
-                if (currentGame.overtime.every(overtimeGame => overtimeGame.played)) {
+            // FIXME: ?? as
+            const basketballGame = currentGame as BasketballGame
+
+            if (basketballGame.overtime.length > 0 && !overtime) {
+                if (basketballGame.overtime.every(overtimeGame => overtimeGame.played)) {
                     gameEl.parentElement.classList.add('played')
                     currentGame.playedAll = true
                 } else {

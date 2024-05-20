@@ -24,6 +24,7 @@ const container = document.querySelector('.container')
 
 // Daugiau lenteliu jei pvz.: 16komandu i 4 grupes.
 // kiek teamsu iseina i kita etapa PASIRINKTI.
+
 function getLocalStorageData(container) {
 
     const teamsData = localStorage.getItem('teams-data') ? JSON.parse(localStorage.getItem('teams-data')) : null
@@ -38,7 +39,7 @@ function getLocalStorageData(container) {
             tournamentForm(container, gamesData, teamsData)
             changeTable(container, teamsData, gamesData)
     
-            playoffsForm(container, playoffGamesData, playoffsTeamsData, teamsData)
+            playoffsForm(container, playoffGamesData, playoffsTeamsData)
         } else if (gamesData) {
             tournamentForm(container, gamesData, teamsData)
             changeTable(container, teamsData, gamesData)
@@ -237,7 +238,7 @@ function updateTeamsData(games, teams, sportId) {
                         awayTeamData.overtime.won++
                         homeTeamData.overtime.lost++
                     }
-                });
+                })
 
                 homeTeamTotalScored += homeTeamOverTime
                 awayTeamTotalScored += awayTeamOverTime
@@ -275,7 +276,6 @@ function updateTeamsData(games, teams, sportId) {
                     awayTeamData.awayWins++
                 }
             } else if (homeTeamTotalScored === awayTeamTotalScored && sportId === SPORTS.football.id) {
-                console.log(homeTeamData);
                 homeTeamData.draws++
                 awayTeamData.draws++
             }
@@ -378,9 +378,9 @@ export function changeTable(container, teams, games) {
     const comparingTeams = JSON.parse(localStorage.getItem('comparing-teams'))
 
     if (tableType === 'old') {
-        table = createOldTable(tableWrapper, teams, games, {comparinsonBtn: true})
+        table = createOldTable(tableWrapper, teams, games, {comparisonBtn: true})
     } else {
-        table = createModernTable(tableWrapper, sortedTeams, games, {comparinsonBtn: true, position: true})
+        table = createModernTable(tableWrapper, sortedTeams, games, {comparisonBtn: true, position: true})
     }
     tableWrapper.prepend(table)
 

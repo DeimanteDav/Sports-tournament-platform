@@ -7,7 +7,7 @@ function titleWrapper(container: Container) {
     titleWrapper.classList.add('title-wrapper')
     
     sportTitle(titleWrapper)
-    resetDataBtn(titleWrapper)
+    resetDataBtn(container, titleWrapper)
 
     container.append(titleWrapper)
 }
