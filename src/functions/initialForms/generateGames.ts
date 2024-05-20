@@ -1,8 +1,8 @@
+import BasketballGame from "../../classes/BasketballGame.js";
+import BasketballTeam from "../../classes/BasketballTeam.js";
+import FootballGame from "../../classes/FootballGame.js";
+import FootballTeam from "../../classes/FootballTeam.js";
 import { SPORTS } from "../../config.js";
-import BasketballGame from "../classes/BasketballGame.js";
-import BasketballTeam from "../classes/BasketballTeam.js";
-import FootballGame from "../classes/FootballGame.js";
-import FootballTeam from "../classes/FootballTeam.js";
 
 // FIXME: teams
 function generateGames(sportId: number, teams: FootballTeam[] | BasketballTeam[] | (FootballTeam | BasketballTeam)[], roundsAmount: number) {
@@ -24,9 +24,9 @@ function generateGames(sportId: number, teams: FootballTeam[] | BasketballTeam[]
 
                 let game
                 if ((i % 2) === 0) {
-                    game = new ClassGame(homeTeam, awayTeam, gameId, leg, round)
+                    game = new ClassGame(gameId, leg, round, homeTeam, awayTeam)
                 } else {
-                    game = new ClassGame(awayTeam, homeTeam, gameId, leg, round)
+                    game = new ClassGame(gameId, leg, round, awayTeam, homeTeam)
                 }
                 games.push(game)
             }

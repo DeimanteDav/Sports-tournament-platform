@@ -1,8 +1,8 @@
 import { Container } from "../../config.js";
-import BasketballGame from "../../functions/classes/BasketballGame.js";
-import BasketballTeam from "../../functions/classes/BasketballTeam.js";
-import FootballGame from "../../functions/classes/FootballGame.js";
-import FootballTeam from "../../functions/classes/FootballTeam.js";
+import BasketballGame from "../../classes/BasketballGame.js";
+import BasketballTeam from "../../classes/BasketballTeam.js";
+import FootballGame from "../../classes/FootballGame.js";
+import FootballTeam from "../../classes/FootballTeam.js";
 import checkTeamPosition from "../../functions/league/checkTeamPosition.js";
 import sortTeams from "../../functions/sortTeams.js";
 import comparisonTable from "./comparisonTable.js";

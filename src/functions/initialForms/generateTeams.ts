@@ -1,9 +1,8 @@
 import leagueTournament from "../../components/league/leagueTournament.js";
-import resetDataBtn from "../../components/resetDataBtn.js";
 import titleWrapper from "../../components/titleWrapper.js";
 import { Container, SPORTS } from "../../config.js";
-import BasketballTeam from "../classes/BasketballTeam.js";
-import FootballTeam from "../classes/FootballTeam.js";
+import BasketballTeam from "../../classes/BasketballTeam.js";
+import FootballTeam from "../../classes/FootballTeam.js";
 import generateGames from "./generateGames.js";
 
 function generateTeams(container: Container) {

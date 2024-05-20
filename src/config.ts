@@ -1,7 +1,7 @@
-import BasketballGame from "./functions/classes/BasketballGame";
-import BasketballTeam from "./functions/classes/BasketballTeam";
-import FootballGame from "./functions/classes/FootballGame";
-import FootballTeam from "./functions/classes/FootballTeam";
+import BasketballGame from "./classes/BasketballGame";
+import BasketballTeam from "./classes/BasketballTeam";
+import FootballGame from "./classes/FootballGame";
+import FootballTeam from "./classes/FootballTeam";
 
 export const SPORTS = {
   football: {

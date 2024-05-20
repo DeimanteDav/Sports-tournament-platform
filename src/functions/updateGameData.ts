@@ -1,7 +1,7 @@
+import BasketballGame from "../classes/BasketballGame.js"
+import FootballGame from "../classes/FootballGame.js"
+import Game from "../classes/Game.js"
 import { SPORTS } from "../config.js"
-import BasketballGame from "./classes/BasketballGame.js"
-import FootballGame from "./classes/FootballGame.js"
-import Game from "./classes/Game.js"
 
 function updateGameData(gameEl: HTMLElement, currentGame: BasketballGame | FootballGame | Game, sportId: number, params: {overtime: boolean} = {overtime: false}): void {
     const {overtime} = params

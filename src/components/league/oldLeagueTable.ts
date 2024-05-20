@@ -1,7 +1,7 @@
-import BasketballGame from "../../functions/classes/BasketballGame.js";
-import BasketballTeam from "../../functions/classes/BasketballTeam.js";
-import FootballGame from "../../functions/classes/FootballGame.js";
-import FootballTeam from "../../functions/classes/FootballTeam.js";
+import BasketballGame from "../../classes/BasketballGame.js";
+import BasketballTeam from "../../classes/BasketballTeam.js";
+import FootballGame from "../../classes/FootballGame.js";
+import FootballTeam from "../../classes/FootballTeam.js";
 import getInbetweenTeamsGames from "../../functions/getInbetweenTeamsGames.js";
 import compareTeamsButtonHandler from "../../functions/league/compareTeamsButtonHandler.js";
 

@@ -1,17 +1,18 @@
 import Team from "./Team.js"
 
 export default class Game {
-  homeTeam: { team: string, id: number | null, goals: number | null }
-  awayTeam: { team: string, id: number | null, goals: number | null }
   teams: { team: string, id: number | null, goals: number | null, home: boolean, away: boolean  }[]
   id: number
   played: boolean = false
   leg: number
-  round: number
+  round: number | string
   playedAll: boolean = false
   pairId?: number
-
-  constructor(homeT: Team, awayT: Team, id: number, leg: number, round: number, pairId?: number) {
+  
+  homeTeam: { team: string, id: number | null, goals: number | null }
+  awayTeam: { team: string, id: number | null, goals: number | null }
+  
+  constructor(id: number, leg: number, round: number | string, pairId?: number, homeT?: Team | null, awayT?: Team | null) {
     this.teams = [
       {
         team: homeT ? homeT.team : '',

@@ -1,9 +1,9 @@
 import leagueTable from "../components/league/leagueTable.js";
 import { Container, SPORTS } from "../config.js";
-import BasketballGame from "./classes/BasketballGame.js";
-import BasketballTeam from "./classes/BasketballTeam.js";
-import FootballGame from "./classes/FootballGame.js";
-import FootballTeam from "./classes/FootballTeam.js";
+import BasketballGame from "../classes/BasketballGame.js";
+import BasketballTeam from "../classes/BasketballTeam.js";
+import FootballGame from "../classes/FootballGame.js";
+import FootballTeam from "../classes/FootballTeam.js";
 
 function updateTeamsData(container: Container, games: FootballGame[] | BasketballGame[], updatedGame: BasketballGame | FootballGame, oldGame: BasketballGame | FootballGame, allTeams: BasketballTeam[] | FootballTeam[]) { 
     const playingTeams = allTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.id))

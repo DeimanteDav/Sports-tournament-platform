@@ -1,8 +1,8 @@
 import comparisonTable from "../../components/league/comparisonTable.js";
-import BasketballGame from "../classes/BasketballGame.js";
-import BasketballTeam from "../classes/BasketballTeam.js";
-import FootballGame from "../classes/FootballGame.js";
-import FootballTeam from "../classes/FootballTeam.js";
+import BasketballGame from "../../classes/BasketballGame.js";
+import BasketballTeam from "../../classes/BasketballTeam.js";
+import FootballGame from "../../classes/FootballGame.js";
+import FootballTeam from "../../classes/FootballTeam.js";
 
 function compareTeamsButtonHandler(wrapper: HTMLElement, team: FootballTeam | BasketballTeam, games: FootballGame[] | BasketballGame[], btnWrapper: HTMLElement) {
     let comparingTeams: FootballTeam[] | BasketballTeam[] = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams') || '') : []

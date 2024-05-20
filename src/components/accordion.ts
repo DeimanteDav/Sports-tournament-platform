@@ -1,8 +1,7 @@
-import BasketballGame from "../functions/classes/BasketballGame"
-import FootballGame from "../functions/classes/FootballGame"
-import Game from "../functions/classes/Game"
+import BasketballGame from "../classes/BasketballGame"
+import FootballGame from "../classes/FootballGame"
 
-function accordion(form: HTMLFormElement, btnText: string, legs: number[], games: FootballGame[] | BasketballGame[]) {
+function accordion(form: HTMLElement, btnText: string, legs: number[], games: FootballGame[] | BasketballGame[]) {
     const accordionWrapper = document.createElement('div')
 
     const accordionBtn = document.createElement('button')
@@ -80,7 +79,7 @@ function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number
 }
 
 
-function createGameWrappers(game: FootballGame | BasketballGame, round: number) {
+function createGameWrappers(game: FootballGame | BasketballGame, round: number | string) {
     const gameWrapper = document.createElement('div')
     gameWrapper.classList.add('game-wrapper')
 

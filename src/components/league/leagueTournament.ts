@@ -1,9 +1,9 @@
 import { Container, SPORTS } from "../../config.js";
-import BasketballGame from "../../functions/classes/BasketballGame.js";
-import BasketballTeam from "../../functions/classes/BasketballTeam.js";
-import FootballGame from "../../functions/classes/FootballGame.js";
-import FootballTeam from "../../functions/classes/FootballTeam.js";
-import Game from "../../functions/classes/Game.js";
+import BasketballGame from "../../classes/BasketballGame.js";
+import BasketballTeam from "../../classes/BasketballTeam.js";
+import FootballGame from "../../classes/FootballGame.js";
+import FootballTeam from "../../classes/FootballTeam.js";
+import Game from "../../classes/Game.js";
 import updateGameData from "../../functions/updateGameData.js";
 import updateTeamsData from "../../functions/updateTeamsData.js";
 import accordion from "../accordion.js";
@@ -14,8 +14,6 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
     gamesForm.id = 'games-form'
     const roundsAmount = Number(localStorage.getItem('rounds-amount') || '')
     const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
-
-    const ClassGame = sportId === SPORTS.football.id ? FootballGame : BasketballGame
 
     for (let i = 0; i < roundsAmount; i++) {
         let round = i+1
@@ -69,7 +67,7 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
             const equalOvertimeGoals = overtimeGame.teams.every(team => currentGame.teams[0].goals === team.goals)
 
             if (equalOvertimeGoals && overtimeGame.played) {
-                const overtimeGame = new Game(homeTeam, awayTeam, basketballGame.overtime.length+1, currentGame.leg, currentGame.round)
+                const overtimeGame = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round, homeTeam, awayTeam)
 
                 currentInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
@@ -99,7 +97,7 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
             const equalGoals = currentGame.teams.every(team => currentGame.teams[0].goals === team.goals)
 
             if (equalGoals && currentGame.playedAll) {
-                const overtimeGame = new Game(homeTeam, awayTeam, basketballGame.overtime.length+1, currentGame.leg, currentGame.round)
+                const overtimeGame = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round, homeTeam, awayTeam)
 
                 basketballGame.overtime.push(overtimeGame)
                 gameEl.parentElement && gameEl.parentElement.classList.remove('played')

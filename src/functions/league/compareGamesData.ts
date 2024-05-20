@@ -1,8 +1,9 @@
+
+import BasketballGame from "../../classes/BasketballGame.js"
+import BasketballTeam from "../../classes/BasketballTeam.js"
+import FootballGame from "../../classes/FootballGame.js"
+import FootballTeam from "../../classes/FootballTeam.js"
 import { SPORTS } from "../../config.js"
-import BasketballGame from "../classes/BasketballGame.js"
-import BasketballTeam from "../classes/BasketballTeam.js"
-import FootballGame from "../classes/FootballGame.js"
-import FootballTeam from "../classes/FootballTeam.js"
 import getInbetweenTeamsGames from "../getInbetweenTeamsGames.js"
 
 function compareGamesData(teams: (FootballTeam | BasketballTeam)[], games: FootballGame[] | BasketballGame[]) {

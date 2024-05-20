@@ -62,7 +62,7 @@ function toggleSwitch(switchHandler: Function, wrapper: HTMLElement, props: numb
 
     toggle.addEventListener('change', (e) => {
         const checkbox = e.target as HTMLInputElement
-        switchHandler(checkbox.checked, wrapper, props)
+        switchHandler(checkbox.checked, wrapper, ...props)
     })
     return toggle
 }
@@ -206,7 +206,6 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
         }
         prevRoundGamesAmount = roundGamesAmount
     }
-
     playoffsData.roundsData = {}
 
     roundsInfo.forEach(gamesAmount => {
@@ -218,6 +217,7 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
         playoffsData.roundsData[property].knockouts = 1
         playoffsData.roundsData[property].bestOutOf = null
     })
+
     localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
 
     const prevRoundsInfoWrapper = document.getElementById('rounds-info-wrapper')
@@ -301,7 +301,6 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
 
                 if (i === 0) {
                     radioInput.checked = true
-                    console.log(radioInput);
                 }
 
                 radioInput.addEventListener('change', (e) => {

@@ -1,9 +1,9 @@
 import { SPORTS } from "../config.js";
-import BasketballGame from "./classes/BasketballGame.js";
-import BasketballTeam from "./classes/BasketballTeam.js";
-import FootballGame from "./classes/FootballGame.js";
-import FootballTeam from "./classes/FootballTeam.js";
-import compareGamesData from "./compareGamesData.js";
+import BasketballGame from "../classes/BasketballGame.js"
+import FootballGame from "../classes/FootballGame.js"
+import BasketballTeam from "../classes/BasketballTeam.js"
+import FootballTeam from "../classes/FootballTeam.js"
+import compareGamesData from "./league/compareGamesData.js";
 
 function sortTeams(teams: (FootballTeam | BasketballTeam)[], games: FootballGame[] | BasketballGame[], params: {compareBetweenGames: boolean} = {compareBetweenGames: false}) {
     const {compareBetweenGames} = params

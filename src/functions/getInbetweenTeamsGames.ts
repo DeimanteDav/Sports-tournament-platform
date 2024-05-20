@@ -1,7 +1,7 @@
-import BasketballGame from "./classes/BasketballGame"
-import BasketballTeam from "./classes/BasketballTeam"
-import FootballGame from "./classes/FootballGame"
-import FootballTeam from "./classes/FootballTeam"
+import BasketballGame from "../classes/BasketballGame"
+import BasketballTeam from "../classes/BasketballTeam"
+import FootballGame from "../classes/FootballGame"
+import FootballTeam from "../classes/FootballTeam"
 
 function  getInbetweenTeamsGames(teams: (BasketballTeam | FootballTeam)[], games: FootballGame[] | BasketballGame[], params: {allGames: boolean} = {allGames: false}) {
     const {allGames} = params

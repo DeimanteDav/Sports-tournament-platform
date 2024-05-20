@@ -4,8 +4,8 @@ import Game from "./Game.js"
 export default class BasketballGame extends Game {
     overtime: Game[] = []
 
-    constructor(homeT: BasketballTeam, awayT: BasketballTeam, id: number, leg: number, round: number, pairId?: number) {
-        super(homeT, awayT, id, leg, round, pairId)
+    constructor(id: number, leg: number, round:  | string, homeT?: BasketballTeam | null, awayT?: BasketballTeam | null, pairId?: number) {
+        super(id, leg, round, pairId, homeT, awayT)
     }
 
     // static gameElement(game: BasketballGame) {
