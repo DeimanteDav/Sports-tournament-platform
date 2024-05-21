@@ -26,9 +26,8 @@ function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | Basket
                 let teamOvertimeScore = 0
                 let oppTeamOvertimeScore = 0
 
-                teamScoreData.score = gameTeam.goals ? gameTeam.goals : 0
+                teamScoreData.score = gameTeam.goals ? gameTeam.goals : null
                 teamScoreData.playedIn = gameTeam.home ? 'H' : 'A'
-
 
                 if (sportId === SPORTS.basketball.id) {
                     (game as BasketballGame).overtime.forEach(overtimeGame => {
@@ -77,12 +76,12 @@ function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | Basket
                 }
             }
 
-
-
             teamScoresSum += gameScores
             oppTeamScoresSum += gameOppScores
 
-            if (teamScoresSum > oppTeamScoresSum) {
+            scores.push(teamScoreData)
+
+            if (gameScores > gameOppScores && game.playedAll) {
                 wins++
             }
         })

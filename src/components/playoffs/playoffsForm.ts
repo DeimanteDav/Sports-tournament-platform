@@ -216,64 +216,70 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
         if (sportId === SPORTS.football.id) {
             const footballLastGame = lastGame as FootballGame
 
-            if (pairGames.every(game => game.playedAll)) {
-                if (extraTime) {
-                    const extraTimeInputs = currentGameAllInputs.filter(input => input.dataset.extraTime)
-                    const extraTimeGame = footballLastGame.extraTime!
+            if (extraTime) {
+                const extraTimeInputs = currentGameAllInputs.filter(input => input.dataset.extraTime)
 
-                    updateGameData(gameWrapper, extraTimeInputs, extraTimeGame, sportId)
-                } else if (shootout) {
-                    const shootoutInputs = currentGameAllInputs.filter(input => input.dataset.shootout)
-                    const shootoutGame = footballLastGame.shootout!
+                const extraTimeGame = footballLastGame.extraTime!
 
-                    updateGameData(gameWrapper, shootoutInputs, shootoutGame, sportId)
+                updateGameData(gameWrapper, extraTimeInputs, extraTimeGame, sportId)
+
+                if (extraTimeGame.teams.every(team => extraTimeGame.teams[0].goals === team.goals) && extraTimeGame.played) {
+                    const newGame = new Game(lastGame.id, lastGame.leg, lastGame.round, null, gameTeams[0], gameTeams[1])
+                    
+                    footballLastGame.shootout = newGame
+
+                    const extraTimeInputs = lastGameInputs.filter(input => input.dataset.extraTime)
+
+                    extraTimeInputs && extraTimeInputs.forEach((input, i) => {
+                        const shootoutInput = document.createElement('input')
+                        shootoutInput.classList.add('result-input')
+                        shootoutInput.dataset.shootout = 'true'
+                        shootoutInput.dataset.teamId = gameTeams[i].id.toString()
+
+                        input.after(shootoutInput)
+                    })
+                } else {
+                    lastGameInputs.forEach(input => {
+                        if (input.dataset.shootout) {
+                            input.remove()
+                        }
+                    })
                 }
-            } else {
-                lastGameInputs.forEach(input => {
-                    if (input.dataset.shootout || input.dataset.extraTime) {
-                        input.remove()
-                    }
-                })
+            } else if (shootout) {
+                const shootoutInputs = currentGameAllInputs.filter(input => input.dataset.shootout)
+                const shootoutGame = footballLastGame.shootout!
+
+                updateGameData(gameWrapper, shootoutInputs, shootoutGame, sportId)
             }
-        }
+        } 
 
         if (overtimeId && sportId === SPORTS.basketball.id) {
             overtimeGameHandler(currentGame, gameWrapper, gameEl, gameTeams, overtimeId, sportId)
         }
+
         updateGameData(gameWrapper, currentGameInputs, currentGame, sportId)
 
         pairData.teams = setPlayoffPairTeams(sportId, pairData.games)
 
-        if (sportId === SPORTS.football.id) {
-            const footballGame = currentGame as FootballGame
+        if (sportId === SPORTS.football.id && !extraTime && !shootout) {
+            const footballLastGame = currentGame as FootballGame
 
             if (pairGames.every(game => game.playedAll) && pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
-                const newGame = new Game(currentGame.id, currentGame.leg, currentGame.round, null, gameTeams[0], gameTeams[1])
-
-                let extraTimeAdded = false
-                if (!footballGame.extraTime) {
-                    footballGame.extraTime = newGame
-                    extraTimeAdded = true
-                } else {
-                    footballGame.shootout = newGame
-                }
+                const newGame = new Game(lastGame.id, lastGame.leg, lastGame.round, null, gameTeams[0], gameTeams[1])
+            
+                footballLastGame.extraTime = newGame
 
                 lastGameInputs.forEach((input, i) => {
-                    const newInput = document.createElement('input')
-                    newInput.classList.add('result-input')
-                    newInput.dataset.teamId = pairData.teams[i].id?.toString()
+                    const extraTimeInput = document.createElement('input')
+                    extraTimeInput.classList.add('result-input')
+                    extraTimeInput.dataset.extraTime = 'true'
+                    extraTimeInput.dataset.teamId = gameTeams[i].id.toString()
 
-                    if (extraTimeAdded) {
-                        newInput.dataset.extraTime = 'true'
-                    } else {
-                        newInput.dataset.shootout = 'true'
-                    }
-
-                    input.after(newInput)
+                    input.after(extraTimeInput)
                 })
             } else {
-                footballGame.extraTime = null
-                footballGame.shootout = null
+                footballLastGame.extraTime = null
+                footballLastGame.shootout = null
 
                 lastGameInputs.forEach(input => {
                     if (input.dataset.shootout || input.dataset.extraTime) {
@@ -283,7 +289,6 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
             }
         } 
 
-        // TODO: TAIP PAT KAIP LEAGUE
         if (sportId === SPORTS.basketball.id && !overtimeId) {
             const basketballGame = currentGame as BasketballGame
 
@@ -294,6 +299,8 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
                     const overtimeGame = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round, null, gameTeams[0], gameTeams[1])
 
                     basketballGame.overtime.push(overtimeGame)
+                    basketballGame.playedAll = false
+                    gameWrapper.classList.remove('played')
 
                     currentGameAllInputs.forEach((input, i) => {
                         const overtimeInput = document.createElement('input')
@@ -304,6 +311,10 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
                         input.after(overtimeInput)
                     })
                 } else {
+                    if (basketballGame.teams.every(team => team.goals)) {
+                        basketballGame.playedAll = true
+                        gameWrapper.classList.add('played')
+                    }
                     basketballGame.overtime = []
                     currentGameAllInputs.forEach(input => {
                         if (input.dataset.overtime) {
@@ -338,22 +349,21 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
         } 
 
         if (pairGames.length > 0) {
-            for (let leg = 0; leg < pairGames.length; leg++) {
-                if (leg !== currentGame.leg) {
-
+            for (let leg = 1; leg <= pairGames.length; leg++) {
+                if (leg > currentGame.leg) {
                     const followingGame = pairGames.find(game => game.leg === leg)
-                    const followingGameElement = document.querySelector(`.game[data-round-nr="${leg}"][data-pair-id="${pairId}"]`)
+                    const followingGameElement = document.querySelector(`.game[data-leg="${leg}"][data-pair-id="${pairId}"]`)
     
                     const followingGameInputs = followingGameElement && [...followingGameElement.querySelectorAll<HTMLInputElement>('.result-input')]
+
                     if (followingGameInputs && followingGame) {
                         if (!currentGame.playedAll) {
                             followingGameInputs.forEach(input => {
                                 input.value = ''
                                 input.setAttribute('disabled', 'true')
 
-                                delete input.dataset.teamId
-
                                 followingGame.played = false
+                                followingGame.playedAll = false
         
                                 followingGame.teams.forEach(team => {
                                     team.goals = null
@@ -403,128 +413,94 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
         const nextPairGameElements = [...document.querySelectorAll(`.game[data-pair-id="${pairData.nextId}"] `)]
 
         if (!nextPairGameElements) throw new Error('no next pair game els')
-
+            
         if (gamesAmount >= 2 && nextPair) {
-            if (pairData.winnerId) {
-                const nextPairTeamExists = nextPair.teams.find(team => team.id === pairData.winnerId)
+            
+            nextPair.games.forEach((game, i) => {
+                const nextPairElement = nextPairGameElements[i]
+                const nextPairGameWraper = nextPairElement?.parentElement?.parentElement
+
+                const nextPairInputs = [...nextPairElement.querySelectorAll<HTMLInputElement>('.result-input')]
+                const nextPairLabel = [...nextPairElement.querySelectorAll<HTMLLabelElement>('label')]
                 
-                if (!nextPairTeamExists) {
-                    nextPair.games.forEach((game, i) => {
-                        const nextPairElement = nextPairGameElements[i]
+                nextPairInputs.forEach((input, index) => {
 
-                        const nextPairInputs = nextPairElement.querySelectorAll<HTMLInputElement>('.result-input')
+                    if (pairData.winnerId) {
+                        game.played = false
+                        const winnningTeam = playoffTeams.find(team => team.id === pairData.winnerId)!
+                        
+                        const winnerData = {team: winnningTeam.team, id: winnningTeam.id}
 
-                        nextPairInputs.forEach(input => {
+                        const nextPairTeamExists = nextPair.teams.find(team => team.id === winnningTeam.id)
+
+                        if (!nextPairTeamExists) {
                             if (input.dataset.overtime || input.dataset.extraTime || input.dataset.shootout) {
                                 input.remove()
                             }
+
+                            nextPairGameWraper?.classList.remove('played')
                             input.value = ''
-                        })
-                    })
-                    //     const nextPairLabel1 = nextPairElement.querySelector(`.${teamClass} label`)
-                        
-                    //     const nextPairLabel2 = nextPairElement.querySelector(`.${otherClass} label`)
-    
-                    //     const inputs = [...nextPairElement.querySelectorAll('.result-input')]
-    
-                    //     inputs.forEach((input, i) => {
-                    //         input.value = null
-    
-                    //         const inputClasses = [...input.classList]
-                    //         if (inputClasses.includes('shootout') || inputClasses.includes('extra-time')) {
-                    //             input.remove()
-                    //         } 
-                    //     })
-    
-                    //     if (i % 2 === 0) {
-                    //         game[playingAs].team = pairData.winner
-                    //         game[playingAs].goals = null
-                    //         nextPairLabel1.textContent = pairData.winner
-                    //     } else {
-                    //         game[otherPlayer].team = pairData.winner
-                    //         game[otherPlayer].goals = null
-                    //         nextPairLabel2.textContent = pairData.winner
-                    //     }
-                    
-                    //     game.played = false
-                        
-                    //     if (sportId === SPORTS.football.id) {
-                    //         game.extraTime = null
-                    //         game.shootout = null
-                    //     } else {
-                    //         game.overtime = []
-                    //     }
-                    // })
-                    // nextPair.teams = setTeams(nextPair.games)
-                }
-            }
-            // } else if (!pairGamesPlayed || !otherPairPlayed) {
-            
-            //     nextPair.games.forEach((game, i) => {
-            //         const nextPairElement = nextPairElements[i]
-            //         const nextPairLabel1 = nextPairElement.querySelector(`.${teamClass} label`)
-                    
-            //         const nextPairLabel2 = nextPairElement.querySelector(`.${otherClass} label`)
-    
-            //         const inputs = [...nextPairElement.querySelectorAll('.result-input')]
-    
-            //         inputs.forEach(input => {
-            //             const inputClasses = [...input.classList]
-            //             input.value = null
-            //             input.setAttribute('disabled', true)
-            //             if (inputClasses.includes('shootout') || inputClasses.includes('extra-time') || input.dataset.overtime) {
-            //                 input.remove()
-            //             } 
-            //         })
+                            game.played = false
+                            game.playedAll = false
 
-            //         if (!pairGamesPlayed && !otherPairPlayed) {
-            //             game[playingAs].team = ''
-            //             game[playingAs].goals = null
-            //             nextPairLabel1.textContent = ''
+                            setNextPairElements(game.teams, pairId, i, nextPairLabel, winnerData)
+                            
+                        }
+                    } else {
+                        if (input.dataset.overtime || input.dataset.extraTime || input.dataset.shootout) {
+                            input.remove()
+                        }
 
-            //             game[otherPlayer].team = ''
-            //             game[otherPlayer].goals = null
-            //             nextPairLabel2.textContent = ''
-            //         } else if (!pairGamesPlayed) {
-            //             if (i % 2 === 0) {
-            //                 game[playingAs].team = ''
-            //                 game[playingAs].goals = null
-            //                 nextPairLabel1.textContent = ''
-            //             } else {
-            //                 game[otherPlayer].team = ''
-            //                 game[otherPlayer].goals = null
-            //                 nextPairLabel2.textContent = ''
-            //             }
-            //         }
-    
-            //         if (sportId === SPORTS.football.id) {
-            //             game.extraTime = null
-            //             game.shootout = null
-            //         } else {
-            //             game.overtime = []
-            //         }
-            //     })
-            //     nextPair.teams = setTeams(nextPair.games)
-            // }
+                        nextPairGameWraper?.classList.remove('played')
+                        input.value = ''
+                        game.played = false
+                        game.playedAll = false
+
+                        setNextPairElements(game.teams, pairId, i, nextPairLabel)
+                    }
+
+                })
+            })
+
+            nextPair.teams = setPlayoffPairTeams(sportId, nextPair.games)
+
+            nextPairGameElements.forEach((gameEl, i) => {
+                const inputs = gameEl.querySelectorAll<HTMLInputElement>('.result-input')
+
+                inputs.forEach(input => {
+                    if (nextPair.teams.some(team => !team.id)) {
+                        input.setAttribute('disabled', 'true')
+                    } else if (i === 0) {
+                        input.removeAttribute('disabled')
+                    }
+                })
+            })
         }
-
-
-        // const nextPairInputs = nextPairElements?.length > 0 && nextPairElements[0].querySelectorAll('.result-input')
-        // if (nextPairInputs) {
-        //     nextPairInputs.forEach(input => {
-        //         if (nextPair.teams.every(team => team.team)) {
-        //             input.removeAttribute('disabled')
-        //         } else {
-        //             input.setAttribute('disabled', true)
-        //         }
-        //     })
-        // }
-
         
-        // changePlayoffsTable(container, sortedData, playoffsPairs)
+        playoffsTable({container, sportId, roundsData: sortedData, playoffsPairs})
         localStorage.setItem('playoffs-pairs-data', JSON.stringify(playoffsPairs))
     })
 }
 
 export default playoffsForm
 
+
+function setNextPairElements(teams: {team: string, id: number | null, goals: number | null, home: boolean, away: boolean}[], pairId: number, index: number, label: HTMLLabelElement[], winnerData?: { team: string, id: number }) {
+    const team1Index = pairId % 2 === 0 ? 1 : 0
+    const team2Index = pairId % 2 === 0 ? 0 : 1
+
+
+    if (index % 2 === 0) {
+        label[team2Index].textContent = winnerData ? winnerData.team : ''
+        teams[team2Index].team = winnerData ? winnerData.team : ''
+        teams[team2Index].id = winnerData ? winnerData.id : null
+        teams[team2Index].goals = null
+    } else if (index % 2 !== 0) {
+
+        label[team1Index].textContent = winnerData ? winnerData.team : ''
+        teams[team1Index].team = winnerData ? winnerData.team : ''
+        teams[team1Index].id = winnerData ? winnerData.id : null
+        teams[team1Index].goals = null
+    }
+
+}

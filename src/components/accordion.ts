@@ -57,7 +57,7 @@ function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number
 
     games.forEach((game, i) => {
         if (`${leg}` === `${game.leg}`) {
-            const prevGame = (games[i-1] && games[i-1].leg+1 === game.leg) ? game : null
+            const prevGame = (games[i-1] && games[i-1].leg+1 === game.leg) ? games[i-1] : null
             // TODO:
             // panel.append((game instanceof).gameElement())
             panel.append(createGameWrappers(prevGame, game, game.round))
@@ -112,7 +112,7 @@ function createGameWrappers(prevGame: FootballGame | BasketballGame | null, game
 function createGameElement(prevGame: FootballGame | BasketballGame | null, game: FootballGame | BasketballGame, round: number | string): HTMLDivElement {
     const gameEl = document.createElement('div')
     gameEl.dataset.gameId = game.id.toString()
-    gameEl.dataset.roundNr = game.leg.toString()
+    gameEl.dataset.leg = game.leg.toString()
     gameEl.dataset.round = round.toString()
     gameEl.classList.add('game')
 
@@ -140,21 +140,6 @@ function createGameElement(prevGame: FootballGame | BasketballGame | null, game:
         
         input.value = team.goals !== null ? team.goals.toString() : ''
 
-        // TODO: playoffsPairs class
-        // if (game.pairId) {
-        //     const playoffPairs = JSON.parse(localStorage.getItem('playoffs-pairs-data') || '')
-
-        //     const pairGames = playoffPairs[round].find(pairData => pairData.id === game.pairId).games
-
-        //     if (pairGames.length > 1) {
-        //         pairGames.forEach((pairGame, j) => {
-        //             if (j !== 0 && (!pairGames[j-1].played || (pairGames[j-1].overtime.length > 0 ? pairGames[j-1].overtime.some(overtimeGame => !overtimeGame.played) : false)) && pairGame.id === game.id) {
-        //                 input.setAttribute('disabled', true)
-        //             }
-        //         })
-
-        //     }
-        // }
         if (game.teams.some(team => !team.team || !team.id) || (prevGame && !prevGame.playedAll)) {
             input.setAttribute('disabled', 'true')
         }

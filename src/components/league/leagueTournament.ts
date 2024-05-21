@@ -8,6 +8,7 @@ import updateGameData from "../../functions/updateGameData.js";
 import updateTeamsData from "../../functions/updateTeamsData.js";
 import accordion from "../accordion.js";
 import leagueTable from "./leagueTable.js";
+import overtimeGameHandler from "../../functions/overtimeGameHandler.js";
 
 function leagueTournament(container: Container, games: (BasketballGame | FootballGame)[], teams: (FootballTeam | BasketballTeam)[]) {
     const gamesForm = document.createElement('form')
@@ -55,42 +56,7 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
         const oldGame = JSON.parse(JSON.stringify(currentGame))
 
         if (overtimeId && sportId === SPORTS.basketball.id) {
-            const basketballGame = currentGame as BasketballGame
-            
-            const overtimeInputs = gameEl && [...gameEl.querySelectorAll<HTMLInputElement>(`.result-input[data-overtime="${overtimeId}"]`)]
-
-
-            const basketballOvertime = basketballGame.overtime.find(overtime => overtime.id === overtimeId)
-
-            if (!basketballOvertime || !overtimeInputs) {
-                return
-            }
-
-            updateGameData(gameWrapper, overtimeInputs, basketballOvertime, sportId)
-
-            const equalOvertimeGoals = basketballOvertime.teams.every(team => basketballOvertime.teams[0].goals === team.goals)
-
-            if (equalOvertimeGoals && basketballOvertime.played) {
-                const basketballOvertime = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round,null, gameTeams[0], gameTeams[1])
-
-                overtimeInputs.forEach(input => {
-                    const overtimeInput = document.createElement('input')
-                    overtimeInput.dataset.overtime = (overtimeId+1).toString()
-
-                    overtimeInput.classList.add('result-input', 'overtime')
-                    input.after(overtimeInput)
-                })
-
-                basketballGame.overtime.push(basketballOvertime)
-            } else {
-                basketballGame.overtime = basketballGame.overtime.filter(overtime => overtime.id <= overtimeId)
-
-                currentGameAllInputs.forEach(input => {
-                    if (input.dataset.overtime && +input.dataset.overtime > overtimeId) {
-                        input.remove()
-                    }
-                })
-            }
+            overtimeGameHandler(currentGame, gameWrapper, gameEl, gameTeams, overtimeId, sportId)
         }
 
         updateGameData(gameWrapper, currentGameInputs, currentGame, sportId)
@@ -152,20 +118,31 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
         
         scoresEl.forEach(element => {
             const gameEl = element.parentElement && element.parentElement.parentElement
+            const gameWrapper = gameEl?.parentElement && gameEl.parentElement
 
-            if (!gameEl) {
+            const currentGameAllInputs = gameEl && [...gameEl.querySelectorAll<HTMLInputElement>('.result-input')]
+
+            if (!gameWrapper || !currentGameAllInputs) {
                 return
             }
+
+            const currentGameInputs = currentGameAllInputs?.filter(input => {
+                if (!input.dataset.overtime && !input.dataset.extraTime && !input.dataset.shootout) {
+                    return input
+                }
+            })
+
             const gameId = gameEl.dataset.gameId && +gameEl.dataset.gameId
 
             const randomScore = Math.floor(Math.random() * 30)
+
             element.value = randomScore.toString()
 
             const currentGame = games.find(game => game.id === gameId)
 
             if (currentGame) {
                 const oldGame = {...currentGame}
-                updateGameData(gameEl, currentGame, sportId)
+                updateGameData(gameWrapper, currentGameInputs, currentGame, sportId)
                 localStorage.setItem('league-games-data', JSON.stringify(games))
     
                 updateTeamsData(container, games, currentGame, oldGame, teams)

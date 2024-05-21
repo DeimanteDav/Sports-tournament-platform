@@ -3,9 +3,7 @@ import FootballGame from "../classes/FootballGame.js"
 import Game from "../classes/Game.js"
 import { SPORTS } from "../config.js"
 
-function updateGameData(gameWrapper: HTMLElement, inputs: HTMLInputElement[], currentGame: BasketballGame | FootballGame | Game, sportId: number, params: {overtime: boolean} = {overtime: false}): void {
-    const {overtime} = params
-    
+function updateGameData(gameWrapper: HTMLElement, inputs: HTMLInputElement[], currentGame: BasketballGame | FootballGame | Game, sportId: number): void {
     // FIXME: <HTMLInputElement>
     // const homeTeamInput = gameEl.querySelector<HTMLInputElement>(`.home-team ${overtime ? `[data-overtime="${currentGame.id}"]` : '.result-input'}`)
     // const awayTeamInput = gameEl.querySelector<HTMLInputElement>(`.away-team ${overtime ? `[data-overtime="${currentGame.id}"]` : '.result-input'}`)
@@ -62,6 +60,7 @@ function updateGameData(gameWrapper: HTMLElement, inputs: HTMLInputElement[], cu
                         gameWrapper.classList.remove('played')
                         currentGame.playedAll = false
                     }
+                    
                     if (footballGame.shootout.played) {
                         gameWrapper.classList.add('played')
                         currentGame.playedAll = true
@@ -73,6 +72,7 @@ function updateGameData(gameWrapper: HTMLElement, inputs: HTMLInputElement[], cu
             }
         } else {
             currentGame.played = false
+            currentGame.playedAll = false
             gameWrapper.classList.remove('played')
         }
     })
