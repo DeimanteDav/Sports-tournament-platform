@@ -30,46 +30,50 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
 
     gamesForm.addEventListener('change', (e) => {
         const target = e.target as HTMLFormElement
+
         const gameEl = target?.parentElement && target.parentElement.parentElement
+        const gameWrapper = gameEl?.parentElement && gameEl.parentElement
         
         const gameId = gameEl?.dataset.gameId && +gameEl.dataset.gameId
         const currentGame = games.find(game => game.id === gameId)
         const overtimeId = target.dataset.overtime && +target.dataset.overtime
 
-        const currentGameGameInputs = gameEl && [...gameEl.querySelectorAll<HTMLInputElement>('.result-input')]
+        const currentGameAllInputs = gameEl && [...gameEl.querySelectorAll<HTMLInputElement>('.result-input')]
 
-        if (!currentGame || !currentGameGameInputs || !gameEl) {
+        const currentGameInputs = currentGameAllInputs?.filter(input => {
+            if (!input.dataset.overtime && !input.dataset.extraTime && !input.dataset.shootout) {
+                return input
+            }
+        })!
+
+        if (!currentGame || !currentGameAllInputs || !gameEl || !gameWrapper) {
             return
         }
 
-        const homeTeam = teams.find(team => team.id === currentGame.homeTeam.id)
-        const awayTeam = teams.find(team => team.id === currentGame.awayTeam.id)
-
-        if (!homeTeam || !awayTeam) {
-            return
-        }
+        const gameTeams = teams.filter(team => team.id === currentGame.teams[0].id || team.id === currentGame.teams[1].id)
 
         const oldGame = JSON.parse(JSON.stringify(currentGame))
 
         if (overtimeId && sportId === SPORTS.basketball.id) {
-            const currentInputs = gameEl && [...gameEl.querySelectorAll(`.result-input[data-overtime="${overtimeId}"]`)]
-
             const basketballGame = currentGame as BasketballGame
+            
+            const overtimeInputs = gameEl && [...gameEl.querySelectorAll<HTMLInputElement>(`.result-input[data-overtime="${overtimeId}"]`)]
 
-            const overtimeGame = basketballGame.overtime.find(overtime => overtime.id === overtimeId)
 
-            if (!overtimeGame) {
+            const basketballOvertime = basketballGame.overtime.find(overtime => overtime.id === overtimeId)
+
+            if (!basketballOvertime || !overtimeInputs) {
                 return
             }
 
-            updateGameData(gameEl, overtimeGame, sportId, {overtime: true})
+            updateGameData(gameWrapper, overtimeInputs, basketballOvertime, sportId)
 
-            const equalOvertimeGoals = overtimeGame.teams.every(team => currentGame.teams[0].goals === team.goals)
+            const equalOvertimeGoals = basketballOvertime.teams.every(team => basketballOvertime.teams[0].goals === team.goals)
 
-            if (equalOvertimeGoals && overtimeGame.played) {
-                const overtimeGame = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round, homeTeam, awayTeam)
+            if (equalOvertimeGoals && basketballOvertime.played) {
+                const basketballOvertime = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round,null, gameTeams[0], gameTeams[1])
 
-                currentInputs.forEach(input => {
+                overtimeInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
                     overtimeInput.dataset.overtime = (overtimeId+1).toString()
 
@@ -77,11 +81,11 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
                     input.after(overtimeInput)
                 })
 
-                basketballGame.overtime.push(overtimeGame)
+                basketballGame.overtime.push(basketballOvertime)
             } else {
                 basketballGame.overtime = basketballGame.overtime.filter(overtime => overtime.id <= overtimeId)
 
-                currentGameGameInputs.forEach(input => {
+                currentGameAllInputs.forEach(input => {
                     if (input.dataset.overtime && +input.dataset.overtime > overtimeId) {
                         input.remove()
                     }
@@ -89,20 +93,20 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
             }
         }
 
-        updateGameData(gameEl, currentGame, sportId)
+        updateGameData(gameWrapper, currentGameInputs, currentGame, sportId)
 
         if (sportId === SPORTS.basketball.id && !overtimeId) {
             const basketballGame = currentGame as BasketballGame
 
-            const equalGoals = currentGame.teams.every(team => currentGame.teams[0].goals === team.goals)
+            const equalGameGoals = currentGame.teams.every(team => currentGame.teams[0].goals === team.goals)
 
-            if (equalGoals && currentGame.playedAll) {
-                const overtimeGame = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round, homeTeam, awayTeam)
+            if (equalGameGoals && currentGame.playedAll) {
+                const overtimeGame = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round, null, gameTeams[0], gameTeams[1])
 
                 basketballGame.overtime.push(overtimeGame)
                 gameEl.parentElement && gameEl.parentElement.classList.remove('played')
               
-                currentGameGameInputs.forEach(input => {
+                currentGameAllInputs.forEach(input => {
                     const overtimeInput = document.createElement('input')
                     overtimeInput.dataset.overtime = basketballGame.overtime.length.toString()
                     overtimeInput.classList.add('result-input', 'overtime')
@@ -110,7 +114,7 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
                 })
             } else {
                 basketballGame.overtime = []
-                currentGameGameInputs.forEach(input => {
+                currentGameAllInputs.forEach(input => {
                     if (input.dataset.overtime) {
                         input.remove()
                     }

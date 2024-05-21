@@ -55,11 +55,12 @@ function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number
     const panel = document.createElement('div')
     panel.classList.add('panel', 'games')
 
-    games.forEach(game => {
+    games.forEach((game, i) => {
         if (`${leg}` === `${game.leg}`) {
+            const prevGame = (games[i-1] && games[i-1].leg+1 === game.leg) ? game : null
             // TODO:
             // panel.append((game instanceof).gameElement())
-            panel.append(createGameWrappers(game, game.round))
+            panel.append(createGameWrappers(prevGame, game, game.round))
         }
     })
 
@@ -79,7 +80,7 @@ function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number
 }
 
 
-function createGameWrappers(game: FootballGame | BasketballGame, round: number | string) {
+function createGameWrappers(prevGame: FootballGame | BasketballGame | null, game: FootballGame | BasketballGame, round: number | string): HTMLDivElement {
     const gameWrapper = document.createElement('div')
     gameWrapper.classList.add('game-wrapper')
 
@@ -102,13 +103,13 @@ function createGameWrappers(game: FootballGame | BasketballGame, round: number |
     }
     gameWrapper.append(idsWrapper)
 
-    const gameEl = createGameElement(game, round)
+    const gameEl = createGameElement(prevGame, game, round)
     gameWrapper.append(gameEl)
 
     return gameWrapper
 }
 
-function createGameElement(game: FootballGame | BasketballGame, round: number): HTMLDivElement {
+function createGameElement(prevGame: FootballGame | BasketballGame | null, game: FootballGame | BasketballGame, round: number | string): HTMLDivElement {
     const gameEl = document.createElement('div')
     gameEl.dataset.gameId = game.id.toString()
     gameEl.dataset.roundNr = game.leg.toString()
@@ -118,9 +119,6 @@ function createGameElement(game: FootballGame | BasketballGame, round: number): 
     game.hasOwnProperty('extraTime') && (gameEl.dataset.extraTime = 'true')
     game.pairId && (gameEl.dataset.pairId = game.pairId.toString())
 
-    const homeTeam = game.homeTeam
-    const awayTeam = game.awayTeam
- 
 
     for (const team of game.teams) {
         const teamWrapper = document.createElement('div')
@@ -138,7 +136,7 @@ function createGameElement(game: FootballGame | BasketballGame, round: number): 
         label.htmlFor = input.id
 
         label.textContent = team.team
-        input.dataset.team = team.team
+        input.dataset.teamId = team.id?.toString()
         
         input.value = team.goals !== null ? team.goals.toString() : ''
 
@@ -157,10 +155,10 @@ function createGameElement(game: FootballGame | BasketballGame, round: number): 
 
         //     }
         // }
-
-        if (!game.homeTeam.team || !game.awayTeam.team) {
+        if (game.teams.some(team => !team.team || !team.id) || (prevGame && !prevGame.playedAll)) {
             input.setAttribute('disabled', 'true')
         }
+
     
         teamWrapper.append(label, input)
         
@@ -168,11 +166,13 @@ function createGameElement(game: FootballGame | BasketballGame, round: number): 
             const extraTimeTeam = (game as FootballGame).extraTime?.teams.find(extraGameTeam => extraGameTeam.id === team.id)
 
             if (extraTimeTeam) {
-                const extraTimeInput = document.createElement('input')               
+                const extraTimeInput = document.createElement('input')
+                extraTimeInput.dataset.extraTime = 'true'
                 extraTimeInput.type = 'number'
-                extraTimeInput.classList.add('result-input', 'extra-time')
-    
-                extraTimeInput.value = extraTimeTeam.goals ? extraTimeTeam.goals.toString() : ''
+                extraTimeInput.classList.add('result-input')
+                extraTimeInput.dataset.teamId = team.id?.toString()
+
+                extraTimeInput.value = extraTimeTeam.goals !== null ? extraTimeTeam.goals.toString() : ''
     
                 teamWrapper.append(extraTimeInput)
             }
@@ -182,11 +182,13 @@ function createGameElement(game: FootballGame | BasketballGame, round: number): 
             const shootoutTeam = (game as FootballGame).shootout?.teams.find(shootoutTeam => shootoutTeam.id === team.id)
 
             if (shootoutTeam) {
-                const shootoutInput = document.createElement('input')               
+                const shootoutInput = document.createElement('input')
+                shootoutInput.dataset.shootout = 'true'         
                 shootoutInput.type = 'number'
-                shootoutInput.classList.add('result-input', 'shootout')
+                shootoutInput.classList.add('result-input')
+                shootoutInput.dataset.teamId = team.id?.toString()
 
-                shootoutInput.value = shootoutTeam.goals ? shootoutTeam.goals.toString() : ''
+                shootoutInput.value = shootoutTeam.goals !== null ? shootoutTeam.goals.toString() : ''
     
                 teamWrapper.append(shootoutInput)
             }
@@ -198,7 +200,9 @@ function createGameElement(game: FootballGame | BasketballGame, round: number): 
                     const overtimeInput = document.createElement('input')
                     overtimeInput.dataset.overtime = `${i+1}`
                     overtimeInput.type = 'number'
-                    overtimeInput.classList.add('result-input', 'overtime')
+                    overtimeInput.classList.add('result-input')
+                    overtimeInput.dataset.teamId = team.id?.toString()
+
                     overtimeInput.value = overtimeTeam.goals !== null ? overtimeTeam.goals.toString() : ''
     
                     teamWrapper.append(overtimeInput)

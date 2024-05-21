@@ -141,7 +141,7 @@ function playoffsTable(tableData: PlayoffsTable) {
 
             const pairIdEl = document.createElement('th')
             pairIdEl.textContent = pair.id + '.'
-            pairIdEl.setAttribute('rowSpan', 3)
+            pairIdEl.setAttribute('rowSpan', '3')
 
             for (let i = 0; i < pair.teams.length; i++) {
                 const teamData = pair.teams[i];
@@ -166,7 +166,6 @@ function playoffsTable(tableData: PlayoffsTable) {
                     } else {
                         gameResultEl.textContent = gameData.playedIn + ' ' + (gameData.score !== null ? gameData.score : '-')
                     }
-
 
                     bodyRow.append(gameResultEl)
                 }

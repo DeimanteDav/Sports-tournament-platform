@@ -1,28 +1,19 @@
 import BasketballGame from "../../classes/BasketballGame.js"
 import FootballGame from "../../classes/FootballGame.js"
-import { SPORTS } from "../../config.js"
+import { PlayoffsTeams, SPORTS } from "../../config.js"
 
 function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | BasketballGame[]) {
     const pairTeams = pairGames[0].teams
 
-    type TeamsData = {
-            team: string,
-            id: number,
-            scores: { playedIn: string, score: number }[],
-            totalScore: number,
-            wins: number
-    }[]
-    
-    const teamsData: TeamsData = []
+    const teamsData: PlayoffsTeams = []
 
     pairTeams.forEach(team => {
-        const scores: { playedIn: string, score: number }[] = []
+        const scores: { playedIn: string, score: number | null }[] = []
         let teamScoresSum = 0
         let oppTeamScoresSum = 0
         let wins = 0
 
         pairGames.forEach(game => {
-
             const gameTeam = game.teams.find(gameT => gameT.id === team.id)
             const gameOppTeam = game.teams.find(gameT => gameT.id !== team.id)
             
@@ -61,12 +52,12 @@ function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | Basket
     
                         const extraTimeOppTeam = footballGame.extraTime.teams.find(oTeam => oTeam.id == gameOppTeam.id)
 
-                        if (extraTimeTeam) {
-                            scores.push({score: extraTimeTeam.goals, playedIn: 'extra'})
+                        scores.push({score: extraTimeTeam?.goals || null, playedIn: 'extra'})
+                        
+                        if (extraTimeTeam?.goals && extraTimeOppTeam?.goals) {
+                            gameScores += extraTimeTeam.goals
 
-                            gameScores += extraTimeTeam.goals ? extraTimeTeam.goals : 0
-
-                            gameOppScores += extraTimeOppTeam?.goals ? extraTimeOppTeam.goals : 0
+                            gameOppScores += extraTimeOppTeam.goals
                         }
                     }
 
@@ -75,10 +66,10 @@ function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | Basket
     
                         const shootoutOppTeam = footballGame.shootout.teams.find(oTeam => oTeam.id == gameOppTeam.id)
 
-                        if (shootoutTeam) {
+                        if (shootoutTeam &&  shootoutTeam.goals) {
                             scores.push({score: shootoutTeam.goals, playedIn: 'p'})
 
-                            gameScores += shootoutTeam.goals ? shootoutTeam.goals : 0
+                            gameScores += shootoutTeam.goals
 
                             gameOppScores += shootoutOppTeam?.goals ? shootoutOppTeam.goals : 0
                         }

@@ -7,12 +7,12 @@ export default class Game {
   leg: number
   round: number | string
   playedAll: boolean = false
-  pairId?: number
+  pairId?: number | null
   
   homeTeam: { team: string, id: number | null, goals: number | null }
   awayTeam: { team: string, id: number | null, goals: number | null }
   
-  constructor(id: number, leg: number, round: number | string, pairId?: number, homeT?: Team | null, awayT?: Team | null) {
+  constructor(id: number, leg: number, round: number | string, pairId?: number | null, homeT?: Team | null, awayT?: Team | null) {
     this.teams = [
       {
         team: homeT ? homeT.team : '',

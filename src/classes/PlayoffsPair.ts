@@ -1,3 +1,4 @@
+import { PlayoffsTeams } from "../config.js"
 import BasketballGame from "./BasketballGame.js"
 import FootballGame from "./FootballGame.js"
 
@@ -6,13 +7,8 @@ export default class PlyoffsPair {
     games: FootballGame[] | BasketballGame[]
     prevIds: number[]
     nextId: number
-    public teams: {
-        team: string,
-        id: number,
-        totalScore: number,
-        wins: number,
-        scores: { playedIn: string, score: number }[]
-    }[] = []
+    public teams: PlayoffsTeams = []
+    winnerId: number | null = null
 
     constructor(id: number, games: FootballGame[] | BasketballGame[], prevIds: number[], nextId: number) {
         this.id = id

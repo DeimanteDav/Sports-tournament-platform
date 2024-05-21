@@ -49,3 +49,11 @@ export type Container = HTMLDivElement
 //     gameClass: BasketballGame,
 //   },
 // }
+
+export type PlayoffsTeams = {
+  team: string,
+  id: number | null,
+  totalScore: number,
+  wins: number,
+  scores: { playedIn: string, score: number | null }[]
+}[]
