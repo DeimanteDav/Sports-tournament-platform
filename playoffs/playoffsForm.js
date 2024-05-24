@@ -285,7 +285,7 @@ export default function playoffsForm(container, gamesData, playoffTeams, params 
 
 
 
-        pairData.teams = setTeams(pairGames, lastGame.extraTime, lastGame.shootout)
+        pairData.teams = setTeams(pairGames, lastGame.extraTime, lastGame.shootout, {bestOutOf})
 
         if (sportId === SPORTS.football.id) {
             if (pairData.playedAll &&  pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
@@ -578,7 +578,9 @@ function getNextGameElements(pairId, round) {
 }
 
 
-function setTeams(games, extraTime, shootout) {
+function setTeams(games, extraTime, shootout, params = {}) {
+    const {bestOutOf} = params
+
     const team1  = games[0].homeTeam.team
     const team2  = games[0].awayTeam.team
     const scores1 = []
@@ -682,19 +684,20 @@ function setTeams(games, extraTime, shootout) {
         scores2.push({score: team2Goals, playedIn: 'p'})
     }
 
-  
+    const total1Score = bestOutOf ? team1Won : goals1Sum 
+    const total2Score = bestOutOf ? team2Won : goals2Sum 
 
     const result = [
         {
             team: team1,
             scores: scores1,
-            totalScore: goals1Sum,
+            totalScore: total1Score,
             wins: team1Won
         },
         {
             team: team2,
             scores: scores2,
-            totalScore: goals2Sum,
+            totalScore: total2Score,
             wins: team2Won
         }
     ]
@@ -848,9 +851,9 @@ function changePlayoffsTable(container, roundsData, playoffsPairs) {
                     const gameResultEl = document.createElement('td')  
 
                     if ((gameData.playedIn === 'extra' || gameData.playedIn === 'p' || gameData.playedIn === 'OT') && gameData.team) {
-                        gameResultEl.textContent = gameData.score ? gameData.score : '-'
+                        gameResultEl.textContent = gameData.score !== null ? gameData.score : '-'
                     } else {
-                        gameResultEl.textContent = gameData.playedIn + ' ' + (gameData.score ? gameData.score : '-')
+                        gameResultEl.textContent = gameData.playedIn + ' ' + (gameData.score !== null ? gameData.score : '-')
                     }
 
 

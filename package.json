@@ -1,0 +1,15 @@
+{
+  "name": "football-standings",
+  "version": "1.0.0",
+  "description": "This web application allows users to create and manage sports tournaments using JavaScript, HTML, and CSS. Users can generate regular games and playoff games. \r Data is stored in local storage. [Live demo](https://deimantedav.github.io/Sports-tournament-platform/)🚀",
+  "main": "config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "lite-server"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lite-server": "^2.6.1"
+  }
+}

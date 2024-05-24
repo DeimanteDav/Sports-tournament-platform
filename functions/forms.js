@@ -1,5 +1,5 @@
 import toggleSwitch from "../components/toggleSwitch.js"
-import { SPORTS, TEAM_NAMES } from "../config.js"
+import { SPORTS, ANIMAL_NAMES } from "../config.js"
 import generateTeams from "./generate.js"
 
 export function sportTypeForm(container) {
@@ -116,7 +116,6 @@ export function teamNamesForm(container, teamsAmount) {
     const namesWrapper = document.createElement('div')
     namesWrapper.classList.add('inputs')
 
-
     const generateWrapper = document.createElement('div')
     generateWrapper.classList.add('select-form')
 
@@ -190,7 +189,7 @@ export function teamNamesForm(container, teamsAmount) {
                 inputs[i].value = number
             })
         } else {
-            TEAM_NAMES.sort(() => Math.random() - 0.5).slice(0,teamsAmount).forEach((name, i) => {
+            ANIMAL_NAMES.sort(() => Math.random() - 0.5).slice(0,teamsAmount).forEach((name, i) => {
                 inputs[i].value = name
             })
         }
@@ -248,7 +247,6 @@ function tournamentType(container, teamsAmount) {
                     localStorage.setItem('rounds-amount', amount)
                 }
             })
-
     
             const relegationWrapper = document.createElement('relegation')
 
@@ -276,7 +274,6 @@ function tournamentType(container, teamsAmount) {
 
                     localStorage.removeItem('relegation')
                 }
-
             })
 
 
@@ -505,9 +502,9 @@ function tournamentType(container, teamsAmount) {
         }
     }
 
-    const legueSwitch = toggleSwitch(leagueSwitchHandler)
+    const leagueSwitch = toggleSwitch(leagueSwitchHandler)
 
-    leagueTitleWrapper.prepend(leagueText, legueSwitch)
+    leagueTitleWrapper.prepend(leagueText, leagueSwitch)
     leagueWrapper.append(leagueTitleWrapper)
 
     const playoffsTitleWrapper = document.createElement('div')
@@ -613,9 +610,6 @@ function generatePlayoffsData(playoffsInfoWrapper, teamsAmount, playoffsData, sp
     let roundGamesAmount = teamsAmount/2
     let prevRoundGamesAmount
     let roundsInfo = []
-    // vienos rungtynes (kaip futbole, kas laimi tas praena, jei lygios, tai overtime)
-    // dvi rungtynes (kaip futbole, kas laimi tas praena, jei lygios PO DVIEJU, tai overtime)
-    // Iki 2 pergaliu/3 pergaliu/4 pergaliu (kuri pirmiau iskovojo tiek pergaliu praeina, JEI PO ZAIDIMO LYGIOSIOS, TAI OVERTIME)
     
     for (let i = 0; i < teamsAmount/2; i++) {
         if (i > 0) {

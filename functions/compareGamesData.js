@@ -41,9 +41,12 @@ export default function compareGamesData(teams, games) {
 
         let homeGames = {won: 0, lost: 0}
         let awayGames = {won: 0, lost: 0}
-        let overtime = {scored: 0, missed: 0}
+        let overtime = {won: 0, lost: 0}
+        let winPerc = 0
 
         teamGames.forEach(game => {
+            const lastOvertime = [...game.overtime].pop()
+
             if (game.homeTeam.team === team.team) {
                 goals += game.homeTeam.goals
                 goalsMissed += game.awayTeam.goals
@@ -61,11 +64,22 @@ export default function compareGamesData(teams, games) {
                     draws++
                 }
 
-                if (game?.overtime) {
+                if (game.overtime?.length > 0) {
                     game.overtime.forEach(overtimeGame => {
-                        overtime.scored+=overtimeGame.homeTeam.goals
-                        overtime.missed+=overtimeGame.awayTeam.goals
+                        if (overtimeGame.homeTeam.goals > overtimeGame.awayTeam.goals) {
+                            overtime.won++
+                        } else if (overtimeGame.homeTeam.goals < overtimeGame.awayTeam.goals) {
+                            overtime.lost++
+                        }
                     })
+
+                    if (lastOvertime.played) {
+                        if (lastOvertime.homeTeam.goals > lastOvertime.awayTeam.goals) {
+                            wins++
+                        } else if (lastOvertime.homeTeam.goals < lastOvertime.awayTeam.goals) {
+                            losses++
+                        } 
+                    }
                 }
             } else  if (game.awayTeam.team === team.team) {
                 goals += game.awayTeam.goals
@@ -84,17 +98,31 @@ export default function compareGamesData(teams, games) {
                     draws++
                 } 
 
-                if (game?.overtime) {
+                if (game.overtime?.length > 0) {
                     game.overtime.forEach(overtimeGame => {
-                        overtime.scored+=overtimeGame.awayTeam.goals
-                        overtime.missed+=overtimeGame.homeTeam.goals
+                        if (overtimeGame.homeTeam.goals > overtimeGame.awayTeam.goals) {
+                            overtime.lost++
+                        } else if (overtimeGame.homeTeam.goals < overtimeGame.awayTeam.goals) {
+                            overtime.won++
+                        }
                     })
+
+                    if (lastOvertime.played) {
+                        if (lastOvertime.homeTeam.goals > lastOvertime.awayTeam.goals) {
+                            losses++
+                        } else if (lastOvertime.homeTeam.goals < lastOvertime.awayTeam.goals) {
+                            wins++
+                        }
+                    }     
                 }
             } 
+
 
             if (game.played) {
                 playedGames++
             }
+            
+            winPerc = playedGames !== 0 ? Math.round((wins/playedGames)*1000)/10 : 0
 
             teamsData[team.team] = {
                 playedGames,
@@ -109,7 +137,7 @@ export default function compareGamesData(teams, games) {
             }
 
             if (sportId === SPORTS.basketball.id) {
-                teamsData[team.team] = {...teamsData[team.team], homeGames, awayGames, overtime}
+                teamsData[team.team] = {...teamsData[team.team], homeGames, awayGames, overtime, winPerc}
             }
         })
 

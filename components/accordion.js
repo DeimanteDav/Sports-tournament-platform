@@ -115,7 +115,7 @@ function createGameElement(game, round) {
             label.textContent = game[team].team
             input.dataset.team = game[team].team
             
-            input.value = game[team].goals ? game[team].goals : ''
+            input.value = game[team].goals !== null ? game[team].goals : ''
 
             
             if (game.pairId) {

@@ -3,7 +3,7 @@ import { compareTeamsTable } from "../script.js"
 import getInbetweenTeamsGames from "./getInbetweenTeamsGames.js"
 
 export function createModernTable(wrapper, teams, games, params = {}) {
-    const {comparinsonBtn, position} = params
+    const {comparisonBtn, position} = params
 
     const sportId = JSON.parse(localStorage.getItem('sport')).id
 
@@ -67,11 +67,11 @@ export function createModernTable(wrapper, teams, games, params = {}) {
 
             row.append(cell)
 
-            if (comparinsonBtn && j === 1) {
+            if (comparisonBtn && j === 1) {
                 compareTeamsButtonHandler(wrapper, team, games, cell, 'modern')
             }
 
-            if (relegations && comparinsonBtn) {
+            if (relegations && comparisonBtn) {
                 const lastPlace = teams.length - relegations
                 if (i === lastPlace) {
                     row.classList.add('relegation')
@@ -91,7 +91,7 @@ export function createModernTable(wrapper, teams, games, params = {}) {
 
 
 export function createOldTable(wrapper, teams, games, params = {}) {
-    const {comparinsonBtn} = params
+    const {comparisonBtn} = params
 
     const table = document.createElement('table')
     table.classList.add('table', 'old-table')
@@ -178,7 +178,7 @@ export function createOldTable(wrapper, teams, games, params = {}) {
         buttonWrapper.classList.add('btn-wrapper')
         teamTitleEl.append(buttonWrapper)
 
-        if (comparinsonBtn) {
+        if (comparisonBtn) {
             compareTeamsButtonHandler(wrapper, team, games, buttonWrapper, 'old')
         }
 
