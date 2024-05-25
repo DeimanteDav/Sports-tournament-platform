@@ -1,6 +1,6 @@
-import { ANIMAL_NAMES, Container } from "../../config.js"
+import { ANIMAL_NAMES } from "../../config.js"
+import { Container } from "../../types.js"
 import tournamentType from "./tournamentType.js"
-
 function teamNamesForm(container: Container, teamsAmount: number) {
     const form = document.createElement('form')
     form.classList.add('form')
@@ -29,7 +29,6 @@ function teamNamesForm(container: Container, teamsAmount: number) {
             value: 3,
         }
     ]
-
 
     for (let i = 0; i < options.length; i++) {
         const option = options[i];
@@ -90,8 +89,6 @@ function teamNamesForm(container: Container, teamsAmount: number) {
             })
         }
     })
-
-
 
     
     form.addEventListener('submit', (e) => {

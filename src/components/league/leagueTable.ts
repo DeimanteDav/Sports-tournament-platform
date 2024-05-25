@@ -1,4 +1,4 @@
-import { Container } from "../../config.js";
+import { Container } from "../../types.js";
 import BasketballGame from "../../classes/BasketballGame.js";
 import BasketballTeam from "../../classes/BasketballTeam.js";
 import FootballGame from "../../classes/FootballGame.js";

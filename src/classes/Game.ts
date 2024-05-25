@@ -9,9 +9,6 @@ export default class Game {
   playedAll: boolean = false
   pairId?: number | null
   
-  homeTeam: { team: string, id: number | null, goals: number | null }
-  awayTeam: { team: string, id: number | null, goals: number | null }
-  
   constructor(id: number, leg: number, round: number | string, pairId?: number | null, homeT?: Team | null, awayT?: Team | null) {
     this.teams = [
       {
@@ -29,16 +26,6 @@ export default class Game {
         away: true,
       }
     ] 
-    this.homeTeam = {
-      team: homeT ? homeT.team : '',
-      id: homeT ? homeT.id : null,
-      goals: null,
-    };
-    this.awayTeam = {
-      team: awayT ? awayT.team : '',
-      id: awayT ? awayT.id : null,
-      goals: null,
-    };
     this.id = id
     this.leg = leg
     this.pairId = pairId
@@ -49,8 +36,7 @@ export default class Game {
     const gameWrapper = document.createElement('div')
     gameWrapper.classList.add('game-wrapper')
 
-    gameWrapper.textContent = game.homeTeam.team + ' ' + game.awayTeam.team
-
+    
     return gameWrapper
 }
 }

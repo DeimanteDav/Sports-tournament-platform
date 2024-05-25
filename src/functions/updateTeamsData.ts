@@ -1,9 +1,11 @@
 import leagueTable from "../components/league/leagueTable.js";
-import { Container, SPORTS } from "../config.js";
+import { SPORTS } from "../config.js";
 import BasketballGame from "../classes/BasketballGame.js";
 import BasketballTeam from "../classes/BasketballTeam.js";
 import FootballGame from "../classes/FootballGame.js";
 import FootballTeam from "../classes/FootballTeam.js";
+import { Container } from "../types.js";
+import RegularSeason from "../classes/RegularSeason.js";
 
 function updateTeamsData(container: Container, games: FootballGame[] | BasketballGame[], updatedGame: BasketballGame | FootballGame, oldGame: BasketballGame | FootballGame, allTeams: BasketballTeam[] | FootballTeam[]) { 
     const playingTeams = allTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.id))
@@ -95,7 +97,7 @@ function updateTeamsData(container: Container, games: FootballGame[] | Basketbal
     //         playoffsForm(container, playoffGamesData, teamsToPlayoffs, {leagueTableUpdated})
     //     }
     // }
-    localStorage.setItem('teams-data', JSON.stringify(allTeams))
+    RegularSeason.setTeams(allTeams)
 }
 
 export default updateTeamsData

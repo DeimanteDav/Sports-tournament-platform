@@ -10,6 +10,7 @@ function comparisonTable(wrapper: HTMLElement, games: FootballGame[] | Basketbal
     const teams = localStorage.getItem('comparing-teams') && JSON.parse(localStorage.getItem('comparing-teams') || '')
 
     const sportId: number = localStorage.getItem('sport') && JSON.parse(localStorage.getItem('sport') || '').id
+
     const tableType = localStorage.getItem('table-type')
 
     const teamsGamesDataObject = compareGamesData(teams, games)

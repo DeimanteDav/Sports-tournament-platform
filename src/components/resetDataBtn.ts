@@ -1,4 +1,4 @@
-import { Container } from "../config.js";
+import { Container } from "../types.js";
 import sportTypeForm from "../functions/initialForms/sportTypeForm.js";
 
 function resetDataBtn(container: Container, wrapper: HTMLElement) {

@@ -1,19 +1,21 @@
-import { Container, SPORTS } from "../../config.js";
+import { SPORTS } from "../../config.js";
 import BasketballGame from "../../classes/BasketballGame.js";
-import BasketballTeam from "../../classes/BasketballTeam.js";
 import FootballGame from "../../classes/FootballGame.js";
-import FootballTeam from "../../classes/FootballTeam.js";
 import Game from "../../classes/Game.js";
 import updateGameData from "../../functions/updateGameData.js";
 import updateTeamsData from "../../functions/updateTeamsData.js";
 import accordion from "../accordion.js";
 import leagueTable from "./leagueTable.js";
 import overtimeGameHandler from "../../functions/overtimeGameHandler.js";
+import RegularSeason from "../../classes/RegularSeason.js";
+import { Container } from "../../types.js";
 
-function leagueTournament(container: Container, games: (BasketballGame | FootballGame)[], teams: (FootballTeam | BasketballTeam)[]) {
+function leagueTournament(container: Container) {
+    const data = RegularSeason.getData()!
+    const {games, teams, roundsAmount} = data
+
     const gamesForm = document.createElement('form')
     gamesForm.id = 'games-form'
-    const roundsAmount = Number(localStorage.getItem('rounds-amount') || '')
     const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
 
     for (let i = 0; i < roundsAmount; i++) {
@@ -88,7 +90,7 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
             }
         }      
 
-        localStorage.setItem('league-games-data', JSON.stringify(games))
+        RegularSeason.setGames(games)
 
         updateTeamsData(container, games, currentGame, oldGame, teams)
     })
@@ -143,8 +145,9 @@ function leagueTournament(container: Container, games: (BasketballGame | Footbal
             if (currentGame) {
                 const oldGame = {...currentGame}
                 updateGameData(gameWrapper, currentGameInputs, currentGame, sportId)
-                localStorage.setItem('league-games-data', JSON.stringify(games))
-    
+
+                RegularSeason.setGames(games)
+
                 updateTeamsData(container, games, currentGame, oldGame, teams)
             }
         });

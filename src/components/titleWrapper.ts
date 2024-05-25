@@ -1,4 +1,4 @@
-import { Container } from "../config.js";
+import { Container } from "../types.js";
 import resetDataBtn from "./resetDataBtn.js";
 import sportTitle from "./sportTitle.js";
 

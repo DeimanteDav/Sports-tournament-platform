@@ -28,14 +28,17 @@ function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | Basket
 
                 teamScoreData.score = gameTeam.goals ? gameTeam.goals : null
                 teamScoreData.playedIn = gameTeam.home ? 'H' : 'A'
+                scores.push(teamScoreData)
 
                 if (sportId === SPORTS.basketball.id) {
                     (game as BasketballGame).overtime.forEach(overtimeGame => {
-                        const overtimeTeam = overtimeGame.teams.find(oTeam => oTeam.id === gameTeam.id)
-                        const overtimeOppTeam = overtimeGame.teams.find(oTeam => oTeam.id == gameOppTeam.id)
-    
+                        const overtimeTeam = overtimeGame.teams.find(oTeam => oTeam.id === gameTeam.id)!
+                        const overtimeOppTeam = overtimeGame.teams.find(oTeam => oTeam.id == gameOppTeam.id)!
+
+                        scores.push({score: overtimeTeam.goals, playedIn: 'OT'})
+
                         
-                        if (overtimeTeam && overtimeTeam.goals && overtimeOppTeam && overtimeOppTeam.goals) {
+                        if (overtimeTeam.goals !== null && overtimeOppTeam.goals !== null) {
                             teamOvertimeScore += overtimeTeam.goals
                             oppTeamOvertimeScore += overtimeOppTeam.goals
                             
@@ -47,13 +50,13 @@ function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | Basket
                     const footballGame = game as FootballGame
 
                     if (footballGame.extraTime) {
-                        const extraTimeTeam = footballGame.extraTime.teams.find(oTeam => oTeam.id === gameTeam.id)
+                        const extraTimeTeam = footballGame.extraTime.teams.find(oTeam => oTeam.id === gameTeam.id)!
     
-                        const extraTimeOppTeam = footballGame.extraTime.teams.find(oTeam => oTeam.id == gameOppTeam.id)
+                        const extraTimeOppTeam = footballGame.extraTime.teams.find(oTeam => oTeam.id == gameOppTeam.id)!
 
-                        scores.push({score: extraTimeTeam?.goals || null, playedIn: 'extra'})
+                        scores.push({score: extraTimeTeam.goals, playedIn: 'OT'})
                         
-                        if (extraTimeTeam?.goals && extraTimeOppTeam?.goals) {
+                        if (extraTimeTeam.goals !== null && extraTimeOppTeam.goals !== null) {
                             gameScores += extraTimeTeam.goals
 
                             gameOppScores += extraTimeOppTeam.goals
@@ -61,16 +64,16 @@ function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | Basket
                     }
 
                     if (footballGame.shootout) {
-                        const shootoutTeam = footballGame.shootout.teams.find(oTeam => oTeam.id === gameTeam.id)
+                        const shootoutTeam = footballGame.shootout.teams.find(oTeam => oTeam.id === gameTeam.id)!
     
-                        const shootoutOppTeam = footballGame.shootout.teams.find(oTeam => oTeam.id == gameOppTeam.id)
+                        const shootoutOppTeam = footballGame.shootout.teams.find(oTeam => oTeam.id == gameOppTeam.id)!
 
-                        if (shootoutTeam &&  shootoutTeam.goals) {
-                            scores.push({score: shootoutTeam.goals, playedIn: 'p'})
-
+                        scores.push({score: shootoutTeam.goals, playedIn: 'p'})
+                        
+                        if (shootoutTeam.goals !== null && shootoutOppTeam.goals !== null) {
                             gameScores += shootoutTeam.goals
 
-                            gameOppScores += shootoutOppTeam?.goals ? shootoutOppTeam.goals : 0
+                            gameOppScores += shootoutOppTeam.goals ? shootoutOppTeam.goals : 0
                         }
                     }
                 }
@@ -78,8 +81,6 @@ function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | Basket
 
             teamScoresSum += gameScores
             oppTeamScoresSum += gameOppScores
-
-            scores.push(teamScoreData)
 
             if (gameScores > gameOppScores && game.playedAll) {
                 wins++

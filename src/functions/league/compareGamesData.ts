@@ -4,9 +4,10 @@ import BasketballTeam from "../../classes/BasketballTeam.js"
 import FootballGame from "../../classes/FootballGame.js"
 import FootballTeam from "../../classes/FootballTeam.js"
 import { SPORTS } from "../../config.js"
+import { TeamsType } from "../../types.js"
 import getInbetweenTeamsGames from "../getInbetweenTeamsGames.js"
 
-function compareGamesData(teams: (FootballTeam | BasketballTeam)[], games: FootballGame[] | BasketballGame[]) {
+function compareGamesData(teams: TeamsType, games: FootballGame[] | BasketballGame[]) {
     const teamsData: {
         [key: number]: {
             team: string,
@@ -26,6 +27,7 @@ function compareGamesData(teams: (FootballTeam | BasketballTeam)[], games: Footb
         }
     } = {}
 
+    console.log(teams);
     const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
 
     if (!games) {
@@ -51,7 +53,7 @@ function compareGamesData(teams: (FootballTeam | BasketballTeam)[], games: Footb
     }
     
     teams.forEach(team => {
-        const teamGames = teamsGamesData.filter(game => game.homeTeam.team === team.team || game.awayTeam.team === team.team);
+        const teamGames = teamsGamesData.filter(game => game.teams.some(gameTeam => gameTeam.id === team.id));
         
         let points = 0
         let goals = 0

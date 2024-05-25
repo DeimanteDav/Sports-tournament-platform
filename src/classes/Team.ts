@@ -1,4 +1,4 @@
-export default class Team {
+export default abstract class Team {
     team: string
     id: number
     playedGames: number = 0

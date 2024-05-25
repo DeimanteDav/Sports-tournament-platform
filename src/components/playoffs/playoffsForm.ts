@@ -1,7 +1,5 @@
-import { Container, SPORTS } from "../../config.js";
-import BasketballTeam from "../../classes/BasketballTeam.js";
+import { SPORTS } from "../../config.js";
 import PlayoffsPair from "../../classes/PlayoffsPair.js";
-import FootballTeam from "../../classes/FootballTeam.js";
 import accordion from "../accordion.js";
 import FootballGame from "../../classes/FootballGame.js";
 import BasketballGame from "../../classes/BasketballGame.js";
@@ -10,10 +8,16 @@ import playoffsTable from "./playoffsTable.js";
 import updateGameData from "../../functions/updateGameData.js";
 import Game from "../../classes/Game.js";
 import overtimeGameHandler from "../../functions/overtimeGameHandler.js";
+import winnerElement from "./winnerElement.js";
+import { Container } from "../../types.js";
+import Playoffs from "../../classes/Playoffs.js";
 
-function playoffsForm(container: Container, gamesData: { teamsAmount: number, roundsData: { [k: string]: {gamesAmount: number, knockouts: number, bestOutOf?: number }}}, playoffTeams: FootballTeam[] | BasketballTeam[], params: { leagueTableUpdated: boolean } = { leagueTableUpdated: false } ) {
-    const {roundsData} = gamesData
+function playoffsForm(container: Container, params: { leagueTableUpdated: boolean } = { leagueTableUpdated: false } ) {
+    const data = Playoffs.getData()!
+    const {teams, pairsData, roundsData, teamsAmount} = data
+
     const {leagueTableUpdated} = params
+
     const sportId = localStorage.getItem('sport') && JSON.parse(localStorage.getItem('sport') || '').id
 
     const ClassGame = sportId === SPORTS.football.id ? FootballGame : BasketballGame
@@ -43,10 +47,6 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
             })
     )
 
-    const playoffsPairs: {
-        [k: string]: PlayoffsPair[]
-    } = localStorage.getItem('playoffs-pairs-data') ? JSON.parse(localStorage.getItem('playoffs-pairs-data') || '') : {}
-
     let pairId = 0
     let gameId = 0
 
@@ -56,22 +56,22 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
     roundsDataConverted.forEach(([round, data], index) => {
         const {gamesAmount, knockouts, bestOutOf} = data
 
-        if (!playoffsPairs[round] || leagueTableUpdated) {
-            playoffsPairs[round] = []
+        if (!pairsData[round] || leagueTableUpdated) {
+            pairsData[round] = []
 
             const prevRoundGamesAmount = index > 0 && roundsDataConverted[index-1][1].gamesAmount
             
             const round1TeamPairs = []
             if (index === 0) {
-                for (let i = 0; i < playoffTeams.length; i++) {
+                for (let i = 0; i < teamsAmount; i++) {
                     let modifiedTeams: any[]
                     let pair
                     if (i === 0) {
-                        modifiedTeams = playoffTeams
+                        modifiedTeams = teams
 
                             pair = [modifiedTeams[0], modifiedTeams[modifiedTeams.length - 1]]
                         } else {
-                            modifiedTeams = playoffTeams.slice(i, -i)
+                            modifiedTeams = teams.slice(i, -i)
                             if (modifiedTeams.length > 0) {
                                 pair = [modifiedTeams[0], modifiedTeams[modifiedTeams.length - 1]]
                             }
@@ -128,17 +128,17 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
                     }
                 }
 
-                playoffsPairs[round].push(pairData)
+                pairsData[round].push(pairData)
 
                 pairData.teams = setPlayoffPairTeams(sportId, pairData.games)
             }
         }
         
-        localStorage.setItem('playoffs-pairs-data', JSON.stringify(playoffsPairs))
+        Playoffs.setPairsData(pairsData)
 
         
         let roundGames: FootballGame[] | BasketballGame[] = []
-        playoffsPairs[round].forEach(round => {
+        pairsData[round].forEach(round => {
             roundGames.push(...round.games)
         })
         
@@ -159,7 +159,7 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
         //     })
         // }
     })
-    playoffsTable({container, sportId, roundsData: sortedData, playoffsPairs})
+    playoffsTable({container, sportId, roundsData: sortedData, pairsData})
 
     
     form.addEventListener('change', (e) => {
@@ -197,7 +197,7 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
         const currentRoundInfo = roundsData[currentRound]
         const {gamesAmount, knockouts, bestOutOf} = currentRoundInfo
         
-        const pairData = playoffsPairs[currentRound].find(pair => pair.id === pairId)!
+        const pairData = pairsData[currentRound].find(pair => pair.id === pairId)!
         const pairGames = pairData.games
         const currentGame = pairGames.find(game => game.id === gameId)
 
@@ -211,7 +211,7 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
             throw new Error('new currentGame arba lastGAmeInputs')
         }
 
-        const gameTeams = playoffTeams.filter(team => team.id === currentGame.teams[0].id || team.id === currentGame.teams[1].id)
+        const gameTeams = teams.filter(team => team.id === currentGame.teams[0].id || team.id === currentGame.teams[1].id)
 
         if (sportId === SPORTS.football.id) {
             const footballLastGame = lastGame as FootballGame
@@ -408,14 +408,13 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
         }
 
         const nextRound = gamesAmount === 2 ? 'final' : `1/${gamesAmount/2}`
-        const nextPair = gamesAmount >= 2 && playoffsPairs[nextRound].find(pair => pair.id === pairData.nextId)
+        const nextPair = gamesAmount >= 2 && pairsData[nextRound].find(pair => pair.id === pairData.nextId)
 
         const nextPairGameElements = [...document.querySelectorAll(`.game[data-pair-id="${pairData.nextId}"] `)]
 
         if (!nextPairGameElements) throw new Error('no next pair game els')
             
         if (gamesAmount >= 2 && nextPair) {
-            
             nextPair.games.forEach((game, i) => {
                 const nextPairElement = nextPairGameElements[i]
                 const nextPairGameWraper = nextPairElement?.parentElement?.parentElement
@@ -476,9 +475,21 @@ function playoffsForm(container: Container, gamesData: { teamsAmount: number, ro
                 })
             })
         }
+
+
+        playoffsTable({container, sportId, roundsData: sortedData, pairsData})
         
-        playoffsTable({container, sportId, roundsData: sortedData, playoffsPairs})
-        localStorage.setItem('playoffs-pairs-data', JSON.stringify(playoffsPairs))
+        if (currentRound === 'final' && pairGames.every(game => game.playedAll) && pairData.winnerId) {
+
+            winnerElement(container, pairData.winnerId, teams)
+
+            localStorage.setItem('winner-id', pairData.winnerId.toString())
+
+        } else {
+            localStorage.removeItem('winner-id')
+        }
+
+        Playoffs.setPairsData(pairsData)
     })
 }
 
@@ -486,9 +497,8 @@ export default playoffsForm
 
 
 function setNextPairElements(teams: {team: string, id: number | null, goals: number | null, home: boolean, away: boolean}[], pairId: number, index: number, label: HTMLLabelElement[], winnerData?: { team: string, id: number }) {
-    const team1Index = pairId % 2 === 0 ? 1 : 0
-    const team2Index = pairId % 2 === 0 ? 0 : 1
-
+    const team1Index = pairId % 2 === 0 ? 0 : 1
+    const team2Index = pairId % 2 === 0 ? 1 : 0
 
     if (index % 2 === 0) {
         label[team2Index].textContent = winnerData ? winnerData.team : ''
