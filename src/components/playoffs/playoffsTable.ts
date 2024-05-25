@@ -1,22 +1,22 @@
 import BasketballGame from "../../classes/BasketballGame.js";
 import FootballGame from "../../classes/FootballGame.js";
-import PlayoffsPair from "../../classes/PlayoffsPair.js";
-import { Container, SPORTS } from "../../config.js";
+import { SPORTS } from "../../config.js";
+import { Container, PlayoffsPairInterface } from "../../types.js";
 
-type PlayoffsTable = {
-    container: Container,
-    sportId: number,
+interface PlayoffsTable {
+    container: Container
+    sportId: number
     roundsData: {
-        [k: string]: { gamesAmount: number, knockouts: number, bestOutOf?: number }
-    },
-    playoffsPairs: {
-        [k: string]: PlayoffsPair[]
+        [k: string]: { gamesAmount: number, knockouts: number | null, bestOutOf?: number | null }
+    }
+    pairsData: {
+        [k: string]: PlayoffsPairInterface[]
     }
 }
 
 
 function playoffsTable(tableData: PlayoffsTable) {
-    const {container, sportId, roundsData, playoffsPairs} = tableData
+    const {container, sportId, roundsData, pairsData} = tableData
 
     const oldTableWrapper = document.querySelector('.playoffs-table')
 
@@ -32,8 +32,8 @@ function playoffsTable(tableData: PlayoffsTable) {
     const table = document.createElement('div')
     table.classList.add('playoffs-games')
 
-    let colsAmount = Object.keys(playoffsPairs).length
-    let rowsAmount = Object.values(playoffsPairs)[0].length
+    let colsAmount = Object.keys(pairsData).length
+    let rowsAmount = Object.values(pairsData)[0].length
 
     const wideScreen  = window.matchMedia( '(min-width: 1000px)' );
 
@@ -42,11 +42,11 @@ function playoffsTable(tableData: PlayoffsTable) {
 
     function resizeHandler(e: MediaQueryList | MediaQueryListEvent) {
         if (e.matches) {
-            colsAmount = Object.keys(playoffsPairs).length*2-1
-            rowsAmount = Object.values(playoffsPairs)[0].length/2
+            colsAmount = Object.keys(pairsData).length*2-1
+            rowsAmount = Object.values(pairsData)[0].length/2
         } else {
-            colsAmount = Object.keys(playoffsPairs).length
-            rowsAmount = Object.values(playoffsPairs)[0].length
+            colsAmount = Object.keys(pairsData).length
+            rowsAmount = Object.values(pairsData)[0].length
         }
 
         table.style.gridTemplateColumns = `repeat(${colsAmount}, 1fr)`
@@ -70,7 +70,8 @@ function playoffsTable(tableData: PlayoffsTable) {
         }
     }
 
-    Object.entries(playoffsPairs).forEach(([round, roundPairs], index) => {
+    Object.entries(pairsData).forEach(([round, roundPairs], index) => {
+
         const gamesAmount = roundPairs.length
 
         let rowIndex = 1
@@ -100,7 +101,7 @@ function playoffsTable(tableData: PlayoffsTable) {
             const tHead = document.createElement('thead')
             const headRow = document.createElement('tr')
             const emptyHeadCell = document.createElement('th')
-            emptyHeadCell.setAttribute('colspan', 2)
+            emptyHeadCell.setAttribute('colspan', '2')
 
             const tBody = document.createElement('tbody')
 
@@ -153,13 +154,15 @@ function playoffsTable(tableData: PlayoffsTable) {
                 teamEl.textContent = teamData.team ? teamData.team : `${pair.prevIds[i]} winner`
              
                 const totalScoreEl = document.createElement('th')
-                totalScoreEl.textContent = teamData.totalScore.toString()
+
+                totalScoreEl.textContent = roundsData[round].bestOutOf ? teamData.wins.toString() : teamData.totalScore.toString()
                 totalScoreEl.style.padding = '0 10px'
                 totalScoreEl.style.fontWeight = 'bold'
 
                 for (let j = 0; j < teamData.scores.length; j++) {
                     const gameData = teamData.scores[j];
                     const gameResultEl = document.createElement('td')  
+
 
                     if ((gameData.playedIn === 'extra' || gameData.playedIn === 'p' || gameData.playedIn === 'OT') && teamData.team) {
                         gameResultEl.textContent = gameData.score !== null ? gameData.score.toString() : '-'
@@ -170,6 +173,7 @@ function playoffsTable(tableData: PlayoffsTable) {
                     bodyRow.append(gameResultEl)
                 }
                 
+
                 bodyRow.prepend(teamEl)
                 bodyRow.append(totalScoreEl)
 
@@ -204,7 +208,7 @@ function playoffsTable(tableData: PlayoffsTable) {
 
             repositionResultWrapper(wideScreen)
 
-            function repositionResultWrapper(e) {
+            function repositionResultWrapper(e: MediaQueryList | MediaQueryListEvent) {
                 if (e.matches) {
                     rowSpan = rowsAmount*2/gamesAmount
 

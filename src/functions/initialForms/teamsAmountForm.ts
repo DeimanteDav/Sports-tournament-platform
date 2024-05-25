@@ -1,4 +1,4 @@
-import { Container } from "../../config.js"
+import { Container } from "../../types.js"
 import teamNamesForm from "./teamNamesForm.js"
 
 function teamsAmountForm(container: Container) {

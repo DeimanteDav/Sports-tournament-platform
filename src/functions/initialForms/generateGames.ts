@@ -2,6 +2,7 @@ import BasketballGame from "../../classes/BasketballGame.js";
 import BasketballTeam from "../../classes/BasketballTeam.js";
 import FootballGame from "../../classes/FootballGame.js";
 import FootballTeam from "../../classes/FootballTeam.js";
+import RegularSeason from "../../classes/RegularSeason.js";
 import { SPORTS } from "../../config.js";
 
 // FIXME: teams
@@ -33,7 +34,7 @@ function generateGames(sportId: number, teams: FootballTeam[] | BasketballTeam[]
         }
     }
 
-    localStorage.setItem('league-games-data', JSON.stringify(games))
+    RegularSeason.setGames(games)
 
     return games
 }

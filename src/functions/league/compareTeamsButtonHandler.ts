@@ -3,9 +3,10 @@ import BasketballGame from "../../classes/BasketballGame.js";
 import BasketballTeam from "../../classes/BasketballTeam.js";
 import FootballGame from "../../classes/FootballGame.js";
 import FootballTeam from "../../classes/FootballTeam.js";
+import { TeamsType } from "../../types.js";
 
 function compareTeamsButtonHandler(wrapper: HTMLElement, team: FootballTeam | BasketballTeam, games: FootballGame[] | BasketballGame[], btnWrapper: HTMLElement) {
-    let comparingTeams: FootballTeam[] | BasketballTeam[] = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams') || '') : []
+    let comparingTeams: TeamsType = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams') || '') : []
 
     const btn = document.createElement('button')
     btn.classList.add('comparison-btn')

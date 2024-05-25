@@ -1,8 +1,4 @@
-import BasketballGame from "./classes/BasketballGame";
-import BasketballTeam from "./classes/BasketballTeam";
-import FootballGame from "./classes/FootballGame";
-import FootballTeam from "./classes/FootballTeam";
-
+// i tuple persidaryti 
 export const SPORTS = {
   football: {
     id: 1,
@@ -37,23 +33,3 @@ export const ANIMAL_NAMES = [
   "Cobras",
 ];
 
-export type Container = HTMLDivElement
-
-// export const SPORT_TYPES = {
-//   [SPORTS.football.id]: {
-//     teamClass: FootballTeam,
-//     gameClass: FootballGame,
-//   },
-//   [SPORTS.basketball.id]: {
-//     teamClass: BasketballTeam,
-//     gameClass: BasketballGame,
-//   },
-// }
-
-export type PlayoffsTeams = {
-  team: string,
-  id: number | null,
-  totalScore: number,
-  wins: number,
-  scores: { playedIn: string, score: number | null }[]
-}[]

@@ -13,7 +13,6 @@ export default class FootballGame extends Game {
         const gameWrapper = document.createElement('div')
         gameWrapper.classList.add('game-wrapper')
 
-        gameWrapper.textContent = game.homeTeam.team + ' ' + game.awayTeam.team
 
         return gameWrapper
     }

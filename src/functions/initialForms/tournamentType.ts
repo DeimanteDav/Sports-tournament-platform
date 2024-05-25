@@ -1,4 +1,7 @@
-import { Container, SPORTS } from "../../config.js"
+import Playoffs from "../../classes/Playoffs.js"
+import RegularSeason from "../../classes/RegularSeason.js"
+import { SPORTS } from "../../config.js"
+import { Container } from "../../types.js"
 import generateTeams from "./generateTeams.js"
 
 function tournamentType(container: Container, teamsAmount: number) {
@@ -84,11 +87,14 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, teamsAmount
         roundsAmountInput.min = '1'
         roundsAmountInput.max = '5'
         roundsAmountInput.value = '1'
-        localStorage.setItem('rounds-amount', '1')
+        RegularSeason.setRoundsAmount(1)
     
         roundsAmountInput.addEventListener('change', (e) => {
             const amount = (e.target as HTMLInputElement).value
-            setLocalStorage('rounds-amount', amount)
+
+            if (!amount) throw new Error('rounds amount is not given')
+
+            RegularSeason.setRoundsAmount(+amount)
         })
     
         const relegationWrapper = document.createElement('relegation')
@@ -104,7 +110,10 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, teamsAmount
     
         relegationAmountInput.addEventListener('change', (e) => {
             const amount = (e.target as HTMLInputElement).value
-            setLocalStorage('relegation', amount)
+
+            if (!amount) throw new Error('relegation is not given')
+
+            RegularSeason.setRelegation(+amount)
         })
 
         // TODO: conditions
@@ -117,9 +126,8 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, teamsAmount
     } else {
         const oldInfoWrapper = document.getElementById('league-info')
         oldInfoWrapper?.remove()
-        localStorage.removeItem('rounds-amount')
-        localStorage.removeItem('relegations')
-        localStorage.removeItem('conditions')
+
+        RegularSeason.removeData()
     }
 }
 
@@ -184,7 +192,8 @@ function playoffsSwitchHadler(checked: boolean, wrapper: HTMLElement, teamsAmoun
     } else {
         const oldInfoWrapper = document.getElementById('playoffs-info')
         oldInfoWrapper?.remove()
-        localStorage.removeItem('playoffs-data')
+
+        Playoffs.removeData()
     }
 }
 
@@ -218,7 +227,8 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
         playoffsData.roundsData[property].bestOutOf = null
     })
 
-    localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
+
+    Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
 
     const prevRoundsInfoWrapper = document.getElementById('rounds-info-wrapper')
     prevRoundsInfoWrapper && prevRoundsInfoWrapper.remove()
@@ -261,7 +271,8 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
             singleKnockoutBtn.classList.add('clicked')
 
             playoffsData.roundsData[round].knockouts = 1
-            localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
+
+            Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
         })
 
         doubleKnockoutBtn.addEventListener('click', (e) => {
@@ -274,7 +285,7 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
 
             playoffsData.roundsData[round].knockouts = 2
 
-            localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
+            Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
         })
 
         knockoutsWrapper.append(singleKnockoutBtn, doubleKnockoutBtn)
@@ -318,7 +329,7 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
                                 playoffsData.roundsData[round].knockouts = null
                                 playoffsData.roundsData[round].bestOutOf = 2 
                             }
-                            localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
+                            Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
                         }
                         btn.removeAttribute('disabled')
                     })
@@ -363,7 +374,7 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
                     playoffsData.roundsData[round].knockouts = null 
                     playoffsData.roundsData[round].bestOutOf = amount
         
-                    localStorage.setItem('playoffs-data', JSON.stringify(playoffsData))
+                    Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
                 })
 
                 bestOutOfWrapper.append(bestOutOfButton)
@@ -379,13 +390,4 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
     })
 
     wrapper.append(roundsInfoWrapper)
-}
-
-
-function setLocalStorage(key: string, value: string) {
-    if (value) {
-        localStorage.setItem(key, value)
-    } else {
-        localStorage.removeItem(key)
-    }
 }
