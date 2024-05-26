@@ -1,12 +1,11 @@
-import BasketballGame from "../../classes/BasketballGame.js";
-import FootballGame from "../../classes/FootballGame.js";
 import compareGamesData from "../../functions/league/compareGamesData.js";
 import getModernTableHeadItems from "../../functions/league/getModernTableHeadItems.js";
 import sortTeams from "../../functions/sortTeams.js";
+import { GamesType } from "../../types.js";
 import modernLeagueTable from "./modernLeagueTable.js";
 import oldLeagueTable from "./oldLeagueTable.js";
 
-function comparisonTable(wrapper: HTMLElement, games: FootballGame[] | BasketballGame[]) {
+function comparisonTable(wrapper: HTMLElement, games: GamesType) {
     const teams = localStorage.getItem('comparing-teams') && JSON.parse(localStorage.getItem('comparing-teams') || '')
 
     const sportId: number = localStorage.getItem('sport') && JSON.parse(localStorage.getItem('sport') || '').id

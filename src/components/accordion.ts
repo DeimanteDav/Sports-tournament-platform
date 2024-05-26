@@ -1,7 +1,8 @@
 import BasketballGame from "../classes/BasketballGame"
 import FootballGame from "../classes/FootballGame"
+import { GamesType } from "../types"
 
-function accordion(form: HTMLElement, btnText: string, legs: number[], games: FootballGame[] | BasketballGame[]) {
+function accordion(form: HTMLElement, btnText: string, legs: number[], games: GamesType) {
     const accordionWrapper = document.createElement('div')
 
     const accordionBtn = document.createElement('button')
@@ -43,7 +44,7 @@ function accordion(form: HTMLElement, btnText: string, legs: number[], games: Fo
 }
 export default accordion
 
-function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number, games: FootballGame[] | BasketballGame[]) {
+function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number, games: GamesType) {
     const accordionWrapper = document.createElement('div')
 
     const accordionBtn = document.createElement('button')

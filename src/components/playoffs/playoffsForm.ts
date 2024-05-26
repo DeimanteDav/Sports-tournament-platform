@@ -9,7 +9,7 @@ import updateGameData from "../../functions/updateGameData.js";
 import Game from "../../classes/Game.js";
 import overtimeGameHandler from "../../functions/overtimeGameHandler.js";
 import winnerElement from "./winnerElement.js";
-import { Container } from "../../types.js";
+import { Container, GamesType } from "../../types.js";
 import Playoffs from "../../classes/Playoffs.js";
 
 function playoffsForm(container: Container, params: { leagueTableUpdated: boolean } = { leagueTableUpdated: false } ) {
@@ -137,7 +137,7 @@ function playoffsForm(container: Container, params: { leagueTableUpdated: boolea
         Playoffs.setPairsData(pairsData)
 
         
-        let roundGames: FootballGame[] | BasketballGame[] = []
+        let roundGames: GamesType = []
         pairsData[round].forEach(round => {
             roundGames.push(...round.games)
         })

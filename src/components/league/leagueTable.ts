@@ -1,15 +1,11 @@
-import { Container } from "../../types.js";
-import BasketballGame from "../../classes/BasketballGame.js";
-import BasketballTeam from "../../classes/BasketballTeam.js";
-import FootballGame from "../../classes/FootballGame.js";
-import FootballTeam from "../../classes/FootballTeam.js";
+import { Container, GamesType, TeamsType } from "../../types.js";
 import checkTeamPosition from "../../functions/league/checkTeamPosition.js";
 import sortTeams from "../../functions/sortTeams.js";
 import comparisonTable from "./comparisonTable.js";
 import modernLeagueTable from "./modernLeagueTable.js";
 import oldLeagueTable from "./oldLeagueTable.js";
 
-function leagueTable(container: Container, games: BasketballGame[] | FootballGame[], teams: FootballTeam[] | BasketballTeam[]) {
+function leagueTable(container: Container, games: GamesType, teams: TeamsType) {
     const sortedTeams = sortTeams(teams, games, {compareBetweenGames: true})
 
     sortedTeams.forEach((sortedTeam, i) => {
@@ -44,7 +40,7 @@ function leagueTable(container: Container, games: BasketballGame[] | FootballGam
         modernLeagueTable(tableWrapper, games, sortedTeams, {comparisonBtn: true, position: true})
     }
 
-    const comparingTeams: FootballTeam[] | BasketballTeam[] = localStorage.getItem('comparing-teams') && JSON.parse(localStorage.getItem('comparing-teams') || '')
+    const comparingTeams: TeamsType = localStorage.getItem('comparing-teams') && JSON.parse(localStorage.getItem('comparing-teams') || '')
 
     console.log('49', comparingTeams, tableType);
     if (comparingTeams?.length > 0) {

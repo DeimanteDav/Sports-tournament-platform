@@ -1,11 +1,8 @@
-import BasketballGame from "../../classes/BasketballGame.js";
-import BasketballTeam from "../../classes/BasketballTeam.js";
-import FootballGame from "../../classes/FootballGame.js";
-import FootballTeam from "../../classes/FootballTeam.js";
+import { GamesType, TeamsType } from "../../types.js";
 import getInbetweenTeamsGames from "../getInbetweenTeamsGames.js";
 
 
-function checkTeamPosition(teams: (FootballTeam | BasketballTeam)[], games: FootballGame[] | BasketballGame[]) {
+function checkTeamPosition(teams: TeamsType, games: GamesType) {
     const roundsAmount = localStorage.getItem('rounds-amount')
 
     if (!roundsAmount) {

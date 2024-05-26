@@ -1,11 +1,12 @@
 import BasketballGame from "../../classes/BasketballGame.js"
 import FootballGame from "../../classes/FootballGame.js"
-import { PlayoffsTeams, SPORTS } from "../../config.js"
+import { SPORTS } from "../../config.js"
+import { GamesType, PlayoffsTeam } from "../../types.js"
 
-function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | BasketballGame[]) {
+function setPlayoffPairTeams(sportId: number, pairGames: GamesType) {
     const pairTeams = pairGames[0].teams
 
-    const teamsData: PlayoffsTeams = []
+    const teamsData: PlayoffsTeam[] = []
 
     pairTeams.forEach(team => {
         const scores: { playedIn: string, score: number | null }[] = []
@@ -20,7 +21,7 @@ function setPlayoffPairTeams(sportId: number, pairGames: FootballGame[] | Basket
             let gameScores = (gameTeam && gameTeam.goals) ? gameTeam.goals: 0
             let gameOppScores =  (gameOppTeam && gameOppTeam.goals) ? gameOppTeam.goals: 0
 
-            const teamScoreData = {score: 0, playedIn: ''}
+            const teamScoreData: {score: number | null, playedIn: string} = {score: 0, playedIn: ''}
             
             if (gameTeam && gameOppTeam) {
                 let teamOvertimeScore = 0

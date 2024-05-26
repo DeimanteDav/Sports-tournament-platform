@@ -4,10 +4,10 @@ import BasketballGame from "../classes/BasketballGame.js";
 import BasketballTeam from "../classes/BasketballTeam.js";
 import FootballGame from "../classes/FootballGame.js";
 import FootballTeam from "../classes/FootballTeam.js";
-import { Container } from "../types.js";
+import { Container, GamesType, TeamsType } from "../types.js";
 import RegularSeason from "../classes/RegularSeason.js";
 
-function updateTeamsData(container: Container, games: FootballGame[] | BasketballGame[], updatedGame: BasketballGame | FootballGame, oldGame: BasketballGame | FootballGame, allTeams: BasketballTeam[] | FootballTeam[]) { 
+function updateTeamsData(container: Container, games: GamesType, updatedGame: BasketballGame | FootballGame, oldGame: BasketballGame | FootballGame, allTeams: TeamsType) { 
     const playingTeams = allTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.id))
 
     playingTeams.forEach(team => {

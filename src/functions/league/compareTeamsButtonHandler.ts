@@ -1,11 +1,9 @@
 import comparisonTable from "../../components/league/comparisonTable.js";
-import BasketballGame from "../../classes/BasketballGame.js";
 import BasketballTeam from "../../classes/BasketballTeam.js";
-import FootballGame from "../../classes/FootballGame.js";
 import FootballTeam from "../../classes/FootballTeam.js";
-import { TeamsType } from "../../types.js";
+import { GamesType, TeamsType } from "../../types.js";
 
-function compareTeamsButtonHandler(wrapper: HTMLElement, team: FootballTeam | BasketballTeam, games: FootballGame[] | BasketballGame[], btnWrapper: HTMLElement) {
+function compareTeamsButtonHandler(wrapper: HTMLElement, team: FootballTeam | BasketballTeam, games: GamesType, btnWrapper: HTMLElement) {
     let comparingTeams: TeamsType = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams') || '') : []
 
     const btn = document.createElement('button')
