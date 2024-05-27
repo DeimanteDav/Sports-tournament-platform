@@ -9,7 +9,7 @@ import updateGameData from "../../functions/updateGameData.js";
 import Game from "../../classes/Game.js";
 import overtimeGameHandler from "../../functions/overtimeGameHandler.js";
 import winnerElement from "./winnerElement.js";
-import { Container } from "../../types.js";
+import { Container, GamesType } from "../../types.js";
 import Playoffs from "../../classes/Playoffs.js";
 
 function playoffsForm(container: Container, params: { leagueTableUpdated: boolean } = { leagueTableUpdated: false } ) {
@@ -137,7 +137,7 @@ function playoffsForm(container: Container, params: { leagueTableUpdated: boolea
         Playoffs.setPairsData(pairsData)
 
         
-        let roundGames: FootballGame[] | BasketballGame[] = []
+        let roundGames: (FootballGame | BasketballGame)[] = []
         pairsData[round].forEach(round => {
             roundGames.push(...round.games)
         })
@@ -426,7 +426,7 @@ function playoffsForm(container: Container, params: { leagueTableUpdated: boolea
 
                     if (pairData.winnerId) {
                         game.played = false
-                        const winnningTeam = playoffTeams.find(team => team.id === pairData.winnerId)!
+                        const winnningTeam = teams.find(team => team.id === pairData.winnerId)!
                         
                         const winnerData = {team: winnningTeam.team, id: winnningTeam.id}
 
@@ -441,6 +441,7 @@ function playoffsForm(container: Container, params: { leagueTableUpdated: boolea
                             input.value = ''
                             game.played = false
                             game.playedAll = false
+                            
 
                             setNextPairElements(game.teams, pairId, i, nextPairLabel, winnerData)
                             

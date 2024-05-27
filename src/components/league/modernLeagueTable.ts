@@ -1,11 +1,10 @@
-import BasketballGame from "../../classes/BasketballGame.js";
 import BasketballTeam from "../../classes/BasketballTeam.js";
-import FootballGame from "../../classes/FootballGame.js";
 import FootballTeam from "../../classes/FootballTeam.js";
 import compareTeamsButtonHandler from "../../functions/league/compareTeamsButtonHandler.js";
 import getModernTableHeadItems from "../../functions/league/getModernTableHeadItems.js";
+import { GamesType } from "../../types.js";
 
-function modernLeagueTable(wrapper: HTMLElement, games: FootballGame[] | BasketballGame[], teams: (FootballTeam | BasketballTeam)[], params: {comparisonBtn?: boolean, position?: boolean, comparisonTable?: boolean} = {comparisonBtn: false, position: false, comparisonTable: false}) {
+function modernLeagueTable(wrapper: HTMLElement, games: GamesType, teams: (FootballTeam | BasketballTeam)[], params: {comparisonBtn?: boolean, position?: boolean, comparisonTable?: boolean} = {comparisonBtn: false, position: false, comparisonTable: false}) {
     const {comparisonBtn, position, comparisonTable} = params
 
     const sportId = JSON.parse(localStorage.getItem('sport') || '').id

@@ -4,9 +4,10 @@ import FootballGame from "../../classes/FootballGame.js";
 import FootballTeam from "../../classes/FootballTeam.js";
 import RegularSeason from "../../classes/RegularSeason.js";
 import { SPORTS } from "../../config.js";
+import { TeamsType } from "../../types.js";
 
 // FIXME: teams
-function generateGames(sportId: number, teams: FootballTeam[] | BasketballTeam[] | (FootballTeam | BasketballTeam)[], roundsAmount: number) {
+function generateGames(sportId: number, teams: TeamsType | (FootballTeam | BasketballTeam)[], roundsAmount: number) {
     let games = []
     let gameId = 0
 

@@ -1,15 +1,14 @@
 import { SPORTS } from "../config.js";
-import BasketballGame from "../classes/BasketballGame.js"
-import FootballGame from "../classes/FootballGame.js"
 import BasketballTeam from "../classes/BasketballTeam.js"
 import FootballTeam from "../classes/FootballTeam.js"
 import compareGamesData from "./league/compareGamesData.js";
+import { GamesType, TeamsType } from "../types.js";
 
-function sortTeams(teams: (FootballTeam | BasketballTeam)[], games: FootballGame[] | BasketballGame[], params: {compareBetweenGames: boolean} = {compareBetweenGames: false}) {
+function sortTeams(teams: TeamsType, games: GamesType, params: {compareBetweenGames: boolean} = {compareBetweenGames: false}) {
     const {compareBetweenGames} = params
     const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
 
-    const samePointsTeams: (FootballTeam | BasketballTeam)[] = []
+    const samePointsTeams: (BasketballTeam | FootballTeam)[] = []
 
     const result = teams.sort((a, b) => {
         if (a.points > b.points) {

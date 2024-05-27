@@ -1,13 +1,10 @@
 
 import BasketballGame from "../../classes/BasketballGame.js"
-import BasketballTeam from "../../classes/BasketballTeam.js"
-import FootballGame from "../../classes/FootballGame.js"
-import FootballTeam from "../../classes/FootballTeam.js"
 import { SPORTS } from "../../config.js"
-import { TeamsType } from "../../types.js"
+import { GamesType, TeamsType } from "../../types.js"
 import getInbetweenTeamsGames from "../getInbetweenTeamsGames.js"
 
-function compareGamesData(teams: TeamsType, games: FootballGame[] | BasketballGame[]) {
+function compareGamesData(teams: TeamsType, games: GamesType) {
     const teamsData: {
         [key: number]: {
             team: string,

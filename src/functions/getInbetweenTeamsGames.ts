@@ -1,11 +1,8 @@
-import BasketballGame from "../classes/BasketballGame"
-import BasketballTeam from "../classes/BasketballTeam"
-import FootballGame from "../classes/FootballGame"
-import FootballTeam from "../classes/FootballTeam"
+import { GamesType, TeamsType } from "../types"
 
-function  getInbetweenTeamsGames(teams: (BasketballTeam | FootballTeam)[], games: FootballGame[] | BasketballGame[], params: {allGames: boolean} = {allGames: false}) {
+function  getInbetweenTeamsGames(teams: TeamsType, games: GamesType, params: {allGames: boolean} = {allGames: false}) {
     const {allGames} = params
-    const inbetweenGames: FootballGame[] | BasketballGame[] = []
+    const inbetweenGames: GamesType = []
 
     // FIXME: game type
     games.forEach(game => {

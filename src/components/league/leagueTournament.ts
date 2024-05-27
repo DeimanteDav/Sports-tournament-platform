@@ -25,9 +25,7 @@ function leagueTournament(container: Container) {
 
         const legs = [...new Set(roundGames.map(game => game.leg))]
 
-        const roundGamesClasses = roundGames as FootballGame[] | BasketballGame[]
-
-        accordion(gamesForm, btnText, legs, roundGamesClasses)
+        accordion(gamesForm, btnText, legs, roundGames)
     }
 
 
@@ -152,7 +150,7 @@ function leagueTournament(container: Container) {
             }
         });
     })
-    gamesForm.after()
+
     container.append(gamesForm, generateScoresBtn, changeTableBtn)
 
     leagueTable(container, games, teams)

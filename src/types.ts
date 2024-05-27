@@ -14,10 +14,11 @@ export interface PlayoffsTeam {
 export type Container = HTMLDivElement
 
 export type TeamsType = BasketballTeam[] | FootballTeam[] | (BasketballTeam | FootballTeam)[]
+export type GamesType = BasketballGame[] | FootballGame[] | (BasketballGame | FootballGame)[]
 
 export interface PlayoffsPairInterface {
     id: number
-    games: FootballGame[] | BasketballGame[]
+    games: GamesType
     prevIds: number[]
     nextId: number
     teams: PlayoffsTeam[] | []

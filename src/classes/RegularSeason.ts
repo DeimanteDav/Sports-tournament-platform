@@ -1,13 +1,11 @@
-import { TeamsType } from "../types.js"
-import BasketballGame from "./BasketballGame.js"
-import FootballGame from "./FootballGame.js"
+import { GamesType, TeamsType } from "../types.js"
 import League from "./League.js"
 
 interface DataType {
     teams: TeamsType
     gamesAmount: number
     roundsAmount: number
-    games: BasketballGame[] | FootballGame[] | (BasketballGame | FootballGame)[]
+    games: GamesType
     relegation?: number | null
 }
 
