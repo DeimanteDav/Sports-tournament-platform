@@ -17,22 +17,19 @@ function generateTeams(container: Container) {
     const sportId = localStorage.getItem('sport') ? JSON.parse(localStorage.getItem('sport') || '').id : null
 
     const regularSeason = RegularSeason.getData()
-
     const playoffs = Playoffs.getData()
 
-    let team: typeof FootballTeam | typeof BasketballTeam
+    let Team: typeof FootballTeam | typeof BasketballTeam
     if (sportId === SPORTS.football.id) {
-        team = FootballTeam
+        Team = FootballTeam
     } else if (sportId === SPORTS.basketball.id) {
-        team = BasketballTeam
+        Team = BasketballTeam
     }
-
-
 
     if (regularSeason) {
         const totalGames = regularSeason?.roundsAmount ? (teamNames.length-1)* regularSeason?.roundsAmount : (teamNames.length-1)
 
-        const leagueTeams = teamNames.map((name, i) => new team(name, i+1, totalGames, teamNames.length))
+        const leagueTeams = teamNames.map((name, i) => new Team(name, i+1, totalGames, teamNames.length))
 
         const games = generateGames(sportId, leagueTeams, regularSeason?.roundsAmount)
 
@@ -42,7 +39,6 @@ function generateTeams(container: Container) {
 
 
         titleWrapper(container)
-        // leagueTournament(container, games, leagueTeams)
         leagueTournament(container)
 
         if (playoffs) {
@@ -51,7 +47,7 @@ function generateTeams(container: Container) {
             playoffsForm(container)
         }
     } else if (playoffs) {
-        const allTeams = teamNames.map((name, i) => new team(name, i+1, playoffs?.teamsAmount, teamNames.length))
+        const allTeams = teamNames.map((name, i) => new Team(name, i+1, playoffs?.teamsAmount, teamNames.length))
 
         Playoffs.setTeams(allTeams)
         

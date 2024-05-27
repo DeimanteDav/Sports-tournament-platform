@@ -10,10 +10,9 @@ import Playoffs from "../classes/Playoffs.js";
 import playoffsForm from "../components/playoffs/playoffsForm.js";
 
 function updateTeamsData(container: Container, games: GamesType, updatedGame: BasketballGame | FootballGame, oldGame: BasketballGame | FootballGame, allTeams: TeamsType) { 
-    const playingTeams = allTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.id))
+    const playingTeams = allTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.teamId))
 
     playingTeams.forEach(team => {
-
         changeTeamData(oldGame, team, {old: true})
 
         changeTeamData(updatedGame, team)
@@ -21,24 +20,25 @@ function updateTeamsData(container: Container, games: GamesType, updatedGame: Ba
 
     leagueTable(container, games, allTeams)
 
-    // TODO: playoffs
     const playoffsData = Playoffs.getData()
-
-    console.log(playoffsData);
+    
     if (playoffsData) {
-        const {teams: playoffsTeams, roundsData, teamsAmount} = playoffsData
+        const {teams: playoffsTeams, teamsAmount} = playoffsData
 
         const teamsToPlayoffs = allTeams.slice(0, teamsAmount)
 
-        let leagueTableUpdated = !teamsToPlayoffs.every((team, i) => (
-            team.id === playoffsTeams[i].id
-        ));
+        let leagueTableUpdated = !teamsToPlayoffs.every((team, i) => {
+            console.log(team.teamId);
+            return team.teamId === playoffsTeams[i].teamId
+    });
  
+        console.log(leagueTableUpdated, teamsToPlayoffs);
         if (leagueTableUpdated) {
             Playoffs.setTeams(teamsToPlayoffs)
             playoffsForm(container, {leagueTableUpdated: true})
         }
     }
+    
     RegularSeason.setTeams(allTeams)
 }
 

@@ -23,8 +23,6 @@ function compareGamesData(teams: TeamsType, games: GamesType) {
             winPerc?: number
         }
     } = {}
-
-    console.log(teams);
     const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
 
     if (!games) {

@@ -50,7 +50,39 @@ interface Playoffs {
 // }
 
 export default abstract class League {
-    constructor (private teams: TeamsType) {
-        this.teams = teams
+    private teams: TeamsType
+    // public sport:
+
+    get leagueTeams() {
+        if (this.teams) {
+            return this.teams
+        }
+
+        throw new Error('no teams in league')
+    }
+
+    set leagueTeams(newTeams) {
+        const leagueTeams = localStorage.getItem('teams')
+
+        if (leagueTeams) {
+            this.teams = JSON.parse(leagueTeams)
+        } else {
+            this.teams = newTeams
+            localStorage.setItem('teams', JSON.stringify(newTeams))
+        }
+    }
+
+
+    get sportType() {
+        // if (this.sport) {
+        //     return this.sport
+        // }
+
+        throw new Error('no sport type in league')
+    }
+
+    constructor () {
+        this.teams = []
+        // this.sport = {}
     }
 }

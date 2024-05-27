@@ -268,6 +268,7 @@ function playoffsForm(container: Container, params: { leagueTableUpdated: boolea
                 const newGame = new Game(lastGame.id, lastGame.leg, lastGame.round, null, gameTeams[0], gameTeams[1])
             
                 footballLastGame.extraTime = newGame
+                footballLastGame.playedAll = false
 
                 lastGameInputs.forEach((input, i) => {
                     const extraTimeInput = document.createElement('input')
@@ -281,6 +282,9 @@ function playoffsForm(container: Container, params: { leagueTableUpdated: boolea
                 footballLastGame.extraTime = null
                 footballLastGame.shootout = null
 
+                if (footballLastGame.teams.every(team => team.goals)) {
+                    footballLastGame.playedAll = true
+                }
                 lastGameInputs.forEach(input => {
                     if (input.dataset.shootout || input.dataset.extraTime) {
                         input.remove()
@@ -441,7 +445,7 @@ function playoffsForm(container: Container, params: { leagueTableUpdated: boolea
                             input.value = ''
                             game.played = false
                             game.playedAll = false
-                            
+
 
                             setNextPairElements(game.teams, pairId, i, nextPairLabel, winnerData)
                             

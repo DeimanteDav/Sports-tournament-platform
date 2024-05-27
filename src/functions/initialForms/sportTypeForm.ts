@@ -1,7 +1,7 @@
-import { Container, SPORTS } from "../../config.js"
+import { SPORTS } from "../../config.js"
 import teamsAmountForm from "./teamsAmountForm.js"
 
-function sportTypeForm(container: Container) {
+function sportTypeForm(container: HTMLDivElement) {
     localStorage.clear()
 
     const form = document.createElement('form')

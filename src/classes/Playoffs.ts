@@ -24,19 +24,20 @@ export default class Playoffs extends League  {
     }
 
     static getData(nec?: boolean) {
-        const playoffsData = localStorage.getItem('playoffs-data-test')
+        const playoffsData = localStorage.getItem('playoffs-data')
 
         if (playoffsData) {
             let result: DataType = JSON.parse(playoffsData)
             return result
-        } else if (nec) {
-            return {
-                teams: [],
-                teamsAmount: 0,
-                roundsData: {},
-                pairsData: {}
-            }
         }
+        // } else if (nec) {
+        //     return {
+        //         teams: [],
+        //         teamsAmount: 0,
+        //         roundsData: {},
+        //         pairsData: {}
+        //     }
+        // }
 
         return null
     }
@@ -49,7 +50,7 @@ export default class Playoffs extends League  {
         const playoffTeams = teams.slice(0, oldData.teamsAmount)
         const updatedData = {...oldData, teams: playoffTeams}
 
-        localStorage.setItem('playoffs-data-test', JSON.stringify(updatedData))
+        localStorage.setItem('playoffs-data', JSON.stringify(updatedData))
     }
 
     static setPlayoffsData(teamsAmount: number, roundsData: DataType['roundsData']) {
@@ -59,7 +60,7 @@ export default class Playoffs extends League  {
 
         const updatedData = {...oldData, roundsData, teamsAmount}
     
-        localStorage.setItem('playoffs-data-test', JSON.stringify(updatedData))
+        localStorage.setItem('playoffs-data', JSON.stringify(updatedData))
     }
 
     static setPairsData(pairsData: DataType['pairsData']) {
@@ -69,10 +70,10 @@ export default class Playoffs extends League  {
 
         const updatedData = {...oldData, pairsData}
     
-        localStorage.setItem('playoffs-data-test', JSON.stringify(updatedData))
+        localStorage.setItem('playoffs-data', JSON.stringify(updatedData))
     }
 
     static removeData() {
-        localStorage.removeItem('playoffs-data-tests')
+        localStorage.removeItem('playoffs-data')
     }
 }

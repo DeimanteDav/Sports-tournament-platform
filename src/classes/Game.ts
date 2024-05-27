@@ -13,14 +13,14 @@ export default class Game {
     this.teams = [
       {
         team: homeT ? homeT.team : '',
-        id: homeT ? homeT.id : null,
+        id: homeT ? homeT.teamId : null,
         goals: null,
         home: true,
         away: false
       },
       {
         team: awayT ? awayT.team : '',
-        id: awayT ? awayT.id : null,
+        id: awayT ? awayT.teamId : null,
         goals: null,
         home: false,
         away: true,
