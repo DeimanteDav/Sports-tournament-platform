@@ -37,10 +37,10 @@ function tournamentType(container: Container, teamsAmount: number) {
 
     form.addEventListener('submit', (e) => {
         e.preventDefault()
-        const leagueData = localStorage.getItem('rounds-amount')
-        const playoffsData = localStorage.getItem('playoffs-data')
+        const regularSeason = RegularSeason.getData()
+        const playoffs = Playoffs.getData()
         
-        if (leagueData || playoffsData) {
+        if (regularSeason || playoffs) {
             form.remove()
             generateTeams(container)
         }

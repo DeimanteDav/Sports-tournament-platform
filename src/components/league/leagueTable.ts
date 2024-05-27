@@ -23,7 +23,6 @@ function leagueTable(container: Container, games: GamesType, teams: TeamsType) {
 
     const oldTableWrapper = document.querySelector('.table-wrapper')
     let tableWrapper: HTMLElement
-    console.log('OLD', oldTableWrapper);
 
     if (oldTableWrapper) {
         oldTableWrapper.innerHTML = ''

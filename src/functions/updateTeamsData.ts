@@ -16,69 +16,6 @@ function updateTeamsData(container: Container, games: GamesType, updatedGame: Ba
 
         changeTeamData(oldGame, team, {old: true})
 
-        // if (oldGameTeam && oldGameOppTeam) {
-        //     if (oldGame.played) {
-        //         team.playedGames--
-        //         team.gamesLeft++
-        //     } 
-            
-        //     let oldTeamTotalScore: number = oldGameTeam.goals ? oldGameTeam.goals : 0
-        //     let oldOppTeamTotalScore: number = oldGameOppTeam.goals ? oldGameOppTeam.goals : 0
-    
-        //     if (sportId === SPORTS.basketball.id) {
-        //         const basketballGame = oldGame as BasketballGame
-        //         const basketballTeam = team as BasketballTeam
-
-        //         basketballGame.overtime.forEach(overtime => {
-        //             const overtimeTeam = overtime.teams.find(oTeam => oTeam.id === oldGameTeam.id)!
-        //             const overtimeOppTeam = overtime.teams.find(oTeam => oTeam.id === oldGameOppTeam.id)!
-                    
-        //             if (overtimeTeam?.goals && overtimeOppTeam?.goals) {
-        //                 if (overtimeTeam.goals > overtimeOppTeam.goals) {
-        //                     basketballTeam.overtime.won--
-        //                 } else if (overtimeTeam.goals < overtimeOppTeam.goals) {
-        //                     basketballTeam.overtime.lost--
-        //                 }
-
-        //             }
-        //             oldTeamTotalScore += overtimeTeam.goals ? overtimeTeam.goals : 0
-        //             oldOppTeamTotalScore += overtimeOppTeam.goals ? overtimeOppTeam.goals : 0
-        //         })
-        //     }
-    
-    
-        //     if (oldTeamTotalScore > oldOppTeamTotalScore) {
-        //         team.wins--
-
-        //         if (sportId === SPORTS.basketball.id) {
-        //             (team as BasketballTeam).homeGames.won--
-        //         }
-        //     } else if (oldTeamTotalScore < oldOppTeamTotalScore) {
-        //         team.losses--
-                
-        //         if (sportId === SPORTS.basketball.id) {
-        //             (team as BasketballTeam).homeGames.lost--
-        //         } else if (sportId === SPORTS.football.id) {
-        //             (team as FootballTeam).awayWins--
-        //         }
-        //     } else if (oldTeamTotalScore === oldOppTeamTotalScore && sportId === SPORTS.football.id) {
-        //         (team as FootballTeam).draws++
-        //     }
-            
-        //     team.goals -= oldGameTeam.goals ? oldGameTeam.goals : 0
-        //     team.goalsMissed -= oldGameOppTeam.goals ? oldGameOppTeam.goals : 0
-        //     team.goalDifference = team.goals - team.goalsMissed
-    
-        //     if (oldGameTeam.away && sportId === SPORTS.football.id && oldGameTeam.goals) {
-        //         const footballTeam = team as FootballTeam
-        //         footballTeam.awayGoals -= oldGameTeam.goals
-    
-        //         if (oldGameOppTeam.goals && oldGameTeam.goals > oldGameOppTeam.goals) {
-        //             footballTeam.awayWins--
-        //         }
-        //     }
-        // }
-
         changeTeamData(updatedGame, team)
     })
 
@@ -86,24 +23,21 @@ function updateTeamsData(container: Container, games: GamesType, updatedGame: Ba
 
     // TODO: playoffs
     const playoffsData = Playoffs.getData()
+
     console.log(playoffsData);
     if (playoffsData) {
-        const {teams: playoffsTeams, roundsData} = playoffsData
+        const {teams: playoffsTeams, roundsData, teamsAmount} = playoffsData
 
-        const teamsToPlayoffs = allTeams.slice(0, playoffGamesData.teamsAmount)
+        const teamsToPlayoffs = allTeams.slice(0, teamsAmount)
 
-        let leagueTableUpdated = !teamsToPlayoffs.every((team, i) => Object.keys(team).every(p => {
-            console.log('cia', team, p, playoffsTeams, i, playoffsTeams[i]);
-            return team[p] === playoffsTeams[i][p]
-        }));
+        let leagueTableUpdated = !teamsToPlayoffs.every((team, i) => (
+            team.id === playoffsTeams[i].id
+        ));
  
-
-
-        // Playoffs.setTeams(teamsToPlayoffs)
-
-        // if (leagueTableUpdated) {
-        //     playoffsForm(container)
-        // }
+        if (leagueTableUpdated) {
+            Playoffs.setTeams(teamsToPlayoffs)
+            playoffsForm(container, {leagueTableUpdated: true})
+        }
     }
     RegularSeason.setTeams(allTeams)
 }
