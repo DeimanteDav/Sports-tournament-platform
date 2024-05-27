@@ -22,15 +22,19 @@ function leagueTable(container: Container, games: GamesType, teams: TeamsType) {
     }
 
     const oldTableWrapper = document.querySelector('.table-wrapper')
-    
+    let tableWrapper: HTMLElement
+    console.log('OLD', oldTableWrapper);
+
     if (oldTableWrapper) {
-        oldTableWrapper.remove()
-    } 
+        oldTableWrapper.innerHTML = ''
+        tableWrapper = oldTableWrapper as HTMLElement
+    } else {
+        tableWrapper = document.createElement('div')
+        tableWrapper.classList.add('table-wrapper')
+    
+        container.append(tableWrapper)
+    }
 
-    const tableWrapper = document.createElement('div')
-    tableWrapper.classList.add('table-wrapper')
-
-    container.append(tableWrapper)
 
     const tableType = localStorage.getItem('table-type') ? localStorage.getItem('table-type') : 'modern'
 
@@ -42,7 +46,6 @@ function leagueTable(container: Container, games: GamesType, teams: TeamsType) {
 
     const comparingTeams: TeamsType = localStorage.getItem('comparing-teams') && JSON.parse(localStorage.getItem('comparing-teams') || '')
 
-    console.log('49', comparingTeams, tableType);
     if (comparingTeams?.length > 0) {
         const updatedTeams = comparingTeams.map(oldTeam => {
             const updatedTeam = teams.find(team => team.team === oldTeam.team)

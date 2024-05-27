@@ -6,6 +6,8 @@ import FootballGame from "../classes/FootballGame.js";
 import FootballTeam from "../classes/FootballTeam.js";
 import { Container, GamesType, TeamsType } from "../types.js";
 import RegularSeason from "../classes/RegularSeason.js";
+import Playoffs from "../classes/Playoffs.js";
+import playoffsForm from "../components/playoffs/playoffsForm.js";
 
 function updateTeamsData(container: Container, games: GamesType, updatedGame: BasketballGame | FootballGame, oldGame: BasketballGame | FootballGame, allTeams: TeamsType) { 
     const playingTeams = allTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.id))
@@ -83,20 +85,26 @@ function updateTeamsData(container: Container, games: GamesType, updatedGame: Ba
     leagueTable(container, games, allTeams)
 
     // TODO: playoffs
-    // const playoffsTeamsData = JSON.parse(localStorage.getItem('playoffs-teams-data'))
-    // const playoffGamesData = JSON.parse(localStorage.getItem('playoffs-data'))
+    const playoffsData = Playoffs.getData()
+    console.log(playoffsData);
+    if (playoffsData) {
+        const {teams: playoffsTeams, roundsData} = playoffsData
 
-    // if (playoffGamesData) {
-    //     const teamsToPlayoffs = teams.slice(0, playoffGamesData.teamsAmount)
+        const teamsToPlayoffs = allTeams.slice(0, playoffGamesData.teamsAmount)
 
-    //     let leagueTableUpdated = !teamsToPlayoffs.every((team, i) => Object.keys(team).every(p => team[p] === playoffsTeamsData[i][p]));
+        let leagueTableUpdated = !teamsToPlayoffs.every((team, i) => Object.keys(team).every(p => {
+            console.log('cia', team, p, playoffsTeams, i, playoffsTeams[i]);
+            return team[p] === playoffsTeams[i][p]
+        }));
  
-    //     localStorage.setItem('playoffs-teams-data', JSON.stringify(teamsToPlayoffs))
 
-    //     if (leagueTableUpdated) {
-    //         playoffsForm(container, playoffGamesData, teamsToPlayoffs, {leagueTableUpdated})
-    //     }
-    // }
+
+        // Playoffs.setTeams(teamsToPlayoffs)
+
+        // if (leagueTableUpdated) {
+        //     playoffsForm(container)
+        // }
+    }
     RegularSeason.setTeams(allTeams)
 }
 

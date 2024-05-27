@@ -30,10 +30,8 @@ function comparisonTable(wrapper: HTMLElement, games: GamesType) {
         headItems?.forEach((item, i) => {
             if (i !== 0) {
                 if (typeof team[item.selector] === 'number') {
-                    console.log(team[item.selector]);
                     team[item.selector] = 0
                 } else if (typeof team[item.selector] === 'object') {
-                    console.log(team[item.selector]);
     
                     team[item.selector].won = 0
                     team[item.selector].lost = 0

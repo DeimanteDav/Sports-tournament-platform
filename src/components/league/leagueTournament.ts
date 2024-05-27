@@ -150,7 +150,7 @@ function leagueTournament(container: Container) {
             }
         });
     })
-    gamesForm.after()
+
     container.append(gamesForm, generateScoresBtn, changeTableBtn)
 
     leagueTable(container, games, teams)
