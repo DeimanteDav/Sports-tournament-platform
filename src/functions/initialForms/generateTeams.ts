@@ -9,15 +9,17 @@ import { Container } from "../../types.js";
 import playoffsForm from "../../components/playoffs/playoffsForm.js";
 import Playoffs from "../../classes/Playoffs.js";
 
-function generateTeams(container: Container) {
+function generateTeams(container: Container, gameTypes: {playoffs?: Playoffs, regularSeason?: RegularSeason}) {
     const teamNames: string[] = localStorage.getItem('team-names') ? JSON.parse(localStorage.getItem('team-names') || '') : null
+
+    const {playoffs, regularSeason} = gameTypes
 
     // const leagueRoundsAmount = localStorage.getItem('rounds-amount') ? JSON.parse(localStorage.getItem('rounds-amount') || '') : null
     // const playoffsData = localStorage.getItem('playoffs-data') ? JSON.parse(localStorage.getItem('playoffs-data') || '') : null
     const sportId = localStorage.getItem('sport') ? JSON.parse(localStorage.getItem('sport') || '').id : null
 
-    const regularSeason = RegularSeason.getData()
-    const playoffs = Playoffs.getData()
+    // const regularSeason = RegularSeason.getData()
+    // const playoffs = Playoffs.getData()
 
     let Team: typeof FootballTeam | typeof BasketballTeam
     if (sportId === SPORTS.football.id) {
@@ -33,24 +35,34 @@ function generateTeams(container: Container) {
 
         const games = generateGames(sportId, leagueTeams, regularSeason?.roundsAmount)
 
-        RegularSeason.setGamesAmount(totalGames)
-        RegularSeason.setTeams(leagueTeams)
-        RegularSeason.setGames(games)
+        // RegularSeason.setGamesAmount(totalGames)
+        // RegularSeason.setTeams(leagueTeams)
+        // RegularSeason.setGames(games)
 
+        regularSeason.games = games
+        regularSeason.leagueTeams = leagueTeams
+        regularSeason.gamesAmount = totalGames
 
         titleWrapper(container)
         leagueTournament(container)
 
         if (playoffs) {
-            Playoffs.setTeams(leagueTeams)
+            const playoffTeams = leagueTeams.slice(0, playoffs.teamsAmount)
+
+            playoffs.leagueTeams = leagueTeams
+            playoffs.playoffsTeams = playoffTeams
+            // Playoffs.setTeams(leagueTeams)
             
             playoffsForm(container)
         }
     } else if (playoffs) {
         const allTeams = teamNames.map((name, i) => new Team(name, i+1, playoffs?.teamsAmount, teamNames.length))
+        const playoffTeams = allTeams.slice(0, playoffs.teamsAmount)
 
-        Playoffs.setTeams(allTeams)
-        
+        playoffs.playoffsTeams = playoffTeams
+
+        // Playoffs.setTeams(allTeams)
+
         titleWrapper(container)
         // playoffsForm(container, playoffsData, playoffTeams)
         playoffsForm(container)

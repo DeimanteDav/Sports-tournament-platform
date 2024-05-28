@@ -10,17 +10,18 @@ export default class Game {
   pairId?: number | null
   
   constructor(id: number, leg: number, round: number | string, pairId?: number | null, homeT?: Team | null, awayT?: Team | null) {
+    // TODO: teamId
     this.teams = [
       {
         team: homeT ? homeT.team : '',
-        id: homeT ? homeT.teamId : null,
+        id: homeT ? homeT.id : null,
         goals: null,
         home: true,
         away: false
       },
       {
         team: awayT ? awayT.team : '',
-        id: awayT ? awayT.teamId : null,
+        id: awayT ? awayT.id : null,
         goals: null,
         home: false,
         away: true,

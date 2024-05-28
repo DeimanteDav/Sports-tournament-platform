@@ -10,27 +10,91 @@ import BasketballGame from "./BasketballGame.js"
 import Game from "./Game.js"
 import League from "./League.js"
 
-interface RegularSeasonInterface {
-    teams: TeamsType
-    gamesAmount: number
-    roundsAmount: number
-    games: GamesType
-    relegation?: number | null
-}
+// interface RegularSeasonInterface {
+//     _teams: TeamsType
+//     _gamesAmount: number
+//     _roundsAmount: number
+//     _games: GamesType
+//     _relegation?: number | null
+// }
 
 export default class RegularSeason extends League {
-    constructor(public gamesAmount: number, public roundsAmount: number, public relegation?: number) {
-        super()
+    private _gamesAmount: number
+    private _roundsAmount: number
+    private _games: GamesType
+    private _relegation: number | null
 
-        this.roundsAmount = 0
-        this.relegation = relegation
+    get gamesAmount() {
+        if (this._gamesAmount) {
+            return this._gamesAmount
+        }
+        throw new Error('no games amount')
+    }
+
+    set gamesAmount(amount) {
+        this._gamesAmount = amount
+        const updatedData = {...this, _gamesAmount: this._gamesAmount}
+
+        localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
+    }
+
+    get roundsAmount() {
+        if (this._roundsAmount) {
+            return this._roundsAmount
+        }
+        throw new Error('no rounds amount')
+    }
+
+    set roundsAmount(amount) {
+        this._roundsAmount = amount
+        const updatedData = {...this, _roundsAmount: this._roundsAmount}
+
+        localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
+    }
+    
+    get games() {
+        if (this._games) {
+            return this._games
+        }
+        throw new Error('no games')
+    }
+
+    set games(games) {
+        this._games = games
+        const updatedData = {...this, _games: this._games}
+
+        localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
+    }
+    
+    get relegation() {
+        if (this._relegation) {
+            return this._relegation
+        }
+        throw new Error('no relegation')
+    }
+
+    set relegation(amount: number | null) {
+        this._relegation = amount
+        const updatedData = {...this, _relegation: this._relegation}
+
+        localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
+    }
+
+
+
+    constructor(gamesAmount?: number, roundsAmount?: number, games?: GamesType, relegation?: number | null) {
+        super()
+        this._gamesAmount = gamesAmount ? gamesAmount : 0
+        this._roundsAmount = roundsAmount ? roundsAmount : 0
+        this._games = games ? games : []
+        this._relegation = relegation ? relegation : 0
     }
 
     static getData(nec?: boolean) {
         const regularSeasonData = localStorage.getItem('regular-season-data')
         
         if (regularSeasonData) {
-            let result: RegularSeasonInterface = JSON.parse(regularSeasonData)
+            let result = JSON.parse(regularSeasonData)
             return result
         } else if (nec) {
             return {
@@ -99,17 +163,17 @@ export default class RegularSeason extends League {
     }
 
     renderHtml(container: HTMLDivElement) {
-        const data = RegularSeason.getData()!
-        const {games, teams, roundsAmount} = data
+        // const data = RegularSeason.getData()!
+        // const {games, teams, roundsAmount} = data
     
         const gamesForm = document.createElement('form')
         gamesForm.id = 'games-form'
-        const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
+        // const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
     
-        for (let i = 0; i < roundsAmount; i++) {
+        for (let i = 0; i < this.roundsAmount; i++) {
             let round = i+1
             const btnText = `Round ${round}`
-            const roundGames = games.filter(game => game.round === round)
+            const roundGames = this.games.filter(game => game.round === round)
     
             const legs = [...new Set(roundGames.map(game => game.leg))]
     
@@ -124,7 +188,7 @@ export default class RegularSeason extends League {
             const gameWrapper = gameEl?.parentElement && gameEl.parentElement
             
             const gameId = gameEl?.dataset.gameId && +gameEl.dataset.gameId
-            const currentGame = games.find(game => game.id === gameId)
+            const currentGame = this._games.find(game => game.id === gameId)
             const overtimeId = target.dataset.overtime && +target.dataset.overtime
     
             const currentGameAllInputs = gameEl && [...gameEl.querySelectorAll<HTMLInputElement>('.result-input')]
@@ -139,17 +203,17 @@ export default class RegularSeason extends League {
                 return
             }
     
-            const gameTeams = teams.filter(team => team.id === currentGame.teams[0].id || team.id === currentGame.teams[1].id)
+            const gameTeams = this.leagueTeams.filter(team => team.id === currentGame.teams[0].id || team.id === currentGame.teams[1].id)
     
             const oldGame = JSON.parse(JSON.stringify(currentGame))
     
-            if (overtimeId && sportId === SPORTS.basketball.id) {
-                overtimeGameHandler(currentGame, gameWrapper, gameEl, gameTeams, overtimeId, sportId)
+            if (overtimeId && this.sportType.id === SPORTS.basketball.id) {
+                overtimeGameHandler(currentGame, gameWrapper, gameEl, gameTeams, overtimeId, this.sportType.id)
             }
     
-            updateGameData(gameWrapper, currentGameInputs, currentGame, sportId)
+            updateGameData(gameWrapper, currentGameInputs, currentGame, this.sportType.id)
     
-            if (sportId === SPORTS.basketball.id && !overtimeId) {
+            if (this.sportType.id === SPORTS.basketball.id && !overtimeId) {
                 const basketballGame = currentGame as BasketballGame
     
                 const equalGameGoals = currentGame.teams.every(team => currentGame.teams[0].goals === team.goals)
@@ -160,8 +224,9 @@ export default class RegularSeason extends League {
                     basketballGame.overtime.push(overtimeGame)
                     gameEl.parentElement && gameEl.parentElement.classList.remove('played')
                   
-                    currentGameAllInputs.forEach(input => {
+                    currentGameAllInputs.forEach((input, i) => {
                         const overtimeInput = document.createElement('input')
+                        overtimeInput.dataset.teamId = basketballGame.teams[i].id?.toString()
                         overtimeInput.dataset.overtime = basketballGame.overtime.length.toString()
                         overtimeInput.classList.add('result-input', 'overtime')
                         input.after(overtimeInput)
@@ -176,9 +241,9 @@ export default class RegularSeason extends League {
                 }
             }      
     
-            RegularSeason.setGames(games)
+            this.games = this.games
     
-            updateTeamsData(container, games, currentGame, oldGame, teams)
+            updateTeamsData(container, this.games, currentGame, oldGame, this.leagueTeams)
         })
     
         const changeTableBtn = document.createElement('button')
@@ -190,10 +255,10 @@ export default class RegularSeason extends League {
     
             if (prevTableType === 'modern' || !prevTableType) {
                 localStorage.setItem('table-type', 'old')
-                leagueTable(container, games, teams)
+                leagueTable(container, this.games, this.leagueTeams)
             } else {
                 localStorage.setItem('table-type', 'modern')
-                leagueTable(container, games, teams)
+                leagueTable(container, this.games, this.leagueTeams)
             }
         })
     
@@ -226,20 +291,20 @@ export default class RegularSeason extends League {
     
                 element.value = randomScore.toString()
     
-                const currentGame = games.find(game => game.id === gameId)
+                const currentGame = this.games.find(game => game.id === gameId)
     
                 if (currentGame) {
                     const oldGame = {...currentGame}
-                    updateGameData(gameWrapper, currentGameInputs, currentGame, sportId)
+                    updateGameData(gameWrapper, currentGameInputs, currentGame, this.sportType.id)
     
-                    RegularSeason.setGames(games)
-    
-                    updateTeamsData(container, games, currentGame, oldGame, teams)
+                    // RegularSeason.setGames(games)
+                    this.games = this._games
+                    updateTeamsData(container, this.games, currentGame, oldGame, this.leagueTeams)
                 }
             });
         })
     
         container.append(gamesForm, generateScoresBtn, changeTableBtn)
     
-        leagueTable(container, games, teams)    }
+        leagueTable(container, this.games, this.leagueTeams)    }
 }

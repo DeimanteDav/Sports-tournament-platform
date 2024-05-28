@@ -51,7 +51,7 @@ function modernLeagueTable(wrapper: HTMLElement, games: GamesType, teams: (Footb
             let selector = item.selector
 
             let value
-            if (typeof (team as any)[selector] === 'object') {
+            if (typeof (team as any)[selector] === 'object' && (team as any)[selector] !== null) {
                 const selected = (team as any)[selector]
                 value = `${selected.won} - ${selected.lost}`
             } else {

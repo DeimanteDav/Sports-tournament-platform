@@ -1,3 +1,4 @@
+import { SPORTS } from "../config.js"
 import { TeamsType } from "../types.js"
 
 interface RegularSeason {
@@ -50,12 +51,12 @@ interface Playoffs {
 // }
 
 export default abstract class League {
-    private teams: TeamsType
-    // public sport:
+    private _leagueTeams: TeamsType = []
+    private _sportType: {id: number, name: string, points: Object} | null = null
 
     get leagueTeams() {
-        if (this.teams) {
-            return this.teams
+        if (this._leagueTeams) {
+            return this._leagueTeams
         }
 
         throw new Error('no teams in league')
@@ -65,24 +66,24 @@ export default abstract class League {
         const leagueTeams = localStorage.getItem('teams')
 
         if (leagueTeams) {
-            this.teams = JSON.parse(leagueTeams)
+            this._leagueTeams = JSON.parse(leagueTeams)
         } else {
-            this.teams = newTeams
+            this._leagueTeams = newTeams
             localStorage.setItem('teams', JSON.stringify(newTeams))
         }
     }
 
 
     get sportType() {
-        // if (this.sport) {
-        //     return this.sport
-        // }
+        if (this._sportType) {
+            return this._sportType
+        }
 
         throw new Error('no sport type in league')
     }
 
-    constructor () {
-        this.teams = []
-        // this.sport = {}
+    set sportType(type) {
+        this._sportType = type
+        localStorage.setItem('sport-type', JSON.stringify(type))
     }
 }

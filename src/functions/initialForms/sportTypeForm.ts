@@ -53,7 +53,7 @@ function sportTypeForm(container: HTMLDivElement) {
             form.classList.remove('error')
             form.remove()
 
-            localStorage.setItem('sport', JSON.stringify(selectedSport))
+            localStorage.setItem('sport-type', JSON.stringify(selectedSport))
 
             teamsAmountForm(container)
         } else {
