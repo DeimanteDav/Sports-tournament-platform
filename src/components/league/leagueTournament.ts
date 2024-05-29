@@ -72,8 +72,10 @@ function leagueTournament(container: Container) {
                 basketballGame.overtime.push(overtimeGame)
                 gameEl.parentElement && gameEl.parentElement.classList.remove('played')
               
-                currentGameAllInputs.forEach(input => {
+                console.log('suveikiaa');
+                currentGameAllInputs.forEach((input, i) => {
                     const overtimeInput = document.createElement('input')
+                    overtimeInput.dataset.teamId = basketballGame.teams[i].id?.toString()
                     overtimeInput.dataset.overtime = basketballGame.overtime.length.toString()
                     overtimeInput.classList.add('result-input', 'overtime')
                     input.after(overtimeInput)

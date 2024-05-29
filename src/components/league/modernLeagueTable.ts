@@ -1,13 +1,12 @@
 import BasketballTeam from "../../classes/BasketballTeam.js";
 import FootballTeam from "../../classes/FootballTeam.js";
+import RegularSeason from "../../classes/RegularSeason.js";
 import compareTeamsButtonHandler from "../../functions/league/compareTeamsButtonHandler.js";
 import getModernTableHeadItems from "../../functions/league/getModernTableHeadItems.js";
 import { GamesType } from "../../types.js";
 
-function modernLeagueTable(wrapper: HTMLElement, games: GamesType, teams: (FootballTeam | BasketballTeam)[], params: {comparisonBtn?: boolean, position?: boolean, comparisonTable?: boolean} = {comparisonBtn: false, position: false, comparisonTable: false}) {
+function modernLeagueTable(wrapper: HTMLElement, sportData: RegularSeason['sportType'], games: GamesType, teams: (FootballTeam | BasketballTeam)[], params: {comparisonBtn?: boolean, position?: boolean, comparisonTable?: boolean} = {comparisonBtn: false, position: false, comparisonTable: false}) {
     const {comparisonBtn, position, comparisonTable} = params
-
-    const sportId = JSON.parse(localStorage.getItem('sport') || '').id
 
     const table = document.createElement('table')
     table.classList.add('table', 'modern-table')
@@ -21,7 +20,7 @@ function modernLeagueTable(wrapper: HTMLElement, games: GamesType, teams: (Footb
     const tableBody = document.createElement('tbody')
     const tHeadRow = document.createElement('tr')
 
-    const headItems: {text: string, title: string | null, selector: string}[] = getModernTableHeadItems(sportId , position)
+    const headItems: {text: string, title: string | null, selector: string}[] = getModernTableHeadItems(sportData.id , position)
 
     headItems && headItems.forEach(item => {
         const th = document.createElement('th')
@@ -51,7 +50,7 @@ function modernLeagueTable(wrapper: HTMLElement, games: GamesType, teams: (Footb
             let selector = item.selector
 
             let value
-            if (typeof (team as any)[selector] === 'object') {
+            if (typeof (team as any)[selector] === 'object' && (team as any)[selector] !== null) {
                 const selected = (team as any)[selector]
                 value = `${selected.won} - ${selected.lost}`
             } else {

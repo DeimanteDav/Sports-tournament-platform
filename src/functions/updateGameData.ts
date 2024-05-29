@@ -51,7 +51,6 @@ function updateGameData(gameWrapper: HTMLElement, inputs: HTMLInputElement[], cu
                 }
             } else if (sportId === SPORTS.football.id) {
                 const footballGame = currentGame as FootballGame
-
                 if (footballGame.extraTime && footballGame.shootout) {
                     if (footballGame.extraTime.played) {
                         gameWrapper.classList.add('played')
@@ -60,7 +59,7 @@ function updateGameData(gameWrapper: HTMLElement, inputs: HTMLInputElement[], cu
                         gameWrapper.classList.remove('played')
                         currentGame.playedAll = false
                     }
-                    
+
                     if (footballGame.shootout.played) {
                         gameWrapper.classList.add('played')
                         currentGame.playedAll = true

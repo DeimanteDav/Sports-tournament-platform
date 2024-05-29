@@ -1,5 +1,8 @@
 export default abstract class Team {
     team: string
+
+    // TODO:
+    // private id: number
     id: number
     playedGames: number = 0
     wins: number = 0
@@ -15,6 +18,10 @@ export default abstract class Team {
     maxPlace: number = 1
     minPlace: number
     totalGames: number
+
+    get teamId() {
+        return this.id
+    }
     
     constructor(team: string, id: number, totalGames: number, minPlace: number) {
         this.team = team

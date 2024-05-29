@@ -1,11 +1,12 @@
-import Playoffs from "../../classes/Playoffs.js"
+import Playoffs, { playoffsInteface } from "../../classes/Playoffs.js"
 import RegularSeason from "../../classes/RegularSeason.js"
 import { SPORTS } from "../../config.js"
 import { Container } from "../../types.js"
 import generateTeams from "./generateTeams.js"
 
 function tournamentType(container: Container, teamsAmount: number) {
-    const sportId = localStorage.getItem('sport') && JSON.parse(localStorage.getItem('sport') || '').id
+    const sportData = JSON.parse(localStorage.getItem('sport-type') || '')
+
     const form = document.createElement('form')
     form.classList.add('form')
 
@@ -17,7 +18,9 @@ function tournamentType(container: Container, teamsAmount: number) {
     const leagueText = document.createElement('p')
     leagueText.textContent = 'Regular Season'
 
-    const leagueSwitch = toggleSwitch(leagueSwitchHandler, leagueWrapper, [teamsAmount])
+
+    const regularSeasonData = new RegularSeason()
+    const leagueSwitch = toggleSwitch(leagueSwitchHandler, leagueWrapper, [regularSeasonData, teamsAmount, sportData])
 
 
     const playoffsTitleWrapper = document.createElement('div')
@@ -28,8 +31,9 @@ function tournamentType(container: Container, teamsAmount: number) {
     const playoffsText = document.createElement('p')
     playoffsText.textContent = 'Playoffs'
 
-    const playoffsSwitch = toggleSwitch(playoffsSwitchHadler, playoffsWrapper, [teamsAmount, sportId])
 
+    const playoffsData = new Playoffs()
+    const playoffsSwitch = toggleSwitch(playoffsSwitchHandler, playoffsWrapper, [playoffsData, teamsAmount, sportData])
 
     const submitBtn = document.createElement('button')
     submitBtn.type = 'submit'
@@ -39,10 +43,12 @@ function tournamentType(container: Container, teamsAmount: number) {
         e.preventDefault()
         const regularSeason = RegularSeason.getData()
         const playoffs = Playoffs.getData()
-        
+
+        console.log(regularSeasonData, playoffsData);
         if (regularSeason || playoffs) {
             form.remove()
-            generateTeams(container)
+
+            generateTeams(container, {playoffs: playoffs && playoffsData, regularSeason: regularSeason && regularSeasonData})
         }
     })
 
@@ -70,8 +76,10 @@ function toggleSwitch(switchHandler: Function, wrapper: HTMLElement, props: numb
     return toggle
 }
 
-function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, teamsAmount: number) {
+function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, regularSeasonData: RegularSeason, teamsAmount: number, sportData: {id: number, name: string, points: Object}) {
     if (checked) {
+        regularSeasonData.sportType = sportData
+
         const infoWrapper = document.createElement('div')
         infoWrapper.id = 'league-info'
         infoWrapper.classList.add('games-info')
@@ -87,14 +95,16 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, teamsAmount
         roundsAmountInput.min = '1'
         roundsAmountInput.max = '5'
         roundsAmountInput.value = '1'
-        RegularSeason.setRoundsAmount(1)
+        regularSeasonData.roundsAmount = 1
+        // RegularSeason.setRoundsAmount(1)
     
         roundsAmountInput.addEventListener('change', (e) => {
             const amount = (e.target as HTMLInputElement).value
 
             if (!amount) throw new Error('rounds amount is not given')
 
-            RegularSeason.setRoundsAmount(+amount)
+            regularSeasonData.roundsAmount = +amount
+            // RegularSeason.setRoundsAmount(+amount)
         })
     
         const relegationWrapper = document.createElement('relegation')
@@ -110,10 +120,14 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, teamsAmount
     
         relegationAmountInput.addEventListener('change', (e) => {
             const amount = (e.target as HTMLInputElement).value
+            console.log(amount);
+            if (!amount) {
+                regularSeasonData.relegation = null
+            } else {
+                regularSeasonData.relegation = +amount
+            }
 
-            if (!amount) throw new Error('relegation is not given')
-
-            RegularSeason.setRelegation(+amount)
+            // RegularSeason.setRelegation(+amount)
         })
 
         // TODO: conditions
@@ -126,17 +140,20 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, teamsAmount
     } else {
         const oldInfoWrapper = document.getElementById('league-info')
         oldInfoWrapper?.remove()
-
+        
         RegularSeason.removeData()
     }
 }
 
-function playoffsSwitchHadler(checked: boolean, wrapper: HTMLElement, teamsAmount: number, sportId: number) {
+function playoffsSwitchHandler(checked: boolean, wrapper: HTMLElement, playoffsData: Playoffs, teamsAmount: number, sportData: {id: number, name: string, points: Object}) {
     if (checked) {
-        const playoffsData = {
-            teamsAmount: 0,
-            roundsData: {}
-        }
+        console.log(playoffsData);
+        playoffsData.sportType = sportData
+
+        // const playoffsData = {
+        //     teamsAmount: 0,
+        //     roundsData: {}
+        // }
 
         const infoWrapper = document.createElement('div')
         infoWrapper.id = 'playoffs-info'
@@ -180,12 +197,12 @@ function playoffsSwitchHadler(checked: boolean, wrapper: HTMLElement, teamsAmoun
         infoWrapper.append(teamsAmountWrapper)
 
 
-        generatePlayoffsData(infoWrapper, 2, playoffsData, sportId)
+        generatePlayoffsData(infoWrapper, 2, playoffsData)
 
         possibleAmountsSelect.addEventListener('change', (e) => {
             const amount = Number((e.target as HTMLOptionElement).value)
 
-            generatePlayoffsData(infoWrapper, amount, playoffsData, sportId)
+            generatePlayoffsData(infoWrapper, amount, playoffsData)
         })
 
         wrapper.append(infoWrapper)
@@ -199,8 +216,9 @@ function playoffsSwitchHadler(checked: boolean, wrapper: HTMLElement, teamsAmoun
 
 
 // FIXME: roundsData ??????
-function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoffsData: {teamsAmount: number, roundsData: {[k: string]: any}}, sportId: number) {
+function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoffsData: Playoffs) {
     playoffsData.teamsAmount = teamsAmount
+
     let roundGamesAmount = teamsAmount/2
     let prevRoundGamesAmount
     let roundsInfo = []
@@ -217,18 +235,19 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
     }
     playoffsData.roundsData = {}
 
+    console.log(roundsInfo, playoffsData);
     roundsInfo.forEach(gamesAmount => {
         const property = gamesAmount === 1 ? 'final' : `1/${gamesAmount}`
 
-        playoffsData.roundsData[property] = {}
+        playoffsData.roundsData[property] = {
+            gamesAmount: 0, knockouts: 0, bestOutOf: null
+        }
         playoffsData.roundsData[property].gamesAmount = gamesAmount
-
         playoffsData.roundsData[property].knockouts = 1
         playoffsData.roundsData[property].bestOutOf = null
     })
-
-
-    Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+    // Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+    playoffsData.roundsData = playoffsData.roundsData
 
     const prevRoundsInfoWrapper = document.getElementById('rounds-info-wrapper')
     prevRoundsInfoWrapper && prevRoundsInfoWrapper.remove()
@@ -237,7 +256,7 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
     roundsInfoWrapper.id = 'rounds-info-wrapper'
 
     const roundsInfoTitle = document.createElement('p')
-    roundsInfoTitle.textContent = sportId === SPORTS.football.id ?'Knockouts single/double?' : 'Knockouts or Best out of number of games?'
+    roundsInfoTitle.textContent = playoffsData.sportType.id === SPORTS.football.id ? 'Knockouts single/double?' : 'Knockouts or Best out of number of games?'
 
     roundsInfoWrapper.append(roundsInfoTitle)
 
@@ -272,7 +291,9 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
 
             playoffsData.roundsData[round].knockouts = 1
 
-            Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+            // Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+            playoffsData.roundsData = playoffsData.roundsData
+
         })
 
         doubleKnockoutBtn.addEventListener('click', (e) => {
@@ -285,13 +306,14 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
 
             playoffsData.roundsData[round].knockouts = 2
 
-            Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+            // Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+            playoffsData.roundsData = playoffsData.roundsData
         })
 
         knockoutsWrapper.append(singleKnockoutBtn, doubleKnockoutBtn)
         buttonsWrapper.append(knockoutsWrapper)
 
-        if (sportId === SPORTS.basketball.id) {
+        if (playoffsData.sportType.id === SPORTS.basketball.id) {
             const gameTypesWrapper = document.createElement('div')
             const gameTypes = [
                 {type: 'Knockouts', id: `knockouts-${data.gamesAmount}`},
@@ -329,7 +351,9 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
                                 playoffsData.roundsData[round].knockouts = null
                                 playoffsData.roundsData[round].bestOutOf = 2 
                             }
-                            Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+                            // Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+                            playoffsData.roundsData = playoffsData.roundsData
+
                         }
                         btn.removeAttribute('disabled')
                     })
@@ -374,7 +398,9 @@ function generatePlayoffsData(wrapper: HTMLElement, teamsAmount: number, playoff
                     playoffsData.roundsData[round].knockouts = null 
                     playoffsData.roundsData[round].bestOutOf = amount
         
-                    Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+                    // Playoffs.setPlayoffsData(playoffsData.teamsAmount, playoffsData.roundsData)
+                    playoffsData.roundsData = playoffsData.roundsData
+
                 })
 
                 bestOutOfWrapper.append(bestOutOfButton)

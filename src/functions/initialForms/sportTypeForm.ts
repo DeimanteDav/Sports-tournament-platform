@@ -1,7 +1,7 @@
-import { Container, SPORTS } from "../../config.js"
+import { SPORTS } from "../../config.js"
 import teamsAmountForm from "./teamsAmountForm.js"
 
-function sportTypeForm(container: Container) {
+function sportTypeForm(container: HTMLDivElement) {
     localStorage.clear()
 
     const form = document.createElement('form')
@@ -53,7 +53,7 @@ function sportTypeForm(container: Container) {
             form.classList.remove('error')
             form.remove()
 
-            localStorage.setItem('sport', JSON.stringify(selectedSport))
+            localStorage.setItem('sport-type', JSON.stringify(selectedSport))
 
             teamsAmountForm(container)
         } else {
