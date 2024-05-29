@@ -15,34 +15,27 @@ function getLocalStorageData(container: Container) {
 
     if ((regularSeason || playoffs) && sportType) {
         titleWrapper(container)
-        // const sportType = JSON.parse(localStorage.getItem('sport-type') || '').id
 
-        if (regularSeason) {
-            // leagueTournament(container)
-            const regularSeasonData = new RegularSeason(regularSeason._gamesAmount, regularSeason._roundsAmount, regularSeason._games, regularSeason?._relegation)
-            
+        const regularSeasonData: null | RegularSeason = regularSeason && new RegularSeason(regularSeason._gamesAmount, regularSeason._roundsAmount, regularSeason._games, regularSeason?._relegation)
+
+        const playoffsData: null | Playoffs = playoffs && new Playoffs(playoffs.playoffsTeams, playoffs.teamsAmount, playoffs.roundsData, playoffs.pairsData)
+
+        if (regularSeasonData) {
             regularSeasonData.leagueTeams = regularSeason.leagueTeams
             regularSeasonData.sportType = JSON.parse(sportType)
             
-            regularSeasonData.renderHtml(container)
-
-            console.log(regularSeasonData);
-            // leagueTournament(container)
+            if (playoffs) {
+                regularSeasonData.renderHtml(container, playoffs)
+            } else {
+                regularSeasonData.renderHtml(container)
+            }
         }
 
-        if (playoffs) {
-            const playoffsData = new Playoffs(playoffs.playoffsTeams, playoffs.teamsAmount, playoffs.roundsData, playoffs.pairsData)
-
+        if (playoffsData) {
             playoffsData.leagueTeams = regularSeason ? regularSeason.leagueTeams : []
-
             playoffsData.sportType = JSON.parse(sportType)
 
-            // playoffsData.playoffsTeams = playoffs.teams
-            // playoffsData.teamsAmount = playoffs.teamsAmount
-            // playoffsData.roundsData = playoffs.roundsData
-            // playoffsData.pairsData = playoffs.pairsData
-
-            playoffsForm(container)
+            playoffsData.renderHtml(container)
         }
     } else {
         sportTypeForm(container)

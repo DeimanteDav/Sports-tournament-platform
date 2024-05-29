@@ -1,13 +1,6 @@
 import { SPORTS } from "../config.js"
 import { TeamsType } from "../types.js"
 
-interface RegularSeason {
-    roundsAmount?: number
-}
-interface Playoffs {
-
-}
-
 // export default class League implements RegularSeason, Playoffs {
 //     roundsAmount?: number
 //     private teams: FootballTeam[] | BasketballTeam[]
@@ -52,7 +45,7 @@ interface Playoffs {
 
 export default abstract class League {
     private _leagueTeams: TeamsType = []
-    private _sportType: {id: number, name: string, points: Object} | null = null
+    private _sportType: {id: number, name: string, points: {winPoints: number, lossPoints: number, technicalLossPoints?: number, drawPoints?: number}} | null = null
 
     get leagueTeams() {
         if (this._leagueTeams) {

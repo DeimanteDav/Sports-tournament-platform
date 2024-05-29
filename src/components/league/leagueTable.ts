@@ -4,9 +4,12 @@ import sortTeams from "../../functions/sortTeams.js";
 import comparisonTable from "./comparisonTable.js";
 import modernLeagueTable from "./modernLeagueTable.js";
 import oldLeagueTable from "./oldLeagueTable.js";
+import RegularSeason from "../../classes/RegularSeason.js";
 
-function leagueTable(container: Container, games: GamesType, teams: TeamsType) {
-    const sortedTeams = sortTeams(teams, games, {compareBetweenGames: true})
+function leagueTable(container: Container, data: RegularSeason) {
+    const {leagueTeams: teams, games, sportType} = data
+
+    const sortedTeams = sortTeams(sportType.id, data.leagueTeams, games, {compareBetweenGames: true})
 
     sortedTeams.forEach((sortedTeam, i) => {
         sortedTeam.currentPlace = i + 1
@@ -38,9 +41,9 @@ function leagueTable(container: Container, games: GamesType, teams: TeamsType) {
     const tableType = localStorage.getItem('table-type') ? localStorage.getItem('table-type') : 'modern'
 
     if (tableType === 'old') {
-        oldLeagueTable(tableWrapper, games, teams, {comparisonBtn: true})
+        oldLeagueTable(tableWrapper, data.sportType, games, teams, {comparisonBtn: true})
     } else {
-        modernLeagueTable(tableWrapper, games, sortedTeams, {comparisonBtn: true, position: true})
+        modernLeagueTable(tableWrapper, data.sportType, games, sortedTeams, {comparisonBtn: true, position: true})
     }
 
     const comparingTeams: TeamsType = localStorage.getItem('comparing-teams') && JSON.parse(localStorage.getItem('comparing-teams') || '')
@@ -53,7 +56,7 @@ function leagueTable(container: Container, games: GamesType, teams: TeamsType) {
         })
         localStorage.setItem('comparing-teams', JSON.stringify(updatedTeams))
 
-        comparisonTable(tableWrapper, games)
+        comparisonTable(tableWrapper, data)
     }
 }
 

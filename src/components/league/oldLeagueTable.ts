@@ -1,14 +1,13 @@
 import BasketballTeam from "../../classes/BasketballTeam.js";
 import FootballTeam from "../../classes/FootballTeam.js";
+import RegularSeason from "../../classes/RegularSeason.js";
 import getInbetweenTeamsGames from "../../functions/getInbetweenTeamsGames.js";
 import compareTeamsButtonHandler from "../../functions/league/compareTeamsButtonHandler.js";
-import { GamesType } from "../../types.js";
+import { GamesType, TeamsType } from "../../types.js";
 
-function oldLeagueTable(wrapper: HTMLElement, games: GamesType, teams: (FootballTeam | BasketballTeam)[], params: {comparisonBtn?: boolean, comparisonTable?: boolean} = {comparisonBtn: false, comparisonTable: false}) {
+function oldLeagueTable(wrapper: HTMLElement, sportData: RegularSeason['sportType'], games: GamesType, teams: TeamsType, params: {comparisonBtn?: boolean, comparisonTable?: boolean} = {comparisonBtn: false, comparisonTable: false}) {
+
     const {comparisonBtn, comparisonTable} = params
-
-    const sportData = localStorage.getItem('sport') && JSON.parse(localStorage.getItem('sport') || '')
-
     const {winPoints, drawPoints, lossPoints} = sportData.points
 
     const table = document.createElement('table')

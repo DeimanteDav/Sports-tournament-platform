@@ -9,33 +9,32 @@ import RegularSeason from "../classes/RegularSeason.js";
 import Playoffs from "../classes/Playoffs.js";
 import playoffsForm from "../components/playoffs/playoffsForm.js";
 
-function updateTeamsData(container: Container, games: GamesType, updatedGame: BasketballGame | FootballGame, oldGame: BasketballGame | FootballGame, allTeams: TeamsType) { 
-    const playingTeams = allTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.id))
-    console.log(oldGame, updatedGame);
+function updateTeamsData(regularSeasonData: RegularSeason, container: Container, updatedGame: BasketballGame | FootballGame, oldGame: BasketballGame | FootballGame, playoffsData?: Playoffs) { 
+    const playingTeams = regularSeasonData.leagueTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.id))
 
     changeTeamData(oldGame, playingTeams, {old: true})
     changeTeamData(updatedGame, playingTeams)
 
-    leagueTable(container, games, allTeams)
+    leagueTable(container, regularSeasonData.games, regularSeasonData.leagueTeams)
     
-    const playoffsData = Playoffs.getData()
     
     if (playoffsData) {
-        const {teams: playoffsTeams, teamsAmount} = playoffsData
-
-        const teamsToPlayoffs = allTeams.slice(0, teamsAmount)
+        const teamsToPlayoffs = regularSeasonData.leagueTeams.slice(0, playoffsData.teamsAmount)
 
         let leagueTableUpdated = !teamsToPlayoffs.every((team, i) => {
             // TODO: teamId
-            return team.id === playoffsTeams[i].id
+            return team.id === playoffsData.playoffsTeams[i].id
         });
  
         if (leagueTableUpdated) {
-            Playoffs.setTeams(teamsToPlayoffs)
-            playoffsForm(container, {leagueTableUpdated: true})
+            // Playoffs.setTeams(teamsToPlayoffs)
+            playoffsData.playoffsTeams = teamsToPlayoffs
+            playoffsData.renderHtml(container, {leagueTableUpdated: true})
         }
     }
-    RegularSeason.setTeams(allTeams)
+
+    regularSeasonData.leagueTeams = regularSeasonData.leagueTeams
+    // RegularSeason.setTeams(allTeams)
 }
 
 export default updateTeamsData

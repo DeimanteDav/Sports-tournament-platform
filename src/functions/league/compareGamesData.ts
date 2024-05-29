@@ -4,7 +4,7 @@ import { SPORTS } from "../../config.js"
 import { GamesType, TeamsType } from "../../types.js"
 import getInbetweenTeamsGames from "../getInbetweenTeamsGames.js"
 
-function compareGamesData(teams: TeamsType, games: GamesType) {
+function compareGamesData(sportId: number, teams: TeamsType, games: GamesType) {
     const teamsData: {
         [key: number]: {
             team: string,
@@ -23,7 +23,6 @@ function compareGamesData(teams: TeamsType, games: GamesType) {
             winPerc?: number
         }
     } = {}
-    const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
 
     if (!games) {
         return

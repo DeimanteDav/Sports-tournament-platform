@@ -9,6 +9,7 @@ import { GamesType, TeamsType } from "../types.js"
 import BasketballGame from "./BasketballGame.js"
 import Game from "./Game.js"
 import League from "./League.js"
+import Playoffs from "./Playoffs.js"
 
 // interface RegularSeasonInterface {
 //     _teams: TeamsType
@@ -108,67 +109,63 @@ export default class RegularSeason extends League {
         return null
     }
 
-    static setTeams(teams: TeamsType) {
-        const oldData = RegularSeason.getData(true)
+    // static setTeams(teams: TeamsType) {
+    //     const oldData = RegularSeason.getData(true)
 
-        if (!oldData) throw new Error('no data')
+    //     if (!oldData) throw new Error('no data')
 
-        const updatedData = {...oldData, teams}
+    //     const updatedData = {...oldData, teams}
 
-        localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    }
+    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
+    // }
     
-    static setRoundsAmount(roundsAmount: number) {
-        const oldData = RegularSeason.getData(true)
+    // static setRoundsAmount(roundsAmount: number) {
+    //     const oldData = RegularSeason.getData(true)
 
-        if (!oldData) throw new Error('no data')
+    //     if (!oldData) throw new Error('no data')
 
-        const updatedData = {...oldData, roundsAmount}
+    //     const updatedData = {...oldData, roundsAmount}
 
-        localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    }
+    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
+    // }
 
-    static setRelegation(relegation: number) {
-        const oldData = RegularSeason.getData(true)
+    // static setRelegation(relegation: number) {
+    //     const oldData = RegularSeason.getData(true)
 
-        if (!oldData) throw new Error('no data')
+    //     if (!oldData) throw new Error('no data')
 
-        const updatedData = {...oldData, relegation}
+    //     const updatedData = {...oldData, relegation}
     
-        localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    }
+    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
+    // }
 
-    static setGames(games: DataType['games']) {
-        const oldData = RegularSeason.getData(true)
+    // static setGames(games: DataType['games']) {
+    //     const oldData = RegularSeason.getData(true)
 
-        if (!oldData) throw new Error('no data')
+    //     if (!oldData) throw new Error('no data')
 
-        const updatedData = {...oldData, games}
+    //     const updatedData = {...oldData, games}
     
-        localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    }
+    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
+    // }
 
-    static setGamesAmount(gamesAmount: number) {
-        const oldData = RegularSeason.getData()
+    // static setGamesAmount(gamesAmount: number) {
+    //     const oldData = RegularSeason.getData()
 
-        if (!oldData) throw new Error('no data')
+    //     if (!oldData) throw new Error('no data')
 
-        const updatedData = {...oldData, gamesAmount}
+    //     const updatedData = {...oldData, gamesAmount}
     
-        localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    }
+    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
+    // }
 
     static removeData() {
         localStorage.removeItem('regular-season-data')
     }
 
-    renderHtml(container: HTMLDivElement) {
-        // const data = RegularSeason.getData()!
-        // const {games, teams, roundsAmount} = data
-    
+    renderHtml(container: HTMLDivElement, playoffsData?: Playoffs) {
         const gamesForm = document.createElement('form')
         gamesForm.id = 'games-form'
-        // const sportId: number = JSON.parse(localStorage.getItem('sport') || '').id
     
         for (let i = 0; i < this.roundsAmount; i++) {
             let round = i+1
@@ -243,7 +240,7 @@ export default class RegularSeason extends League {
     
             this.games = this.games
     
-            updateTeamsData(container, this.games, currentGame, oldGame, this.leagueTeams)
+            updateTeamsData(this, container, currentGame, oldGame, playoffsData)
         })
     
         const changeTableBtn = document.createElement('button')
@@ -255,10 +252,10 @@ export default class RegularSeason extends League {
     
             if (prevTableType === 'modern' || !prevTableType) {
                 localStorage.setItem('table-type', 'old')
-                leagueTable(container, this.games, this.leagueTeams)
+                leagueTable(container, this)
             } else {
                 localStorage.setItem('table-type', 'modern')
-                leagueTable(container, this.games, this.leagueTeams)
+                leagueTable(container, this)
             }
         })
     
@@ -298,13 +295,14 @@ export default class RegularSeason extends League {
                     updateGameData(gameWrapper, currentGameInputs, currentGame, this.sportType.id)
     
                     // RegularSeason.setGames(games)
-                    this.games = this._games
-                    updateTeamsData(container, this.games, currentGame, oldGame, this.leagueTeams)
+                    this.games = this.games
+                    updateTeamsData(this, container, currentGame, oldGame, playoffsData)
                 }
             });
         })
     
         container.append(gamesForm, generateScoresBtn, changeTableBtn)
     
-        leagueTable(container, this.games, this.leagueTeams)    }
+        leagueTable(container, this)
+    }
 }
