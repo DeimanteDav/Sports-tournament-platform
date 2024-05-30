@@ -18,14 +18,6 @@ export interface playoffsInteface {
     _teamsAmount: number,
     _roundsData: roundsDataInterface
     _pairsData: pairsDataInterface
-
-    get teamsAmount(): number
-    set teamsAmount(amount)
-
-    get roundsData(): roundsDataInterface
-    set roundsData(data)
-
-    get sportType(): {id: number, name: string, points: Object}
 }
 
 interface roundsDataInterface {
@@ -111,22 +103,13 @@ export default class Playoffs extends League  {
         this._pairsData = pairsData ? pairsData : {}
     }
 
-    static getData(nec?: boolean) {
+    static getData() {
         const playoffsData = localStorage.getItem('playoffs-data')
 
         if (playoffsData) {
             let result = JSON.parse(playoffsData)
             return result
-        // }
-        } else if (nec) {
-            return {
-                teams: [],
-                teamsAmount: 0,
-                roundsData: {},
-                pairsData: {}
-            }
         }
-
         return null
     }
 

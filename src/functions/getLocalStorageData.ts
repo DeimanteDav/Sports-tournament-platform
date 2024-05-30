@@ -1,10 +1,6 @@
-import League from "../classes/League.js";
 import Playoffs from "../classes/Playoffs.js";
 import RegularSeason from "../classes/RegularSeason.js";
-import leagueTournament from "../components/league/leagueTournament.js";
-import playoffsForm from "../components/playoffs/playoffsForm.js";
 import titleWrapper from "../components/titleWrapper.js";
-import { SPORTS } from "../config.js";
 import { Container } from "../types.js";
 import sportTypeForm from "./initialForms/sportTypeForm.js"
 
@@ -16,16 +12,16 @@ function getLocalStorageData(container: Container) {
     if ((regularSeason || playoffs) && sportType) {
         titleWrapper(container)
 
-        const regularSeasonData: null | RegularSeason = regularSeason && new RegularSeason(regularSeason._gamesAmount, regularSeason._roundsAmount, regularSeason._games, regularSeason?._relegation)
-
         const playoffsData: null | Playoffs = playoffs && new Playoffs(playoffs.playoffsTeams, playoffs.teamsAmount, playoffs.roundsData, playoffs.pairsData)
+        
+        if (regularSeason) {
+            const regularSeasonData = new RegularSeason(regularSeason._gamesAmount, regularSeason._roundsAmount, regularSeason._games, regularSeason?._relegation)
 
-        if (regularSeasonData) {
             regularSeasonData.leagueTeams = regularSeason.leagueTeams
             regularSeasonData.sportType = JSON.parse(sportType)
             
-            if (playoffs) {
-                regularSeasonData.renderHtml(container, playoffs)
+            if (playoffsData) {
+                regularSeasonData.renderHtml(container, playoffsData)
             } else {
                 regularSeasonData.renderHtml(container)
             }
