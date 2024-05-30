@@ -4,10 +4,9 @@ import BasketballGame from "../classes/BasketballGame.js";
 import BasketballTeam from "../classes/BasketballTeam.js";
 import FootballGame from "../classes/FootballGame.js";
 import FootballTeam from "../classes/FootballTeam.js";
-import { Container, GamesType, TeamsType } from "../types.js";
+import { Container, TeamsType } from "../types.js";
 import RegularSeason from "../classes/RegularSeason.js";
 import Playoffs from "../classes/Playoffs.js";
-import playoffsForm from "../components/playoffs/playoffsForm.js";
 
 function updateTeamsData(regularSeasonData: RegularSeason, container: Container, updatedGame: BasketballGame | FootballGame, oldGame: BasketballGame | FootballGame, playoffsData?: Playoffs) { 
     const playingTeams = regularSeasonData.leagueTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.id))
@@ -15,7 +14,7 @@ function updateTeamsData(regularSeasonData: RegularSeason, container: Container,
     changeTeamData(oldGame, playingTeams, {old: true})
     changeTeamData(updatedGame, playingTeams)
 
-    leagueTable(container, regularSeasonData.games, regularSeasonData.leagueTeams)
+    leagueTable(container, regularSeasonData)
     
     
     if (playoffsData) {
@@ -27,14 +26,12 @@ function updateTeamsData(regularSeasonData: RegularSeason, container: Container,
         });
  
         if (leagueTableUpdated) {
-            // Playoffs.setTeams(teamsToPlayoffs)
             playoffsData.playoffsTeams = teamsToPlayoffs
             playoffsData.renderHtml(container, {leagueTableUpdated: true})
         }
     }
 
     regularSeasonData.leagueTeams = regularSeasonData.leagueTeams
-    // RegularSeason.setTeams(allTeams)
 }
 
 export default updateTeamsData

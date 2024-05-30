@@ -23,13 +23,16 @@ function playoffsForm(container: Container, params: { leagueTableUpdated: boolea
     const ClassGame = sportId === SPORTS.football.id ? FootballGame : BasketballGame
 
     const oldForm = document.querySelector('.playoffs-form')
+    let form
     if (oldForm) {
-        oldForm.remove()
+        oldForm.innerHTML = ''
+        form = oldForm
+    } else {
+        form = document.createElement('div')
+        form.classList.add('playoffs-form')
+        container.append(form)
     }
 
-    const form = document.createElement('div')
-    form.classList.add('playoffs-form')
-    container.append(form)
 
     const sortedData = Object.fromEntries(
         Object.entries(roundsData)
@@ -517,5 +520,4 @@ function setNextPairElements(teams: {team: string, id: number | null, goals: num
         teams[team1Index].id = winnerData ? winnerData.id : null
         teams[team1Index].goals = null
     }
-
 }

@@ -1,11 +1,10 @@
 import accordion from "../components/accordion.js"
 import leagueTable from "../components/league/leagueTable.js"
-import leagueTournament from "../components/league/leagueTournament.js"
 import { SPORTS } from "../config.js"
 import overtimeGameHandler from "../functions/overtimeGameHandler.js"
 import updateGameData from "../functions/updateGameData.js"
 import updateTeamsData from "../functions/updateTeamsData.js"
-import { GamesType, TeamsType } from "../types.js"
+import { GamesType } from "../types.js"
 import BasketballGame from "./BasketballGame.js"
 import Game from "./Game.js"
 import League from "./League.js"
@@ -82,7 +81,6 @@ export default class RegularSeason extends League {
     }
 
 
-
     constructor(gamesAmount?: number, roundsAmount?: number, games?: GamesType, relegation?: number | null) {
         super()
         this._gamesAmount = gamesAmount ? gamesAmount : 0
@@ -91,21 +89,13 @@ export default class RegularSeason extends League {
         this._relegation = relegation ? relegation : 0
     }
 
-    static getData(nec?: boolean) {
+    static getData() {
         const regularSeasonData = localStorage.getItem('regular-season-data')
         
         if (regularSeasonData) {
             let result = JSON.parse(regularSeasonData)
             return result
-        } else if (nec) {
-            return {
-                teams: [],
-                gamesAmount: 0,
-                roundsAmount: 0,
-                games: []
-            } 
         }
-
         return null
     }
 
@@ -294,7 +284,6 @@ export default class RegularSeason extends League {
                     const oldGame = {...currentGame}
                     updateGameData(gameWrapper, currentGameInputs, currentGame, this.sportType.id)
     
-                    // RegularSeason.setGames(games)
                     this.games = this.games
                     updateTeamsData(this, container, currentGame, oldGame, playoffsData)
                 }
