@@ -6,7 +6,6 @@ import compareTeamsButtonHandler from "../../functions/league/compareTeamsButton
 import { GamesType, TeamsType } from "../../types.js";
 
 function oldLeagueTable(wrapper: HTMLElement, sportData: RegularSeason['sportType'], games: GamesType, teams: TeamsType, params: {comparisonBtn?: boolean, comparisonTable?: boolean} = {comparisonBtn: false, comparisonTable: false}) {
-
     const {comparisonBtn, comparisonTable} = params
     const {winPoints, drawPoints, lossPoints} = sportData.points
 

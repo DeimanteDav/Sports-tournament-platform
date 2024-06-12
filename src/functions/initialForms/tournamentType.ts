@@ -122,7 +122,7 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, regularSeas
             const amount = (e.target as HTMLInputElement).value
             console.log(amount);
             if (!amount) {
-                regularSeasonData.relegation = null
+                regularSeasonData.relegation = 0
             } else {
                 regularSeasonData.relegation = +amount
             }

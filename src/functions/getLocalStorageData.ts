@@ -17,9 +17,10 @@ function getLocalStorageData(container: Container) {
         if (regularSeason) {
             const regularSeasonData = new RegularSeason(regularSeason._gamesAmount, regularSeason._roundsAmount, regularSeason._games, regularSeason?._relegation)
 
-            regularSeasonData.leagueTeams = regularSeason.leagueTeams
+
             regularSeasonData.sportType = JSON.parse(sportType)
-            
+            regularSeasonData.leagueTeams = regularSeason._leagueTeams
+
             if (playoffsData) {
                 regularSeasonData.renderHtml(container, playoffsData)
             } else {
@@ -28,7 +29,7 @@ function getLocalStorageData(container: Container) {
         }
 
         if (playoffsData) {
-            playoffsData.leagueTeams = regularSeason ? regularSeason.leagueTeams : []
+            playoffsData.leagueTeams = regularSeason ? regularSeason._leagueTeams : []
             playoffsData.sportType = JSON.parse(sportType)
 
             playoffsData.renderHtml(container)

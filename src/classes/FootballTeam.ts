@@ -5,8 +5,12 @@ export default class FootballTeam extends Team {
     awayGoals: number = 0
     awayWins: number = 0
 
-    constructor(team: string, id: number, totalGames: number, minPlace: number) {
+    constructor(team: string, id: number, totalGames: number, minPlace: number, allData?: FootballTeam) {
         super(team, id, totalGames, minPlace)
+
+        if (allData) {
+            Object.assign(this, allData)
+        }
     }
 }
 
