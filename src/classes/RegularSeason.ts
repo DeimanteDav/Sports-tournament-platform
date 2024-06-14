@@ -672,7 +672,6 @@ export default class RegularSeason extends League {
         wrapper.append(table)
     }
 
-
     private compareTeamsButtonHandler(wrapper: HTMLElement, team: TeamType, btnWrapper: HTMLElement) {
         let comparingTeams: (FootballTeam | BasketballTeam)[] = localStorage.getItem('comparing-teams') ?  JSON.parse(localStorage.getItem('comparing-teams') || '') : []
 
@@ -709,7 +708,6 @@ export default class RegularSeason extends League {
 
     private comparisonTable(wrapper: HTMLElement) {
         const sportId = this.sportType.id
-
         const teams = localStorage.getItem('comparing-teams') && JSON.parse(localStorage.getItem('comparing-teams') || '')
     
         const tableType = localStorage.getItem('table-type')
@@ -736,11 +734,14 @@ export default class RegularSeason extends League {
 
         if (sortedTeams.length > 0) {
             updatedTeams = sortedTeams
-        } else if (teams.length === 1) {
+        } else if (teams.length > 1) {
+            updatedTeams = teams
+        }
+        else if (teams.length === 1) {
             const headItems = getModernTableHeadItems(sportId)
     
             const team = {...teams[0]}
-            headItems?.forEach((item, i) => {
+            headItems.forEach((item, i) => {
                 if (i !== 0) {
                     if (typeof team[item.selector] === 'number') {
                         team[item.selector] = 0
@@ -766,10 +767,8 @@ export default class RegularSeason extends League {
         }
     }
 
-
     private updateTeamsData(container: HTMLDivElement, updatedGame: GameType, oldGame: GameType, playoffsData?: Playoffs) {
         const playingTeams = this.leagueTeams.filter(team => oldGame.teams.some(oldTeam => oldTeam.id === team.teamId))
-
         
         this.changeTeamData(oldGame, playingTeams, {old: true})
         this.changeTeamData(updatedGame, playingTeams)
@@ -1183,6 +1182,5 @@ export default class RegularSeason extends League {
         })
     
         return inbetweenGames
-
     }
 }
