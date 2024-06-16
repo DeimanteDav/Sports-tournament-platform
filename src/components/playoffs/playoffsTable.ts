@@ -71,7 +71,6 @@ function playoffsTable(tableData: PlayoffsTable) {
     }
 
     Object.entries(pairsData).forEach(([round, roundPairs], index) => {
-
         const gamesAmount = roundPairs.length
 
         let rowIndex = 1
