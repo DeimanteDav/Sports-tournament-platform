@@ -244,6 +244,7 @@ export default class Playoffs extends League  {
             this.pairsData[round].forEach(round => {
                 roundGames.push(...round.games)
             })
+            console.log(roundGames, 'roundgames');
             
             const innerRounds = roundGames && [...new Set(roundGames.map(game => game.leg))] 
     

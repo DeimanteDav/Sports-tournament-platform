@@ -1,5 +1,5 @@
 import { SPORTS } from "../config.js"
-import { GameType, TeamsType } from "../types.js"
+import { GameType, GamesType, TeamsType } from "../types.js"
 import BasketballGame from "./BasketballGame.js"
 import BasketballTeam from "./BasketballTeam.js"
 import FootballGame from "./FootballGame.js"
@@ -47,6 +47,11 @@ import Game from "./Game.js"
         
 //     }
 // }
+
+// interface playoffsAccordion = {
+//     leg: number
+//     playoffsPairs: 
+// } 
 
 export default abstract class League {
     private _leagueTeams: TeamsType = []
@@ -205,5 +210,28 @@ export default abstract class League {
                 wrapper.classList.remove('played')
             }
         })
+    }
+
+    renderAccordion(form: HTMLElement, data: {round: string, content: GamesType | {}}[]) {
+        
+        data.forEach(item => {
+            const wrapper = document.createElement('div')
+            wrapper.classList.add('accordion-test')
+            const titleWrapper = document.createElement('div')
+            titleWrapper.classList.add('accordion-intro')
+            const title = document.createElement('h4')
+            title.textContent = item.round
+
+            const contentWrapper = document.createElement('div') 
+            contentWrapper.classList.add('accordion-content')
+
+            const content = 
+
+            titleWrapper.append(title)
+            wrapper.append(titleWrapper, contentWrapper)
+            form.append(wrapper)
+        })
+        
+
     }
 }

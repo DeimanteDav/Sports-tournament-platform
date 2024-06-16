@@ -1,5 +1,3 @@
-import BasketballTeam from "../../classes/BasketballTeam.js"
-import FootballTeam from "../../classes/FootballTeam.js"
 import { Container, TeamsType } from "../../types.js"
 
 function winnerElement(container: Container, winnerId: number, teams: TeamsType) {
