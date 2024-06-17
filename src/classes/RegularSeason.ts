@@ -888,10 +888,10 @@ export default class RegularSeason extends League {
         })
     }
 
-    private sortTeams(teams: TeamsType | ComparisonTeamData[], params: {compareBetweenGames: boolean} = {compareBetweenGames: false}) {
+    private sortTeams(teams: TeamsType| ComparisonTeamData[], params: {compareBetweenGames: boolean} = {compareBetweenGames: false}) {
         const {compareBetweenGames} = params
 
-        const samePointsTeams: TeamsType | ComparisonTeamData[] = []
+        const samePointsTeams: (TeamType |ComparisonTeamData)[] = []
         const sportId = this.sportType.id
 
         const result = teams.sort((a, b) => {
@@ -900,9 +900,9 @@ export default class RegularSeason extends League {
             } else if (a.points < b.points) {
                 return 1
             } else {
-                !samePointsTeams.includes(a) && samePointsTeams.push(a)
-                !samePointsTeams.includes(b) && samePointsTeams.push(b)
-                const teamsGameData = this.compareGamesData(samePointsTeams);
+                !samePointsTeams.some(team => team.teamId === a.teamId) && samePointsTeams.push(a)
+                !samePointsTeams.some(team => team.teamId === b.teamId) && samePointsTeams.push(b)
+                const teamsGameData = this.compareGamesData(samePointsTeams as TeamsType | ComparisonTeamData[]);
     
                 if (sportId === SPORTS.football.id) {
                     const teamA = a as FootballTeam
