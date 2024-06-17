@@ -1,6 +1,6 @@
 import { GamesType, PlayoffsTeam } from "../types.js"
-import BasketballGame from "./BasketballGame.js"
-import FootballGame from "./FootballGame.js"
+import BasketballGame from "./Basketball/BasketballGame.js"
+import FootballGame from "./Football/FootballGame.js"
 
 
 export default class PlyoffsPair {

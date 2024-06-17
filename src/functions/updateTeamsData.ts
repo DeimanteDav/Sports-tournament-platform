@@ -1,9 +1,9 @@
 import leagueTable from "../components/league/leagueTable.js";
 import { SPORTS } from "../config.js";
-import BasketballGame from "../classes/BasketballGame.js";
-import BasketballTeam from "../classes/BasketballTeam.js";
-import FootballGame from "../classes/FootballGame.js";
-import FootballTeam from "../classes/FootballTeam.js";
+import BasketballGame from "../classes/Basketball/BasketballGame.js";
+import BasketballTeam from "../classes/Basketball/Basketball/Basketball/BasketballTeam.js";
+import FootballGame from "../classes/Football/FootballGame.js";
+import FootballTeam from "../classes/Football/FootballTeam.js";
 import { Container, TeamsType } from "../types.js";
 import RegularSeason from "../classes/RegularSeason.js";
 import Playoffs from "../classes/Playoffs.js";

@@ -1,5 +1,5 @@
-import BasketballGame from "../classes/BasketballGame"
-import FootballGame from "../classes/FootballGame"
+import BasketballGame from "../classes/Basketball/BasketballGame"
+import FootballGame from "../classes/Football/FootballGame"
 import { GamesType } from "../types"
 
 function accordion(form: HTMLElement, btnText: string, legs: number[], games: GamesType) {

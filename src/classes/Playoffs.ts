@@ -1,17 +1,14 @@
 import { SPORTS } from "../config.js";
 import { TeamsType, PlayoffsPairInterface } from "../types.js";
-import BasketballGame from "./BasketballGame.js";
-import FootballGame from "./FootballGame.js";
+import BasketballGame from "./Basketball/BasketballGame.js";
+import FootballGame from "./Football/FootballGame.js";
 import PlayoffsPair from "./PlayoffsPair.js";
 import League from "./League.js";
 import accordion from "../components/accordion.js";
-import playoffsTable from "../components/playoffs/playoffsTable.js";
-import updateGameData from "../functions/updateGameData.js";
 import Game from "./Game.js";
 import overtimeGameHandler from "../functions/overtimeGameHandler.js";
 import setPlayoffPairTeams from "../functions/playoffs/setPlayoffPairTeams.js";
 import winnerElement from "../components/playoffs/winnerElement.js";
-
 
 export interface playoffsInteface {
     _playoffsTeams: TeamsType,
