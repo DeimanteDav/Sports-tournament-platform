@@ -1,4 +1,4 @@
-import Team from "../Team"
+import Team from "../Team.js"
 
 export default class BasketballTeam extends Team {
     techLosses: number = 0

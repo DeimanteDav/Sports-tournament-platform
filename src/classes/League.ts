@@ -1,7 +1,7 @@
 import { SPORTS } from "../config.js"
 import { GameType, GamesType, TeamsType } from "../types.js"
 import BasketballGame from "./Basketball/BasketballGame.js"
-import BasketballTeam from "./Basketball/Basketball/Basketball/BasketballTeam.js"
+import BasketballTeam from ".//Basketball/BasketballTeam.js"
 import FootballGame from "./Football/FootballGame.js"
 import FootballTeam from "./Football/FootballTeam.js"
 import Game from "./Game.js"

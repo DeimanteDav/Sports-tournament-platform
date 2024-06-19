@@ -1,5 +1,5 @@
 import { SPORTS } from "../config.js";
-import BasketballTeam from "../classes/Basketball/Basketball/Basketball/BasketballTeam.js"
+import BasketballTeam from "../classes/Basketball/BasketballTeam.js"
 import FootballTeam from "../classes/Football/FootballTeam.js"
 import compareGamesData from "./league/compareGamesData.js";
 import { GamesType, TeamsType } from "../types.js";

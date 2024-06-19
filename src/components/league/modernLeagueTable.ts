@@ -1,4 +1,4 @@
-import BasketballTeam from "../../classes/Basketball/Basketball/Basketball/BasketballTeam.js";
+import BasketballTeam from "../../classes/Basketball/BasketballTeam.js";
 import FootballTeam from "../../classes/Football/FootballTeam.js";
 import RegularSeason from "../../classes/RegularSeason.js";
 import compareTeamsButtonHandler from "../../functions/league/compareTeamsButtonHandler.js";

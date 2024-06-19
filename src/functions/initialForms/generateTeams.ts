@@ -1,6 +1,6 @@
 import titleWrapper from "../../components/titleWrapper.js";
 import { SPORTS } from "../../config.js";
-import BasketballTeam from "../../classes/Basketball/Basketball/Basketball/BasketballTeam.js";
+import BasketballTeam from "../../classes/Basketball/BasketballTeam.js";
 import FootballTeam from "../../classes/Football/FootballTeam.js";
 import generateGames from "./generateGames.js";
 import RegularSeason from "../../classes/RegularSeason.js";

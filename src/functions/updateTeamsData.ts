@@ -1,7 +1,7 @@
 import leagueTable from "../components/league/leagueTable.js";
 import { SPORTS } from "../config.js";
 import BasketballGame from "../classes/Basketball/BasketballGame.js";
-import BasketballTeam from "../classes/Basketball/Basketball/Basketball/BasketballTeam.js";
+import BasketballTeam from "../classes/Basketball/BasketballTeam.js";
 import FootballGame from "../classes/Football/FootballGame.js";
 import FootballTeam from "../classes/Football/FootballTeam.js";
 import { Container, TeamsType } from "../types.js";

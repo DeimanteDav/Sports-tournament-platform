@@ -1,9 +1,7 @@
 export default abstract class Team {
     team: string
 
-    // TODO:
     private id: number
-    // id: number
     playedGames: number = 0
     wins: number = 0
     losses: number = 0

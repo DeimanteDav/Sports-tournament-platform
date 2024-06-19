@@ -1,5 +1,5 @@
 import comparisonTable from "../../components/league/comparisonTable.js";
-import BasketballTeam from "../../classes/Basketball/Basketball/Basketball/BasketballTeam.js";
+import BasketballTeam from "../../classes/Basketball/BasketballTeam.js";
 import FootballTeam from "../../classes/Football/FootballTeam.js";
 import { GamesType, TeamsType } from "../../types.js";
 
