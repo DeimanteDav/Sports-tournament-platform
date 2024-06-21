@@ -33,6 +33,7 @@ function getLocalStorageData(container: Container) {
             playoffsData.sportType = playoffs._sportType
             playoffsData.leagueTeams = regularSeason ? regularSeason._leagueTeams : []
 
+            playoffsData.playoffsTeams = playoffs._playoffsTeams
             playoffsData.renderHtml(container)
         }
     } else {

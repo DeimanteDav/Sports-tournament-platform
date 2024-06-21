@@ -298,7 +298,7 @@ table {
   text-align: left;
   border: none;
   outline: none;
-  transition: 0.4s;
+
 }
 
 .active, .accordion:hover {
@@ -309,6 +309,9 @@ table {
   display: none;
   padding: 0 18px;
   overflow: hidden;
+  /* transition: all 0.25s; */
+  /* animation: fadeInOut 0.6s ease-in-out;  */
+
 }
 
 .panel.games {
@@ -330,6 +333,7 @@ table {
 .active:after {
   content: "\2796";
 }
+
 
 .modern-table th:nth-child(2),
 .modern-table td:nth-child(2) {
@@ -466,6 +470,8 @@ table {
   text-align: center;
   list-style: none;
   padding: 20px;
+
+  
 }
 
 .playoffs-table .playoffs-games {
@@ -487,14 +493,24 @@ table {
 
 .playoffs-table .playoffs-games .game-result-wrapper {
   display: flex;
+  flex-grow: 1;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   position: relative;
   border: 1px solid black;
-  border-radius: 3px;
-  padding: 5px;
-  flex-grow: 1;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+.game-result-wrapper th,
+.game-result-wrapper td {
+  padding: 5px;
+  white-space: nowrap;
+}
+
+
 
 .playoffs-table .playoffs-games .grid-wrapper:not(:last-of-type) .game-result-wrapper:after {
   content: '';

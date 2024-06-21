@@ -179,18 +179,26 @@ export default class RegularSeason extends League {
     renderHtml(container: HTMLDivElement, playoffsData?: Playoffs) {
         const gamesForm = document.createElement('form')
         gamesForm.id = 'games-form'
-    
+
         for (let i = 0; i < this.roundsAmount; i++) {
+            const groupedGames: {leg: number, games: (BasketballGame | FootballGame)[], extraData?: string}[] = []
+
             let round = i+1
-            const btnText = `Round ${round}`
             const roundGames = this.games.filter(game => game.round === round)
-    
-            const legs = [...new Set(roundGames.map(game => game.leg))]
-    
-            accordion(gamesForm, btnText, legs, roundGames)
+
+            roundGames.forEach((game, i) => {
+                const group = groupedGames.find(group => group.leg === game.leg)
+
+                if (group) {
+                    group.games.push(game)
+                } else {
+                    groupedGames.push({leg: game.leg, games: [game]})
+                }
+            })
+
+            accordion(gamesForm, round, groupedGames)
         }
-    
-    
+
         gamesForm.addEventListener('change', (e) => {
             const target = e.target as HTMLFormElement
     

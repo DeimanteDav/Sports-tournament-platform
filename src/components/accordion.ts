@@ -2,12 +2,12 @@ import BasketballGame from "../classes/Basketball/BasketballGame"
 import FootballGame from "../classes/Football/FootballGame"
 import { GamesType } from "../types"
 
-function accordion(form: HTMLElement, btnText: string, legs: number[], games: GamesType) {
+function accordion(form: HTMLElement, round: string | number, legsData?: {leg: number, games: GamesType, extraData?: string}[]) {
     const accordionWrapper = document.createElement('div')
 
     const accordionBtn = document.createElement('button')
     accordionBtn.classList.add('accordion')
-    accordionBtn.textContent = btnText
+    accordionBtn.textContent = `Round ${round}`
     accordionBtn.type = 'button'
 
     const panel = document.createElement('div')
@@ -28,23 +28,27 @@ function accordion(form: HTMLElement, btnText: string, legs: number[], games: Ga
                 element.style.display = 'none'
             })
             panel.style.display = 'none';
+            
         } else {
             panel.style.display = 'block';
         }
     })
 
-    legs.forEach(leg => {
-        const innerBtnText = `Leg ${leg}`
+    legsData?.forEach((legData, i) => {
+        console.log(legData);
+        const innerBtnText = `Leg ${legData.leg}` + ` ${legData.extraData || ''}`
 
-        generateAccordion(panel, innerBtnText, leg, games)
+        const prevLegGames = legsData[i-1] && legsData[i-1].games
+        generateAccordion(panel, innerBtnText, legData.leg, legData.games, prevLegGames)
     })
+
 
     accordionWrapper.append(accordionBtn, panel)
     form.append(accordionWrapper)
 }
 export default accordion
 
-function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number, games: GamesType) {
+function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number, games: GamesType, prevGames: GamesType | null) {
     const accordionWrapper = document.createElement('div')
 
     const accordionBtn = document.createElement('button')
@@ -58,9 +62,8 @@ function generateAccordion(wrapper: HTMLDivElement, btnText: string, leg: number
 
     games.forEach((game, i) => {
         if (`${leg}` === `${game.leg}`) {
-            const prevGame = (games[i-1] && games[i-1].leg+1 === game.leg) ? games[i-1] : null
-            // TODO:
-            // panel.append((game instanceof).gameElement())
+            const prevGame = prevGames ? prevGames.find(prevGame => prevGame.pairId === game.pairId)! : null
+
             panel.append(createGameWrappers(prevGame, game, game.round))
         }
     })
@@ -118,7 +121,10 @@ function createGameElement(prevGame: FootballGame | BasketballGame | null, game:
     gameEl.classList.add('game')
 
     game.hasOwnProperty('extraTime') && (gameEl.dataset.extraTime = 'true')
-    game.pairId && (gameEl.dataset.pairId = game.pairId.toString())
+
+    if (game.pairId) {
+        gameEl.dataset.pairId = game.pairId.toString()
+    }
 
 
     for (const team of game.teams) {

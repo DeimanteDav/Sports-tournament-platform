@@ -1,5 +1,5 @@
 import { SPORTS } from "../config.js";
-import { TeamsType, PlayoffsPairInterface } from "../types.js";
+import { TeamsType, PlayoffsPairInterface, GamesType } from "../types.js";
 import BasketballGame from "./Basketball/BasketballGame.js";
 import FootballGame from "./Football/FootballGame.js";
 import PlayoffsPair from "./PlayoffsPair.js";
@@ -9,6 +9,8 @@ import Game from "./Game.js";
 import overtimeGameHandler from "../functions/overtimeGameHandler.js";
 import setPlayoffPairTeams from "../functions/playoffs/setPlayoffPairTeams.js";
 import winnerElement from "../components/playoffs/winnerElement.js";
+import FootballTeam from "./Football/FootballTeam.js";
+import BasketballTeam from "./Basketball/BasketballTeam.js";
 
 export interface playoffsInteface {
     _playoffsTeams: TeamsType,
@@ -42,11 +44,27 @@ export default class Playoffs extends League  {
         throw new Error('no teams')
     }
 
-    set playoffsTeams(teams) {
-        this._playoffsTeams = teams
-        const updatedData = {...this, _playoffsTeams: this._playoffsTeams}
+    set playoffsTeams(newTeams) {
+        if (this.sportType.id === SPORTS.football.id) {
+            this._playoffsTeams = newTeams.map(newTeam => {
+                const {team, id, totalGames, minPlace} = newTeam
+                    return new FootballTeam(team, id, totalGames, minPlace, (newTeam as FootballTeam))
+            })
+        } else {
+            this._playoffsTeams = newTeams.map(newTeam => {
+                console.log(newTeam.teamId);
 
+                const {team, id, totalGames, minPlace} = newTeam
+                return new BasketballTeam(team, id, totalGames, minPlace, (newTeam as BasketballTeam))
+
+            })
+        }
+
+        console.log(this.playoffsTeams);
+
+        const updatedData = {...this, _playoffsTeams: this._playoffsTeams}
         localStorage.setItem('playoffs-data', JSON.stringify(updatedData))
+
     }
 
     get roundsData() {
@@ -237,30 +255,53 @@ export default class Playoffs extends League  {
             
             this.pairsData = this.pairsData
             
-            let roundGames: (FootballGame | BasketballGame)[] = []
-            this.pairsData[round].forEach(round => {
-                roundGames.push(...round.games)
+            const groupedGames: {leg: number, games: (BasketballGame | FootballGame)[], extraData?: string}[] = []
+
+            this.pairsData[round].forEach((pair, i) => {
+                pair.games.forEach(game => {
+                    const group = groupedGames.find(group => group.leg === game.leg)
+
+                    if (group) {
+                        group.games.push(game)
+                    } else {
+                        groupedGames.push({leg: game.leg, games: [game]})
+                    }
+                })
             })
-            
-            const innerRounds = roundGames && [...new Set(roundGames.map(game => game.leg))] 
     
-            accordion(form, round, innerRounds, roundGames)
-    
-            // if (bestOutOf) {
-            //     playoffsPairs[round].forEach((round, i) => {
-            //         round.games.forEach((game, j) => {
-            //             const roundAccordion = document.querySelector(`.panel button[data-round-nr="${game.roundNr}"]`)
-            
-            //             if (j+1 > bestOutOf) {
-            
-            //                 roundAccordion.textContent = 'If needed'
-            //             } 
-            //         })
-            //     })
-            // }
+
+            if (bestOutOf) {
+                this.pairsData[round].forEach((round, i) => {
+                    const prevGames: boolean[] = []
+                    
+                    round.games.forEach((game, j) => {
+                        const prevGame = round.games[j-1] && round.games[j-1]
+                        if (prevGame) prevGames.push(prevGame.playedAll)
+                        
+                        if (j+1 > bestOutOf && !prevGames.includes(true)) {
+                            console.log(prevGames);
+                            const groupsIfNeeded = groupedGames.filter(group => group.leg === game.leg && game)
+
+                            groupsIfNeeded.forEach(group => {
+                                group.extraData = 'If needed'
+                            })
+                        } 
+                    })
+
+                })
+            }
+
+            accordion(form, round, groupedGames)
+
         })
         this.renderTable(container, sortedData)
     
+    
+    
+        const winnerId = localStorage.getItem('winner-id')
+        if (winnerId) {
+            winnerElement(container, +winnerId, this.playoffsTeams)
+        }
         form.addEventListener('change', (e) => {
             const target = e.target as HTMLInputElement
             const gameEl = target.parentElement && target.parentElement.parentElement
@@ -516,7 +557,7 @@ export default class Playoffs extends League  {
             const nextPairGameElements = [...document.querySelectorAll(`.game[data-pair-id="${pairData.nextId}"] `)]
     
             if (!nextPairGameElements) throw new Error('no next pair game els')
-                
+                console.log(this.playoffsTeams);
             if (gamesAmount >= 2 && nextPair) {
                 nextPair.games.forEach((game, i) => {
                     const nextPairElement = nextPairGameElements[i]
@@ -530,6 +571,8 @@ export default class Playoffs extends League  {
                             game.played = false
                             const winnningTeam = this.playoffsTeams.find(team => team.teamId === pairData.winnerId)!
                             
+                            console.log(winnningTeam, this.playoffsTeams,  pairData.winnerId);
+
                             const winnerData = {team: winnningTeam.team, id: winnningTeam.teamId}
     
                             const nextPairTeamExists = nextPair.teams.find(team => team.id === winnningTeam.teamId)

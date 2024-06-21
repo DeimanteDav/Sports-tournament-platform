@@ -1,7 +1,6 @@
 export default abstract class Team {
     team: string
-
-    private id: number
+    protected id: number
     playedGames: number = 0
     wins: number = 0
     losses: number = 0
@@ -20,8 +19,13 @@ export default abstract class Team {
     get teamId() {
         return this.id
     }
-    
-    constructor(team: string, id: number, totalGames: number, minPlace: number) {
+
+    // TODO:
+    // i objekta sudeti visus duomenis
+    // susikurti interface
+    constructor(data: {team: string, id: number, totalGames: number, minPlace: number }) {
+        const {team, id, totalGames, minPlace} = data
+
         this.team = team
         this.id = id
         this.minPlace = minPlace

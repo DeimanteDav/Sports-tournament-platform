@@ -9,8 +9,13 @@ export default class BasketballTeam extends Team {
 
     constructor(team: string, id: number, totalGames: number, minPlace: number, allData?: BasketballTeam) {
         super(team, id, totalGames, minPlace)
+
         if (allData) {
             Object.assign(this, allData)            
         }
     }
+
+
+
+    
 }

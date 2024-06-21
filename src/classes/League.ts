@@ -53,6 +53,7 @@ import Game from "./Game.js"
 //     playoffsPairs: 
 // } 
 
+
 export default abstract class League {
     private _leagueTeams: TeamsType = []
     private _sportType: {id: number, name: string, points: {winPoints: number, lossPoints: number, technicalLossPoints?: number, drawPoints?: number}} | null = null
@@ -66,25 +67,18 @@ export default abstract class League {
     }
 
     set leagueTeams(newTeams) {
-        // const leagueTeams = localStorage.getItem('teams')
-        // if (leagueTeams) {
-        //     this._leagueTeams = JSON.parse(leagueTeams)
-        // } else {
-            if (this.sportType.id === SPORTS.football.id) {
-                this._leagueTeams= newTeams.map(newTeam => {
+        if (this.sportType.id === SPORTS.football.id) {
+            this._leagueTeams = newTeams.map(newTeam => {
                 const {team, id, totalGames, minPlace} = newTeam
-                    return new FootballTeam(team, id, totalGames, minPlace, (newTeam as FootballTeam))
+                return new FootballTeam(team, id, totalGames, minPlace, (newTeam as FootballTeam))
             })
-            } else {
-                this._leagueTeams = newTeams.map(newTeam => {
-                    const {team, id, totalGames, minPlace} = newTeam
-                    return new BasketballTeam(team, id, totalGames, minPlace, (newTeam as BasketballTeam))
-    
-                })
-            }
-            // this._leagueTeams = newTeams
-            localStorage.setItem('teams', JSON.stringify(newTeams))
-        // }
+    } else {
+        this._leagueTeams = newTeams.map(newTeam => {
+                const {team, id, totalGames, minPlace} = newTeam
+                return new BasketballTeam(team, id, totalGames, minPlace, (newTeam as BasketballTeam))
+            })
+        }
+        localStorage.setItem('teams', JSON.stringify(newTeams))
     }
 
 
@@ -152,7 +146,7 @@ export default abstract class League {
     
         const team1Id = team1Input.dataset.teamId && +team1Input.dataset.teamId
         const team2Id = team2Input.dataset.teamId && +team2Input.dataset.teamId
-    
+
         if (!team1Id || !team2Id) {
             throw new Error('no team id')
         }
@@ -210,28 +204,5 @@ export default abstract class League {
                 wrapper.classList.remove('played')
             }
         })
-    }
-
-    renderAccordion(form: HTMLElement, data: {round: string, content: GamesType | {}}[]) {
-        
-        data.forEach(item => {
-            const wrapper = document.createElement('div')
-            wrapper.classList.add('accordion-test')
-            const titleWrapper = document.createElement('div')
-            titleWrapper.classList.add('accordion-intro')
-            const title = document.createElement('h4')
-            title.textContent = item.round
-
-            const contentWrapper = document.createElement('div') 
-            contentWrapper.classList.add('accordion-content')
-
-            const content = 
-
-            titleWrapper.append(title)
-            wrapper.append(titleWrapper, contentWrapper)
-            form.append(wrapper)
-        })
-        
-
     }
 }
