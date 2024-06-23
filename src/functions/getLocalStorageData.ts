@@ -12,7 +12,7 @@ function getLocalStorageData(container: Container) {
     if ((regularSeason || playoffs) && sportType) {
         titleWrapper(container)
 
-        const playoffsData: null | Playoffs = playoffs && new Playoffs(playoffs._playoffsTeams, playoffs._teamsAmount, playoffs._roundsData, playoffs._pairsData)
+        const playoffsData = playoffs ? new Playoffs(playoffs._playoffsTeams, playoffs._teamsAmount, playoffs._roundsData, playoffs._pairsData) : null
         
         if (regularSeason) {
             const regularSeasonData = new RegularSeason(regularSeason._gamesAmount, regularSeason._roundsAmount, regularSeason._games, regularSeason?._relegation)
@@ -29,7 +29,6 @@ function getLocalStorageData(container: Container) {
         }
 
         if (playoffsData) {
-            console.log(playoffsData, playoffs);
             playoffsData.sportType = playoffs._sportType
             playoffsData.leagueTeams = regularSeason ? regularSeason._leagueTeams : []
 

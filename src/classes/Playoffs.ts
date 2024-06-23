@@ -9,8 +9,8 @@ import Game from "./Game.js";
 import overtimeGameHandler from "../functions/overtimeGameHandler.js";
 import setPlayoffPairTeams from "../functions/playoffs/setPlayoffPairTeams.js";
 import winnerElement from "../components/playoffs/winnerElement.js";
-import FootballTeam from "./Football/FootballTeam.js";
-import BasketballTeam from "./Basketball/BasketballTeam.js";
+import FootballTeam, { FootballTeamData } from "./Football/FootballTeam.js";
+import BasketballTeam, { BasketballTeamData } from "./Basketball/BasketballTeam.js";
 
 export interface playoffsInteface {
     _playoffsTeams: TeamsType,
@@ -37,25 +37,21 @@ export default class Playoffs extends League  {
     private _roundsData: roundsDataInterface
     private _pairsData: pairsDataInterface
 
-    get playoffsTeams() {
+    get playoffsTeams(): TeamsType {
         if (this._playoffsTeams) {
             return this._playoffsTeams
         }
         throw new Error('no teams')
     }
 
-    set playoffsTeams(newTeams) {
+    set playoffsTeams(newTeams: (FootballTeamData | BasketballTeamData)[]) {
         if (this.sportType.id === SPORTS.football.id) {
             this._playoffsTeams = newTeams.map(newTeam => {
-                const {team, id, totalGames, minPlace} = newTeam
-                    return new FootballTeam(team, id, totalGames, minPlace, (newTeam as FootballTeam))
+                return new FootballTeam(newTeam)
             })
         } else {
             this._playoffsTeams = newTeams.map(newTeam => {
-                console.log(newTeam.teamId);
-
-                const {team, id, totalGames, minPlace} = newTeam
-                return new BasketballTeam(team, id, totalGames, minPlace, (newTeam as BasketballTeam))
+                return new BasketballTeam(newTeam)
 
             })
         }

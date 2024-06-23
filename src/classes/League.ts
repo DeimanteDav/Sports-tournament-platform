@@ -1,9 +1,9 @@
 import { SPORTS } from "../config.js"
 import { GameType, GamesType, TeamsType } from "../types.js"
 import BasketballGame from "./Basketball/BasketballGame.js"
-import BasketballTeam from ".//Basketball/BasketballTeam.js"
+import BasketballTeam, { BasketballTeamData } from ".//Basketball/BasketballTeam.js"
 import FootballGame from "./Football/FootballGame.js"
-import FootballTeam from "./Football/FootballTeam.js"
+import FootballTeam, { FootballTeamData } from "./Football/FootballTeam.js"
 import Game from "./Game.js"
 
 // export default class League implements RegularSeason, Playoffs {
@@ -58,7 +58,7 @@ export default abstract class League {
     private _leagueTeams: TeamsType = []
     private _sportType: {id: number, name: string, points: {winPoints: number, lossPoints: number, technicalLossPoints?: number, drawPoints?: number}} | null = null
 
-    get leagueTeams() {
+    get leagueTeams(): TeamsType {
         if (this._leagueTeams) {
             return this._leagueTeams
         }
@@ -66,16 +66,14 @@ export default abstract class League {
         throw new Error('no teams in league')
     }
 
-    set leagueTeams(newTeams) {
+    set leagueTeams(newTeams: (FootballTeamData | BasketballTeamData)[]) {
         if (this.sportType.id === SPORTS.football.id) {
             this._leagueTeams = newTeams.map(newTeam => {
-                const {team, id, totalGames, minPlace} = newTeam
-                return new FootballTeam(team, id, totalGames, minPlace, (newTeam as FootballTeam))
+                return new FootballTeam(newTeam)
             })
-    } else {
-        this._leagueTeams = newTeams.map(newTeam => {
-                const {team, id, totalGames, minPlace} = newTeam
-                return new BasketballTeam(team, id, totalGames, minPlace, (newTeam as BasketballTeam))
+        } else {
+            this._leagueTeams = newTeams.map(newTeam => {
+                return new BasketballTeam(newTeam)
             })
         }
         localStorage.setItem('teams', JSON.stringify(newTeams))

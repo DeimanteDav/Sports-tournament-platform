@@ -791,12 +791,14 @@ export default class RegularSeason extends League {
             });
      
             if (leagueTableUpdated) {
-                playoffsData.playoffsTeams = teamsToPlayoffs
+                const teams = teamsToPlayoffs.map(team => ({...team, id: team.teamId}))
+                playoffsData.playoffsTeams = teams
                 playoffsData.renderHtml(container, {leagueTableUpdated: true})
             }
         }
-    
-        this.leagueTeams = this.leagueTeams
+
+        const updatedLeagueTeams = this.leagueTeams.map(team => ({...team, id: team.teamId}))
+        this.leagueTeams = updatedLeagueTeams
     }
 
     private changeTeamData(game: GameType, teams: TeamsType, params: {old: boolean} = {old: false}) {

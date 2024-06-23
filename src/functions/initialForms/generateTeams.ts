@@ -1,7 +1,4 @@
 import titleWrapper from "../../components/titleWrapper.js";
-import { SPORTS } from "../../config.js";
-import BasketballTeam from "../../classes/Basketball/BasketballTeam.js";
-import FootballTeam from "../../classes/Football/FootballTeam.js";
 import generateGames from "./generateGames.js";
 import RegularSeason from "../../classes/RegularSeason.js";
 import { Container } from "../../types.js";
@@ -13,20 +10,17 @@ function generateTeams(container: Container, gameTypes: {playoffs?: Playoffs | n
     const {playoffs, regularSeason} = gameTypes
     const sportId = localStorage.getItem('sport-type') ? JSON.parse(localStorage.getItem('sport-type') || '').id : null
 
-    let Team: typeof FootballTeam | typeof BasketballTeam
-    if (sportId === SPORTS.football.id) {
-        Team = FootballTeam
-    } else if (sportId === SPORTS.basketball.id) {
-        Team = BasketballTeam
-    }
 
-    console.log(regularSeason, playoffs);
     if (regularSeason) {
         const totalGames = regularSeason?.roundsAmount ? (teamNames.length-1)* regularSeason?.roundsAmount : (teamNames.length-1)
-        const leagueTeams = teamNames.map((name, i) => new Team(name, i+1, totalGames, teamNames.length))
+
+
+        const leagueTeams = teamNames.map((name, i) => {
+            return {team: name, id: i+1, totalGames: totalGames, minPlace: teamNames.length}
+        })
 
         regularSeason.leagueTeams = leagueTeams
-
+ 
         const games = generateGames(regularSeason)
         regularSeason.games = games
         regularSeason.gamesAmount = totalGames
@@ -43,7 +37,11 @@ function generateTeams(container: Container, gameTypes: {playoffs?: Playoffs | n
         console.log('suveikia', regularSeason);
     } 
     if (playoffs) {
-        const allTeams = teamNames.map((name, i) => new Team(name, i+1, playoffs?.teamsAmount, teamNames.length))
+        const allTeams = teamNames.map((name, i) => {
+            return {team: name, id: i+1, totalGames: playoffs?.teamsAmount, minPlace: teamNames.length}
+        })
+
+        playoffs.leagueTeams = allTeams
         const playoffTeams = allTeams.slice(0, playoffs.teamsAmount)
 
         playoffs.playoffsTeams = playoffTeams

@@ -148,6 +148,7 @@ function createGameElement(prevGame: FootballGame | BasketballGame | null, game:
         input.value = team.goals !== null ? team.goals.toString() : ''
 
         if (game.teams.some(team => !team.team || !team.id) || (prevGame && !prevGame.playedAll)) {
+            console.log(prevGame, game, 'disabled');
             input.setAttribute('disabled', 'true')
         }
 
