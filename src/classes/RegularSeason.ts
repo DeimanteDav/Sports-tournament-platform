@@ -893,8 +893,9 @@ export default class RegularSeason extends League {
                     }
                 }
             }
-
-            // ...
+            
+            team.potentialPoints = team.gamesLeft*winPoints
+            team.maxPotentialPoints = team.potentialPoints + team.points
         })
     }
 

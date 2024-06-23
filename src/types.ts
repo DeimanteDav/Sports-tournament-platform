@@ -27,3 +27,25 @@ export interface PlayoffsPairInterface {
     teams: PlayoffsTeam[] | []
     winnerId: number | null
 }
+
+export interface BasketballSportPoints {
+    winPoints: number
+    lossPoints: number
+}
+
+interface FootballSportPoints {
+    winPoints: number
+    lossPoints: number
+    drawPoints: number
+}
+
+export interface SportDataInterface {
+    name: string
+    id: number
+    points: {
+        winPoints: number
+        lossPoints: number
+        drawPoints?: number
+        technicalLossPoints?: number
+    }
+}

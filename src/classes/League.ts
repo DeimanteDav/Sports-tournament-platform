@@ -1,5 +1,5 @@
 import { SPORTS } from "../config.js"
-import { GameType, GamesType, TeamsType } from "../types.js"
+import { GameType, GamesType, SportDataInterface, TeamsType } from "../types.js"
 import BasketballGame from "./Basketball/BasketballGame.js"
 import BasketballTeam, { BasketballTeamData } from ".//Basketball/BasketballTeam.js"
 import FootballGame from "./Football/FootballGame.js"
@@ -56,7 +56,7 @@ import Game from "./Game.js"
 
 export default abstract class League {
     private _leagueTeams: TeamsType = []
-    private _sportType: {id: number, name: string, points: {winPoints: number, lossPoints: number, technicalLossPoints?: number, drawPoints?: number}} | null = null
+    private _sportType: SportDataInterface | null = null
 
     get leagueTeams(): TeamsType {
         if (this._leagueTeams) {
