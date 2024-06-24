@@ -1,17 +1,16 @@
 import { SPORTS } from "../config.js";
-import { TeamsType, PlayoffsPairInterface } from "../types.js";
-import BasketballGame from "./BasketballGame.js";
-import FootballGame from "./FootballGame.js";
+import { TeamsType, PlayoffsPairInterface, GamesType } from "../types.js";
+import BasketballGame from "./Basketball/BasketballGame.js";
+import FootballGame from "./Football/FootballGame.js";
 import PlayoffsPair from "./PlayoffsPair.js";
 import League from "./League.js";
 import accordion from "../components/accordion.js";
-import playoffsTable from "../components/playoffs/playoffsTable.js";
-import updateGameData from "../functions/updateGameData.js";
 import Game from "./Game.js";
 import overtimeGameHandler from "../functions/overtimeGameHandler.js";
 import setPlayoffPairTeams from "../functions/playoffs/setPlayoffPairTeams.js";
 import winnerElement from "../components/playoffs/winnerElement.js";
-
+import FootballTeam, { FootballTeamData } from "./Football/FootballTeam.js";
+import BasketballTeam, { BasketballTeamData } from "./Basketball/BasketballTeam.js";
 
 export interface playoffsInteface {
     _playoffsTeams: TeamsType,
@@ -38,18 +37,30 @@ export default class Playoffs extends League  {
     private _roundsData: roundsDataInterface
     private _pairsData: pairsDataInterface
 
-    get playoffsTeams() {
+    get playoffsTeams(): TeamsType {
         if (this._playoffsTeams) {
             return this._playoffsTeams
         }
         throw new Error('no teams')
     }
 
-    set playoffsTeams(teams) {
-        this._playoffsTeams = teams
-        const updatedData = {...this, _playoffsTeams: this._playoffsTeams}
+    set playoffsTeams(newTeams: (FootballTeamData | BasketballTeamData)[]) {
+        if (this.sportType.id === SPORTS.football.id) {
+            this._playoffsTeams = newTeams.map(newTeam => {
+                return new FootballTeam(newTeam)
+            })
+        } else {
+            this._playoffsTeams = newTeams.map(newTeam => {
+                return new BasketballTeam(newTeam)
 
+            })
+        }
+
+        console.log(this.playoffsTeams);
+
+        const updatedData = {...this, _playoffsTeams: this._playoffsTeams}
         localStorage.setItem('playoffs-data', JSON.stringify(updatedData))
+
     }
 
     get roundsData() {
@@ -238,33 +249,55 @@ export default class Playoffs extends League  {
                 }
             }
             
-            // Playoffs.setPairsData(pairsData)
             this.pairsData = this.pairsData
             
-            let roundGames: (FootballGame | BasketballGame)[] = []
-            this.pairsData[round].forEach(round => {
-                roundGames.push(...round.games)
+            const groupedGames: {leg: number, games: (BasketballGame | FootballGame)[], extraData?: string}[] = []
+
+            this.pairsData[round].forEach((pair, i) => {
+                pair.games.forEach(game => {
+                    const group = groupedGames.find(group => group.leg === game.leg)
+
+                    if (group) {
+                        group.games.push(game)
+                    } else {
+                        groupedGames.push({leg: game.leg, games: [game]})
+                    }
+                })
             })
-            
-            const innerRounds = roundGames && [...new Set(roundGames.map(game => game.leg))] 
     
-            accordion(form, round, innerRounds, roundGames)
-    
-            // if (bestOutOf) {
-            //     playoffsPairs[round].forEach((round, i) => {
-            //         round.games.forEach((game, j) => {
-            //             const roundAccordion = document.querySelector(`.panel button[data-round-nr="${game.roundNr}"]`)
-            
-            //             if (j+1 > bestOutOf) {
-            
-            //                 roundAccordion.textContent = 'If needed'
-            //             } 
-            //         })
-            //     })
-            // }
+
+            if (bestOutOf) {
+                this.pairsData[round].forEach((round, i) => {
+                    const prevGames: boolean[] = []
+                    
+                    round.games.forEach((game, j) => {
+                        const prevGame = round.games[j-1] && round.games[j-1]
+                        if (prevGame) prevGames.push(prevGame.playedAll)
+                        
+                        if (j+1 > bestOutOf && !prevGames.includes(true)) {
+                            console.log(prevGames);
+                            const groupsIfNeeded = groupedGames.filter(group => group.leg === game.leg && game)
+
+                            groupsIfNeeded.forEach(group => {
+                                group.extraData = 'If needed'
+                            })
+                        } 
+                    })
+
+                })
+            }
+
+            accordion(form, round, groupedGames)
+
         })
-        playoffsTable({container, sportId: this.sportType.id, roundsData: sortedData, pairsData: this.pairsData})
+        this.renderTable(container, sortedData)
     
+    
+    
+        const winnerId = localStorage.getItem('winner-id')
+        if (winnerId) {
+            winnerElement(container, +winnerId, this.playoffsTeams)
+        }
         form.addEventListener('change', (e) => {
             const target = e.target as HTMLInputElement
             const gameEl = target.parentElement && target.parentElement.parentElement
@@ -314,7 +347,7 @@ export default class Playoffs extends League  {
                 throw new Error('new currentGame arba lastGAmeInputs')
             }
     
-            const gameTeams = this.playoffsTeams.filter(team => team.id === currentGame.teams[0].id || team.id === currentGame.teams[1].id)
+            const gameTeams = this.playoffsTeams.filter(team => team.teamId === currentGame.teams[0].id || team.teamId === currentGame.teams[1].id)
     
             if (this.sportType.id === SPORTS.football.id) {
                 const footballLastGame = lastGame as FootballGame
@@ -324,7 +357,7 @@ export default class Playoffs extends League  {
     
                     const extraTimeGame = footballLastGame.extraTime!
     
-                    updateGameData(gameWrapper, extraTimeInputs, extraTimeGame, this.sportType.id)
+                    this.updateGameData(gameWrapper, extraTimeInputs, extraTimeGame)
     
                     if (extraTimeGame.teams.every(team => extraTimeGame.teams[0].goals === team.goals) && extraTimeGame.played) {
                         const newGame = new Game(lastGame.id, lastGame.leg, lastGame.round, null, gameTeams[0], gameTeams[1])
@@ -337,7 +370,7 @@ export default class Playoffs extends League  {
                             const shootoutInput = document.createElement('input')
                             shootoutInput.classList.add('result-input')
                             shootoutInput.dataset.shootout = 'true'
-                            shootoutInput.dataset.teamId = gameTeams[i].id.toString()
+                            shootoutInput.dataset.teamId = gameTeams[i].teamId.toString()
     
                             input.after(shootoutInput)
                         })
@@ -352,7 +385,7 @@ export default class Playoffs extends League  {
                     const shootoutInputs = currentGameAllInputs.filter(input => input.dataset.shootout)
                     const shootoutGame = footballLastGame.shootout!
     
-                    updateGameData(gameWrapper, shootoutInputs, shootoutGame, this.sportType.id)
+                    this.updateGameData(gameWrapper, shootoutInputs, shootoutGame)
                 }
             } 
     
@@ -360,7 +393,7 @@ export default class Playoffs extends League  {
                 overtimeGameHandler(currentGame, gameWrapper, gameEl, gameTeams, overtimeId, this.sportType.id)
             }
     
-            updateGameData(gameWrapper, currentGameInputs, currentGame, this.sportType.id)
+            this.updateGameData(gameWrapper, currentGameInputs, currentGame)
     
             pairData.teams = setPlayoffPairTeams(this.sportType.id, pairData.games)
     
@@ -377,7 +410,7 @@ export default class Playoffs extends League  {
                         const extraTimeInput = document.createElement('input')
                         extraTimeInput.classList.add('result-input')
                         extraTimeInput.dataset.extraTime = 'true'
-                        extraTimeInput.dataset.teamId = gameTeams[i].id.toString()
+                        extraTimeInput.dataset.teamId = gameTeams[i].teamId.toString()
     
                         input.after(extraTimeInput)
                     })
@@ -520,7 +553,7 @@ export default class Playoffs extends League  {
             const nextPairGameElements = [...document.querySelectorAll(`.game[data-pair-id="${pairData.nextId}"] `)]
     
             if (!nextPairGameElements) throw new Error('no next pair game els')
-                
+                console.log(this.playoffsTeams);
             if (gamesAmount >= 2 && nextPair) {
                 nextPair.games.forEach((game, i) => {
                     const nextPairElement = nextPairGameElements[i]
@@ -532,11 +565,13 @@ export default class Playoffs extends League  {
                     nextPairInputs.forEach((input, index) => {
                         if (pairData.winnerId) {
                             game.played = false
-                            const winnningTeam = this.playoffsTeams.find(team => team.id === pairData.winnerId)!
+                            const winnningTeam = this.playoffsTeams.find(team => team.teamId === pairData.winnerId)!
                             
-                            const winnerData = {team: winnningTeam.team, id: winnningTeam.id}
+                            console.log(winnningTeam, this.playoffsTeams,  pairData.winnerId);
+
+                            const winnerData = {team: winnningTeam.team, id: winnningTeam.teamId}
     
-                            const nextPairTeamExists = nextPair.teams.find(team => team.id === winnningTeam.id)
+                            const nextPairTeamExists = nextPair.teams.find(team => team.id === winnningTeam.teamId)
     
                             if (!nextPairTeamExists) {
                                 if (input.dataset.overtime || input.dataset.extraTime || input.dataset.shootout) {
@@ -584,7 +619,7 @@ export default class Playoffs extends League  {
             }
     
     
-            playoffsTable({container, sportId: this.sportType.id, roundsData: sortedData, pairsData: this.pairsData})
+            this.renderTable(container, sortedData)
             
             if (currentRound === 'final' && pairGames.every(game => game.playedAll) && pairData.winnerId) {
     
@@ -596,9 +631,231 @@ export default class Playoffs extends League  {
                 localStorage.removeItem('winner-id')
             }
     
-            // Playoffs.setPairsData(pairsData)
             this.pairsData = this.pairsData
         })
+    }
+
+    private renderTable(container: HTMLDivElement, roundsData: { [k: string]: { gamesAmount: number, knockouts: number | null, bestOutOf?: number | null } }) {
+        const oldTableWrapper = document.querySelector('.playoffs-table')
+        const sportId = this.sportType.id
+
+        if (oldTableWrapper) {
+            oldTableWrapper.remove()
+        }
+        const tableWrapper = document.createElement('div')
+        tableWrapper.classList.add('playoffs-table')
+        container.append(tableWrapper)
+        
+        const headerEl = document.createElement('ul')
+        headerEl.classList.add('playoffs-header')
+        const table = document.createElement('div')
+        table.classList.add('playoffs-games')
+    
+        let colsAmount = Object.keys(this.pairsData).length
+        let rowsAmount = Object.values(this.pairsData)[0].length
+    
+        const wideScreen  = window.matchMedia( '(min-width: 1000px)' );
+
+        const resizeHandler = (e: MediaQueryList | MediaQueryListEvent) => {
+            if (e.matches) {
+                colsAmount = Object.keys(this.pairsData).length*2-1
+                rowsAmount = Object.values(this.pairsData)[0].length/2
+            } else {
+                colsAmount = Object.keys(this.pairsData).length
+                rowsAmount = Object.values(this.pairsData)[0].length
+            }
+    
+            table.style.gridTemplateColumns = `repeat(${colsAmount}, 1fr)`
+            table.style.gridTemplateRows = `repeat(${rowsAmount}, 1fr)`
+    
+            headerEl.innerHTML = ''  
+    
+            Object.entries(roundsData).forEach(([round]) => {
+                const headerItem = document.createElement('li')
+                headerItem.textContent = round
+                headerEl.append(headerItem)
+            }) 
+            if (e.matches) {
+                Object.entries(roundsData).reverse().forEach(([round]) => {
+                    if (round !== 'final') {
+                        const anotherHeader = document.createElement('li')
+                        anotherHeader.textContent = round
+                        headerEl.append(anotherHeader)
+                    }
+                }) 
+            }
+        }
+
+        wideScreen.addEventListener('change', resizeHandler)
+        resizeHandler(wideScreen)
+        
+        Object.entries(this.pairsData).forEach(([round, roundPairs], index) => {
+            const gamesAmount = roundPairs.length
+    
+            let rowIndex = 1
+            let leftRowIndex = 1
+            let rowSpan
+    
+            wideScreen.addEventListener('change', (e) => {
+                rowIndex = 1
+                leftRowIndex = 1
+            })
+    
+            for (let i = 0; i < roundPairs.length; i++) {
+                const pair = roundPairs[i];
+                const pairId = pair.id
+                const positionInRound = i+1
+    
+                const gridWrapper = document.createElement('div')
+                gridWrapper.classList.add('grid-wrapper')
+                const gameResultWrapper = document.createElement('div')
+                gameResultWrapper.classList.add('game-result-wrapper')
+                gameResultWrapper.style.border = '1px solid black'
+    
+                const gameNumberEl = document.createElement('span')
+                gameNumberEl.textContent = `${pairId}.`
+    
+                const resultTable = document.createElement('table')
+                const tHead = document.createElement('thead')
+                const headRow = document.createElement('tr')
+                const emptyHeadCell = document.createElement('th')
+                emptyHeadCell.setAttribute('colspan', '2')
+    
+                const tBody = document.createElement('tbody')
+    
+                pair.games.forEach((game, i) => {
+                    const headCell = document.createElement('th')
+                    headCell.textContent = `${i+1}`
+                    headCell.setAttribute('scope', 'col')
+                    headRow.append(headCell)
+    
+                    if (sportId === SPORTS.football.id) {
+                        const footballGame = game as FootballGame
+                        if (footballGame.extraTime) {
+                            const extraTimeEl = document.createElement('th')
+                            extraTimeEl.textContent = 'Extra'
+                            extraTimeEl.setAttribute('scope', 'col')
+                            headRow.append(extraTimeEl)
+                        }
+                        
+                        if (footballGame) {
+                            const shootOutEl = document.createElement('th')
+                            shootOutEl.textContent = 'P'
+                            shootOutEl.setAttribute('scope', 'col')
+                            headRow.append(shootOutEl)
+                        }
+                    } else if (sportId === SPORTS.basketball.id) {
+                        const basketballGame = game as BasketballGame
+                        if (basketballGame) {
+                            basketballGame.overtime.forEach(_ => {
+                                const overtimeEl = document.createElement('th')
+                                overtimeEl.textContent = 'OT'
+                                overtimeEl.setAttribute('scope', 'col')
+                                headRow.append(overtimeEl)
+                            })
+                        }
+                    }
+    
+                })
+    
+                const pairIdEl = document.createElement('th')
+                pairIdEl.textContent = pair.id + '.'
+                pairIdEl.setAttribute('rowSpan', '3')
+    
+                for (let i = 0; i < pair.teams.length; i++) {
+                    const teamData = pair.teams[i];
+                    const bodyRow = document.createElement('tr')
+    
+                    const teamEl = document.createElement('th')
+                    teamEl.style.padding = '0 10px'
+                    teamEl.setAttribute('scope', 'row')
+                    teamEl.textContent = teamData.team ? teamData.team : `${pair.prevIds[i]} winner`
+                 
+                    const totalScoreEl = document.createElement('th')
+    
+                    totalScoreEl.textContent = roundsData[round].bestOutOf ? teamData.wins.toString() : teamData.totalScore.toString()
+                    totalScoreEl.style.padding = '0 10px'
+                    totalScoreEl.style.fontWeight = 'bold'
+    
+                    for (let j = 0; j < teamData.scores.length; j++) {
+                        const gameData = teamData.scores[j];
+                        const gameResultEl = document.createElement('td')  
+    
+    
+                        if ((gameData.playedIn === 'extra' || gameData.playedIn === 'p' || gameData.playedIn === 'OT') && teamData.team) {
+                            gameResultEl.textContent = gameData.score !== null ? gameData.score.toString() : '-'
+                        } else {
+                            gameResultEl.textContent = gameData.playedIn + ' ' + (gameData.score !== null ? gameData.score : '-')
+                        }
+    
+                        bodyRow.append(gameResultEl)
+                    }
+                    
+    
+                    bodyRow.prepend(teamEl)
+                    bodyRow.append(totalScoreEl)
+    
+                    if (i === 0) {
+                        bodyRow.prepend(pairIdEl)
+                    }
+                    tBody.append(bodyRow)
+                }   
+                
+                if (index === 0) {
+                    gridWrapper.classList.add('first-row')
+                }
+    
+    
+                if (gamesAmount > 1) {
+                    if (gamesAmount/2 < positionInRound) {
+                        gridWrapper.classList.add('right')
+                    }
+                } else {
+                    gridWrapper.classList.add('final')
+                }
+    
+                headRow.prepend(emptyHeadCell)
+                tHead.append(headRow)
+                resultTable.append(tHead, tBody)
+                gameResultWrapper.append(resultTable)
+                gridWrapper.append(gameResultWrapper)
+                table.append(gridWrapper)
+    
+                const repositionResultWrapper = (e: MediaQueryList | MediaQueryListEvent) => {
+                    if (e.matches) {
+                        rowSpan = rowsAmount*2/gamesAmount
+    
+                        if (gamesAmount > 1 && gamesAmount/2 < positionInRound) {
+                            gridWrapper.style.gridColumn = (colsAmount - (index)).toString()
+    
+                            gridWrapper.style.gridRow = `${leftRowIndex} / span ${rowSpan}`
+    
+                            leftRowIndex+=rowSpan
+                        } else {
+                            gridWrapper.style.gridColumn = (index+1).toString()
+    
+                            if (gamesAmount > 1) {
+                                gridWrapper.style.gridRow = `${rowIndex} / span ${rowSpan}`
+                            } else {
+                                gridWrapper.style.gridRow = `${rowIndex} / span ${rowsAmount}`
+                            }
+                        }
+                    } else {
+                        rowSpan = rowsAmount/gamesAmount
+                        gridWrapper.style.gridColumn = (index+1).toString()
+                        gridWrapper.style.gridRow = `${rowIndex} / span ${rowSpan}`
+                    }
+    
+                    rowIndex+=rowSpan
+                }
+
+                wideScreen.addEventListener('change', repositionResultWrapper)
+    
+                repositionResultWrapper(wideScreen)
+            }
+        })
+
+        tableWrapper.append(headerEl, table)
     }
 
     setNextPairElements(teams: {team: string, id: number | null, goals: number | null, home: boolean, away: boolean}[], pairId: number, index: number, label: HTMLLabelElement[], winnerData?: { team: string, id: number }) {

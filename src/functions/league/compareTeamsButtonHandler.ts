@@ -1,6 +1,6 @@
 import comparisonTable from "../../components/league/comparisonTable.js";
-import BasketballTeam from "../../classes/BasketballTeam.js";
-import FootballTeam from "../../classes/FootballTeam.js";
+import BasketballTeam from "../../classes/Basketball/BasketballTeam.js";
+import FootballTeam from "../../classes/Football/FootballTeam.js";
 import { GamesType, TeamsType } from "../../types.js";
 
 function compareTeamsButtonHandler(wrapper: HTMLElement, team: FootballTeam | BasketballTeam, games: GamesType, btnWrapper: HTMLElement) {

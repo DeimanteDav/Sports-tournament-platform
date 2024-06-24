@@ -1,11 +1,10 @@
 import Playoffs, { playoffsInteface } from "../../classes/Playoffs.js"
 import RegularSeason from "../../classes/RegularSeason.js"
 import { SPORTS } from "../../config.js"
-import { Container } from "../../types.js"
+import { Container, SportDataInterface } from "../../types.js"
 import generateTeams from "./generateTeams.js"
 
 function tournamentType(container: Container, teamsAmount: number) {
-    const sportData = JSON.parse(localStorage.getItem('sport-type') || '')
 
     const form = document.createElement('form')
     form.classList.add('form')
@@ -20,7 +19,7 @@ function tournamentType(container: Container, teamsAmount: number) {
 
 
     const regularSeasonData = new RegularSeason()
-    const leagueSwitch = toggleSwitch(leagueSwitchHandler, leagueWrapper, [regularSeasonData, teamsAmount, sportData])
+    const leagueSwitch = toggleSwitch(leagueSwitchHandler, leagueWrapper, regularSeasonData, teamsAmount)
 
 
     const playoffsTitleWrapper = document.createElement('div')
@@ -33,7 +32,7 @@ function tournamentType(container: Container, teamsAmount: number) {
 
 
     const playoffsData = new Playoffs()
-    const playoffsSwitch = toggleSwitch(playoffsSwitchHandler, playoffsWrapper, [playoffsData, teamsAmount, sportData])
+    const playoffsSwitch = toggleSwitch(playoffsSwitchHandler, playoffsWrapper, playoffsData, teamsAmount)
 
     const submitBtn = document.createElement('button')
     submitBtn.type = 'submit'
@@ -64,19 +63,21 @@ function tournamentType(container: Container, teamsAmount: number) {
 export default tournamentType
 
 
-function toggleSwitch(switchHandler: Function, wrapper: HTMLElement, props: number[]) {
+function toggleSwitch(switchHandler: Function, wrapper: HTMLElement, data: Playoffs | RegularSeason, teamsAmount: number) {
+    const sportData: SportDataInterface = JSON.parse(localStorage.getItem('sport-type') || '')
+
     const toggle = document.createElement('input')
     toggle.type = 'checkbox'
     toggle.classList.add('toggle')
 
     toggle.addEventListener('change', (e) => {
         const checkbox = e.target as HTMLInputElement
-        switchHandler(checkbox.checked, wrapper, ...props)
+        switchHandler(checkbox.checked, wrapper, sportData, teamsAmount)
     })
     return toggle
 }
 
-function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, regularSeasonData: RegularSeason, teamsAmount: number, sportData: {id: number, name: string, points: Object}) {
+function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, regularSeasonData: RegularSeason, sportData: SportDataInterface, teamsAmount: number, ) {
     if (checked) {
         regularSeasonData.sportType = sportData
 
@@ -122,7 +123,7 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, regularSeas
             const amount = (e.target as HTMLInputElement).value
             console.log(amount);
             if (!amount) {
-                regularSeasonData.relegation = null
+                regularSeasonData.relegation = 0
             } else {
                 regularSeasonData.relegation = +amount
             }
@@ -145,7 +146,7 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, regularSeas
     }
 }
 
-function playoffsSwitchHandler(checked: boolean, wrapper: HTMLElement, playoffsData: Playoffs, teamsAmount: number, sportData: {id: number, name: string, points: Object}) {
+function playoffsSwitchHandler(checked: boolean, wrapper: HTMLElement, playoffsData: Playoffs, sportData: SportDataInterface, teamsAmount: number) {
     if (checked) {
         console.log(playoffsData);
         playoffsData.sportType = sportData

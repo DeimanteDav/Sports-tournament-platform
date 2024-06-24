@@ -1,5 +1,5 @@
+import Game from "../Game.js"
 import FootballTeam from "./FootballTeam.js"
-import Game from "./Game.js"
 
 export default class FootballGame extends Game {
     extraTime: null | Game = null

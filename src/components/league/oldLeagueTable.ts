@@ -1,12 +1,11 @@
-import BasketballTeam from "../../classes/BasketballTeam.js";
-import FootballTeam from "../../classes/FootballTeam.js";
+import BasketballTeam from "../../classes/Basketball/BasketballTeam.js";
+import FootballTeam from "../../classes/Football/FootballTeam.js";
 import RegularSeason from "../../classes/RegularSeason.js";
 import getInbetweenTeamsGames from "../../functions/getInbetweenTeamsGames.js";
 import compareTeamsButtonHandler from "../../functions/league/compareTeamsButtonHandler.js";
 import { GamesType, TeamsType } from "../../types.js";
 
 function oldLeagueTable(wrapper: HTMLElement, sportData: RegularSeason['sportType'], games: GamesType, teams: TeamsType, params: {comparisonBtn?: boolean, comparisonTable?: boolean} = {comparisonBtn: false, comparisonTable: false}) {
-
     const {comparisonBtn, comparisonTable} = params
     const {winPoints, drawPoints, lossPoints} = sportData.points
 

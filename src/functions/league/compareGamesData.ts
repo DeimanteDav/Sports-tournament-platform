@@ -1,5 +1,5 @@
 
-import BasketballGame from "../../classes/BasketballGame.js"
+import BasketballGame from "../../classes/Basketball/BasketballGame.js"
 import { SPORTS } from "../../config.js"
 import { GamesType, TeamsType } from "../../types.js"
 import getInbetweenTeamsGames from "../getInbetweenTeamsGames.js"

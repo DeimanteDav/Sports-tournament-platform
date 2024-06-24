@@ -1,7 +1,7 @@
-import BasketballGame from "./classes/BasketballGame.js"
-import BasketballTeam from "./classes/BasketballTeam.js"
-import FootballGame from "./classes/FootballGame.js"
-import FootballTeam from "./classes/FootballTeam.js"
+import BasketballGame from "./classes/Basketball/BasketballGame.js"
+import BasketballTeam from "./classes/Basketball/BasketballTeam.js"
+import FootballGame from "./classes/Football/FootballGame.js"
+import FootballTeam from "./classes/Football/FootballTeam.js"
 
 export interface PlayoffsTeam {
     team: string
@@ -14,7 +14,10 @@ export interface PlayoffsTeam {
 export type Container = HTMLDivElement
 
 export type TeamsType = BasketballTeam[] | FootballTeam[] | (BasketballTeam | FootballTeam)[]
+export type TeamType = BasketballTeam | FootballTeam
+
 export type GamesType = BasketballGame[] | FootballGame[] | (BasketballGame | FootballGame)[]
+export type GameType = BasketballGame | FootballGame
 
 export interface PlayoffsPairInterface {
     id: number
@@ -23,4 +26,26 @@ export interface PlayoffsPairInterface {
     nextId: number
     teams: PlayoffsTeam[] | []
     winnerId: number | null
+}
+
+export interface BasketballSportPoints {
+    winPoints: number
+    lossPoints: number
+}
+
+interface FootballSportPoints {
+    winPoints: number
+    lossPoints: number
+    drawPoints: number
+}
+
+export interface SportDataInterface {
+    name: string
+    id: number
+    points: {
+        winPoints: number
+        lossPoints: number
+        drawPoints?: number
+        technicalLossPoints?: number
+    }
 }

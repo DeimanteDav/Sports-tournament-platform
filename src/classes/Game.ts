@@ -10,18 +10,17 @@ export default class Game {
   pairId?: number | null
   
   constructor(id: number, leg: number, round: number | string, pairId?: number | null, homeT?: Team | null, awayT?: Team | null) {
-    // TODO: teamId
     this.teams = [
       {
         team: homeT ? homeT.team : '',
-        id: homeT ? homeT.id : null,
+        id: homeT ? homeT.teamId : null,
         goals: null,
         home: true,
         away: false
       },
       {
         team: awayT ? awayT.team : '',
-        id: awayT ? awayT.id : null,
+        id: awayT ? awayT.teamId : null,
         goals: null,
         home: false,
         away: true,
@@ -32,12 +31,11 @@ export default class Game {
     this.pairId = pairId
     this.round = round
   }
-
-  static gameElement(game: Game) {
+  
+  static gameElement() {
     const gameWrapper = document.createElement('div')
     gameWrapper.classList.add('game-wrapper')
 
-    
     return gameWrapper
 }
 }

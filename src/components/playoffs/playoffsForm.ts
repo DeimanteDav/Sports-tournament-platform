@@ -1,8 +1,8 @@
 import { SPORTS } from "../../config.js";
 import PlayoffsPair from "../../classes/PlayoffsPair.js";
 import accordion from "../accordion.js";
-import FootballGame from "../../classes/FootballGame.js";
-import BasketballGame from "../../classes/BasketballGame.js";
+import FootballGame from "../../classes/Football/FootballGame.js";
+import BasketballGame from "../../classes/Basketball/BasketballGame.js";
 import setPlayoffPairTeams from "../../functions/playoffs/setPlayoffPairTeams.js";
 import playoffsTable from "./playoffsTable.js";
 import updateGameData from "../../functions/updateGameData.js";

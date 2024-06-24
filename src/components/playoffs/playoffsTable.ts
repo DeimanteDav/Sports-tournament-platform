@@ -1,5 +1,5 @@
-import BasketballGame from "../../classes/BasketballGame.js";
-import FootballGame from "../../classes/FootballGame.js";
+import BasketballGame from "../../classes/Basketball/BasketballGame.js";
+import FootballGame from "../../classes/Football/FootballGame.js";
 import { SPORTS } from "../../config.js";
 import { Container, PlayoffsPairInterface } from "../../types.js";
 
@@ -71,7 +71,6 @@ function playoffsTable(tableData: PlayoffsTable) {
     }
 
     Object.entries(pairsData).forEach(([round, roundPairs], index) => {
-
         const gamesAmount = roundPairs.length
 
         let rowIndex = 1
