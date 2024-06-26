@@ -52,11 +52,8 @@ export default class Playoffs extends League  {
         } else {
             this._playoffsTeams = newTeams.map(newTeam => {
                 return new BasketballTeam(newTeam)
-
             })
         }
-
-        console.log(this.playoffsTeams);
 
         const updatedData = {...this, _playoffsTeams: this._playoffsTeams}
         localStorage.setItem('playoffs-data', JSON.stringify(updatedData))

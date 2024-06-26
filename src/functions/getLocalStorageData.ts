@@ -15,10 +15,10 @@ function getLocalStorageData(container: Container) {
         const playoffsData = playoffs ? new Playoffs(playoffs._playoffsTeams, playoffs._teamsAmount, playoffs._roundsData, playoffs._pairsData) : null
         
         if (regularSeason) {
-            const regularSeasonData = new RegularSeason(regularSeason._gamesAmount, regularSeason._roundsAmount, regularSeason._games, regularSeason?._relegation)
-
+            const regularSeasonData = new RegularSeason(regularSeason._gamesAmount, regularSeason._roundsAmount, regularSeason?._relegation)
 
             regularSeasonData.sportType = regularSeason._sportType
+            regularSeasonData.games = regularSeason._games
             regularSeasonData.leagueTeams = regularSeason._leagueTeams
 
             if (playoffsData) {

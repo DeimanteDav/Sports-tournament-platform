@@ -72,7 +72,7 @@ function toggleSwitch(switchHandler: Function, wrapper: HTMLElement, data: Playo
 
     toggle.addEventListener('change', (e) => {
         const checkbox = e.target as HTMLInputElement
-        switchHandler(checkbox.checked, wrapper, sportData, teamsAmount)
+        switchHandler(checkbox.checked, wrapper, data, sportData, teamsAmount)
     })
     return toggle
 }
@@ -148,7 +148,7 @@ function leagueSwitchHandler(checked: boolean, wrapper: HTMLElement, regularSeas
 
 function playoffsSwitchHandler(checked: boolean, wrapper: HTMLElement, playoffsData: Playoffs, sportData: SportDataInterface, teamsAmount: number) {
     if (checked) {
-        console.log(playoffsData);
+        console.log(playoffsData, 'playoffsdata');
         playoffsData.sportType = sportData
 
         // const playoffsData = {
@@ -162,7 +162,7 @@ function playoffsSwitchHandler(checked: boolean, wrapper: HTMLElement, playoffsD
 
         const teamsAmountWrapper = document.createElement('div')
 
-        const teamsAmountText = document.createElement('p')
+        const teamsAmountText = document.createElement('label')
         teamsAmountText.textContent = 'How many teams play in Playoffs?'
 
         const possibleAmounts = []

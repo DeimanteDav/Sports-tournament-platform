@@ -14,9 +14,9 @@ export default class FootballTeam extends Team {
     constructor(data: FootballTeamData) {
         super(data)
         const {draws, awayGoals, awayWins} = data
-
+ 
         this.draws = draws ?? 0
         this.awayGoals = awayGoals ?? 0
         this.awayWins = awayWins ?? 0
     }
-}
+} 

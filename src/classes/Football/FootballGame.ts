@@ -9,11 +9,11 @@ export default class FootballGame extends Game {
         super(id, leg, round, pairId, homeT, awayT)
     }
 
-    static gameElement(game: FootballGame) {
-        const gameWrapper = document.createElement('div')
-        gameWrapper.classList.add('game-wrapper')
+    // static gameElement(game: FootballGame) {
+    //     const gameWrapper = document.createElement('div')
+    //     gameWrapper.classList.add('game-wrapper')
 
 
-        return gameWrapper
-    }
+    //     return gameWrapper
+    // }
 }
