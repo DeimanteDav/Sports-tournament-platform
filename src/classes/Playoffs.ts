@@ -372,6 +372,7 @@ export default class Playoffs extends League  {
                             input.after(shootoutInput)
                         })
                     } else {
+                        footballLastGame.playedAll = true
                         lastGameInputs.forEach(input => {
                             if (input.dataset.shootout) {
                                 input.remove()
@@ -380,8 +381,15 @@ export default class Playoffs extends League  {
                     }
                 } else if (shootout) {
                     const shootoutInputs = currentGameAllInputs.filter(input => input.dataset.shootout)
+
                     const shootoutGame = footballLastGame.shootout!
-    
+                    
+                    if (shootoutGame.teams.every(team => shootoutGame.teams[0].goals === team.goals) && shootoutGame.played) {
+                        footballLastGame.playedAll = false
+                    } else {
+                        footballLastGame.playedAll = true
+                    }
+
                     this.updateGameData(gameWrapper, shootoutInputs, shootoutGame)
                 }
             } 
@@ -396,7 +404,7 @@ export default class Playoffs extends League  {
     
             if (this.sportType.id === SPORTS.football.id && !extraTime && !shootout) {
                 const footballLastGame = currentGame as FootballGame
-    
+                console.log(pairGames);
                 if (pairGames.every(game => game.playedAll) && pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
                     const newGame = new Game(lastGame.id, lastGame.leg, lastGame.round, null, gameTeams[0], gameTeams[1])
                 
@@ -531,6 +539,7 @@ export default class Playoffs extends League  {
                 }
             }
     
+            console.log(pairGames);
             if (bestOutOf && pairData.teams.some(team => team.wins >= bestOutOf)) {
                 pairData.winnerId = pairData.teams.reduce((prev, current) => {
                     return (prev && prev.wins > current.wins) ? prev : current

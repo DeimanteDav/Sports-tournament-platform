@@ -8,7 +8,6 @@ function getLocalStorageData(container: Container) {
     const regularSeason = RegularSeason.getData()
     const playoffs = Playoffs.getData()
     const sportType = localStorage.getItem('sport-type')
-console.log(regularSeason, 'local');
     const leagueTeams = localStorage.getItem('teams')
 
     if ((regularSeason || playoffs) && sportType) {
