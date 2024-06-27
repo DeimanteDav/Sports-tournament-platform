@@ -492,23 +492,41 @@ table {
 }
 
 .playoffs-table .playoffs-games .game-result-wrapper {
-  display: flex;
+  /* display: flex; */
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
   flex-grow: 1;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  /* justify-content: center; */
+  justify-items: center;
+  /* gap: 10px; */
   position: relative;
   border: 1px solid black;
-  border-radius: 5px;
-  padding: 10px;
+  border-radius: 3px;
+  /* padding: 10px; */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.game-result-wrapper th,
-.game-result-wrapper td {
-  padding: 5px;
-  white-space: nowrap;
+.game-result-wrapper .pair-id {
+  grid-row: span 2;
+  background-color: lightblue;
 }
+
+.game-result-wrapper span {
+  padding: 10px;
+  white-space: nowrap;
+
+  align-self: stretch;
+}
+.game-result-wrapper span:nth-child(-n+3):not(:first-child) {
+  border-bottom: 1px solid black;
+}
+
+.game-result-wrapper .team-title {
+  justify-self: stretch;
+}
+
 
 
 

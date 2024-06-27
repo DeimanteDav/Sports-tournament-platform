@@ -699,6 +699,7 @@ export default class Playoffs extends League  {
             })
     
             for (let i = 0; i < roundPairs.length; i++) {
+                // const teamsWrapper = document.createElement('div')
                 const pair = roundPairs[i];
                 const pairId = pair.id
                 const positionInRound = i+1
@@ -710,68 +711,73 @@ export default class Playoffs extends League  {
                 gameResultWrapper.style.border = '1px solid black'
     
                 const gameNumberEl = document.createElement('span')
+                gameNumberEl.classList.add('pair-id')
                 gameNumberEl.textContent = `${pairId}.`
+
+                // const infoButton = document.createElement('')
     
-                const resultTable = document.createElement('table')
-                const tHead = document.createElement('thead')
-                const headRow = document.createElement('tr')
-                const emptyHeadCell = document.createElement('th')
-                emptyHeadCell.setAttribute('colspan', '2')
+                // const resultTable = document.createElement('table')
+                // const tHead = document.createElement('thead')
+                // const headRow = document.createElement('tr')
+                // const emptyHeadCell = document.createElement('th')
+                // emptyHeadCell.setAttribute('colspan', '2')
     
-                const tBody = document.createElement('tbody')
+                // const tBody = document.createElement('tbody')
     
-                pair.games.forEach((game, i) => {
-                    const headCell = document.createElement('th')
-                    headCell.textContent = `${i+1}`
-                    headCell.setAttribute('scope', 'col')
-                    headRow.append(headCell)
+                // pair.games.forEach((game, i) => {
+                //     const headCell = document.createElement('th')
+                //     headCell.textContent = `${i+1}`
+                //     headCell.setAttribute('scope', 'col')
+                //     headRow.append(headCell)
     
-                    if (sportId === SPORTS.football.id) {
-                        const footballGame = game as FootballGame
-                        if (footballGame.extraTime) {
-                            const extraTimeEl = document.createElement('th')
-                            extraTimeEl.textContent = 'Extra'
-                            extraTimeEl.setAttribute('scope', 'col')
-                            headRow.append(extraTimeEl)
-                        }
+                //     if (sportId === SPORTS.football.id) {
+                //         const footballGame = game as FootballGame
+                //         if (footballGame.extraTime) {
+                //             const extraTimeEl = document.createElement('th')
+                //             extraTimeEl.textContent = 'Extra'
+                //             extraTimeEl.setAttribute('scope', 'col')
+                //             headRow.append(extraTimeEl)
+                //         }
                         
-                        if (footballGame) {
-                            const shootOutEl = document.createElement('th')
-                            shootOutEl.textContent = 'P'
-                            shootOutEl.setAttribute('scope', 'col')
-                            headRow.append(shootOutEl)
-                        }
-                    } else if (sportId === SPORTS.basketball.id) {
-                        const basketballGame = game as BasketballGame
-                        if (basketballGame) {
-                            basketballGame.overtime.forEach(_ => {
-                                const overtimeEl = document.createElement('th')
-                                overtimeEl.textContent = 'OT'
-                                overtimeEl.setAttribute('scope', 'col')
-                                headRow.append(overtimeEl)
-                            })
-                        }
-                    }
+                //         if (footballGame) {
+                //             const shootOutEl = document.createElement('th')
+                //             shootOutEl.textContent = 'P'
+                //             shootOutEl.setAttribute('scope', 'col')
+                //             headRow.append(shootOutEl)
+                //         }
+                //     } else if (sportId === SPORTS.basketball.id) {
+                //         const basketballGame = game as BasketballGame
+                //         if (basketballGame) {
+                //             basketballGame.overtime.forEach(_ => {
+                //                 const overtimeEl = document.createElement('th')
+                //                 overtimeEl.textContent = 'OT'
+                //                 overtimeEl.setAttribute('scope', 'col')
+                //                 headRow.append(overtimeEl)
+                //             })
+                //         }
+                //     }
     
-                })
+                // })
     
-                const pairIdEl = document.createElement('th')
-                pairIdEl.textContent = pair.id + '.'
-                pairIdEl.setAttribute('rowSpan', '3')
+                // const pairIdEl = document.createElement('th')
+                // pairIdEl.classList.add('pair-id')
+                // pairIdEl.textContent = pair.id + '.'
+                // pairIdEl.setAttribute('rowSpan', '3')
     
                 for (let i = 0; i < pair.teams.length; i++) {
                     const teamData = pair.teams[i];
-                    const bodyRow = document.createElement('tr')
-    
-                    const teamEl = document.createElement('th')
-                    teamEl.style.padding = '0 10px'
-                    teamEl.setAttribute('scope', 'row')
+                    // const bodyRow = document.createElement('tr')
+                    // const teamDataEl = document.createElement('div')
+                    const teamEl = document.createElement('span')
+                    teamEl.classList.add('team-title')
+                    // teamEl.style.padding = '0 10px'
+                    // teamEl.setAttribute('scope', 'row')
                     teamEl.textContent = teamData.team ? teamData.team : `${pair.prevIds[i]} winner`
                  
-                    const totalScoreEl = document.createElement('th')
+                    const totalScoreEl = document.createElement('span')
     
                     totalScoreEl.textContent = roundsData[round].bestOutOf ? teamData.wins.toString() : teamData.totalScore.toString()
-                    totalScoreEl.style.padding = '0 10px'
+                    // totalScoreEl.style.padding = '0 10px'
                     totalScoreEl.style.fontWeight = 'bold'
     
                     for (let j = 0; j < teamData.scores.length; j++) {
@@ -785,17 +791,19 @@ export default class Playoffs extends League  {
                             gameResultEl.textContent = gameData.playedIn + ' ' + (gameData.score !== null ? gameData.score : '-')
                         }
     
-                        bodyRow.append(gameResultEl)
+                        // bodyRow.append(gameResultEl)
                     }
-                    
+
+                    // teamDataEl.append(teamEl, totalScoreEl)
+                    gameResultWrapper.append(teamEl, totalScoreEl)
     
-                    bodyRow.prepend(teamEl)
-                    bodyRow.append(totalScoreEl)
-    
-                    if (i === 0) {
-                        bodyRow.prepend(pairIdEl)
-                    }
-                    tBody.append(bodyRow)
+                    // bodyRow.prepend(teamEl)
+                    // bodyRow.append(totalScoreEl)
+                    // gameResultWrapper.append(teamEl, totalScoreEl)
+                    // if (i === 0) {
+                    //     bodyRow.prepend(pairIdEl)
+                    // }
+                    // tBody.append(bodyRow)
                 }   
                 
                 if (index === 0) {
@@ -811,10 +819,10 @@ export default class Playoffs extends League  {
                     gridWrapper.classList.add('final')
                 }
     
-                headRow.prepend(emptyHeadCell)
-                tHead.append(headRow)
-                resultTable.append(tHead, tBody)
-                gameResultWrapper.append(resultTable)
+                // headRow.prepend(emptyHeadCell)
+                // tHead.append(headRow)
+                // resultTable.append(tHead, tBody)
+                gameResultWrapper.prepend(gameNumberEl)
                 gridWrapper.append(gameResultWrapper)
                 table.append(gridWrapper)
     

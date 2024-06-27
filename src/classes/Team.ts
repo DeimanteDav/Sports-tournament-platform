@@ -39,9 +39,6 @@ export default abstract class Team {
         return this.id
     }
 
-    // TODO:
-    // i objekta sudeti visus duomenis
-    // susikurti interface
     constructor(data: TeamData) {
         const {team, id, totalGames, minPlace} = data
         

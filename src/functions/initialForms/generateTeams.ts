@@ -8,7 +8,6 @@ function generateTeams(container: Container, gameTypes: {playoffs?: Playoffs | n
     const teamNames: string[] = localStorage.getItem('team-names') ? JSON.parse(localStorage.getItem('team-names') || '') : null
 
     const {playoffs, regularSeason} = gameTypes
-    const sportId = localStorage.getItem('sport-type') ? JSON.parse(localStorage.getItem('sport-type') || '').id : null
 
 
     if (regularSeason) {
@@ -20,21 +19,18 @@ function generateTeams(container: Container, gameTypes: {playoffs?: Playoffs | n
         })
 
         regularSeason.leagueTeams = leagueTeams
- 
+        console.log(regularSeason, 'initial');
         const games = generateGames(regularSeason)
         regularSeason.games = games
         regularSeason.gamesAmount = totalGames
 
-        console.log(regularSeason);
         titleWrapper(container)
-        // leagueTournament(container)
 
         if (playoffs) {
             regularSeason.renderHtml(container, playoffs)
         } else {
             regularSeason.renderHtml(container)
         }
-        console.log('suveikia', regularSeason);
     } 
     if (playoffs) {
         const allTeams = teamNames.map((name, i) => {

@@ -76,6 +76,7 @@ export default abstract class League {
                 return new BasketballTeam(newTeam)
             })
         }
+
         localStorage.setItem('teams', JSON.stringify(newTeams))
     }
 

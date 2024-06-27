@@ -606,12 +606,12 @@ export default class RegularSeason extends League {
     }
 
     private modernTable(wrapper: HTMLElement, teams: TeamsType, params: {comparisonBtn?: boolean, position?: boolean, comparisonTable?: boolean} = {comparisonBtn: false, position: false, comparisonTable: false}) {
+        console.log(this);
         const {comparisonBtn, position, comparisonTable} = params
 
         const table = document.createElement('table')
         table.classList.add('table', 'modern-table')
         comparisonTable && (table.id = 'comparison-table')
-
 
         const conditions = localStorage.getItem('conditions') && JSON.parse(localStorage.getItem('conditions') || '')
 

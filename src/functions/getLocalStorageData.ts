@@ -8,6 +8,8 @@ function getLocalStorageData(container: Container) {
     const regularSeason = RegularSeason.getData()
     const playoffs = Playoffs.getData()
     const sportType = localStorage.getItem('sport-type')
+console.log(regularSeason, 'local');
+    const leagueTeams = localStorage.getItem('teams')
 
     if ((regularSeason || playoffs) && sportType) {
         titleWrapper(container)
@@ -19,7 +21,7 @@ function getLocalStorageData(container: Container) {
 
             regularSeasonData.sportType = regularSeason._sportType
             regularSeasonData.games = regularSeason._games
-            regularSeasonData.leagueTeams = regularSeason._leagueTeams
+            regularSeasonData.leagueTeams = JSON.parse(leagueTeams || '')
 
             if (playoffsData) {
                 regularSeasonData.renderHtml(container, playoffsData)
@@ -30,7 +32,7 @@ function getLocalStorageData(container: Container) {
 
         if (playoffsData) {
             playoffsData.sportType = playoffs._sportType
-            playoffsData.leagueTeams = regularSeason ? regularSeason._leagueTeams : []
+            playoffsData.leagueTeams = regularSeason ?  JSON.parse(leagueTeams || '') : []
 
             playoffsData.playoffsTeams = playoffs._playoffsTeams
             playoffsData.renderHtml(container)

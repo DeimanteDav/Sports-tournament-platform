@@ -35,7 +35,6 @@ function accordion(form: HTMLElement, round: string | number, legsData?: {leg: n
     })
 
     legsData?.forEach((legData, i) => {
-        console.log(legData);
         const innerBtnText = `Leg ${legData.leg}` + ` ${legData.extraData || ''}`
 
         const prevLegGames = legsData[i-1] && legsData[i-1].games
@@ -148,7 +147,6 @@ function createGameElement(prevGame: FootballGame | BasketballGame | null, game:
         input.value = team.goals !== null ? team.goals.toString() : ''
 
         if (game.teams.some(team => !team.team || !team.id) || (prevGame && !prevGame.playedAll)) {
-            console.log(prevGame, game, 'disabled');
             input.setAttribute('disabled', 'true')
         }
 
