@@ -372,7 +372,7 @@ export default class RegularSeason extends League {
         const {winPoints, drawPoints, lossPoints} = this.sportType.points
 
         const table = document.createElement('table')
-        table.classList.add('table', 'old-table')
+        table.classList.add('table-regular-season', 'old-table')
         comparisonTable && (table.id = 'comparison-table')
 
         const expandAllBtn = document.createElement('button')
@@ -610,7 +610,7 @@ export default class RegularSeason extends League {
         const {comparisonBtn, position, comparisonTable} = params
 
         const table = document.createElement('table')
-        table.classList.add('table', 'modern-table')
+        table.classList.add('table-regular-season', 'modern-table')
         comparisonTable && (table.id = 'comparison-table')
 
         const conditions = localStorage.getItem('conditions') && JSON.parse(localStorage.getItem('conditions') || '')

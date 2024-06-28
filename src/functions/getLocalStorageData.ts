@@ -10,6 +10,7 @@ function getLocalStorageData(container: Container) {
     const sportType = localStorage.getItem('sport-type')
     const leagueTeams = localStorage.getItem('teams')
 
+
     if ((regularSeason || playoffs) && sportType) {
         titleWrapper(container)
 

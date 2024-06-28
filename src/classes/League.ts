@@ -139,7 +139,7 @@ export default abstract class League {
         if (!inputs || inputs.length !== 2 || !wrapper) {
             throw new Error('no inputs in update game data')
         }
-
+ 
         const team1Input = inputs[0]
         const team2Input = inputs[1]
     
@@ -195,6 +195,8 @@ export default abstract class League {
                             wrapper.classList.remove('played')
                             currentGame.playedAll = false
                         }
+                    } else {
+                        wrapper.classList.add('played')
                     }
                 }
             } else {

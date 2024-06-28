@@ -195,36 +195,36 @@ table {
   border-collapse: collapse;
 }
 
-.table {
+.table-regular-season {
   min-width: 400px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-.table thead tr {
+.table-regular-season thead tr {
   background-color: var(--blue);
   color: var(--text-color);
   text-align: left;
 }
 
-.table th,
-.table td {
+.table-regular-season th,
+.table-regular-season td {
   padding: 12px 15px;
   white-space: nowrap;
 }
 
-.table tbody tr {
+.table-regular-season tbody tr {
   border: 1px solid var(--border-color);
 }
 
-.table tbody tr:hover {
+.table-regular-season tbody tr:hover {
   background-color: var(--table-hover-color);
 }
 
-.table tbody tr.winner {
+.table-regular-season tbody tr.winner {
   position: relative;
 }
 
-.table tbody tr.winner::after {
+.table-regular-season tbody tr.winner::after {
   content: "";
   position: absolute;
   background-image: url("https://icons.veryicon.com/png/o/business/business-style-icon/trophy-18.png");
@@ -236,11 +236,11 @@ table {
   transform: translateY(-50%);
 }
 
-.table tbody tr.loser {
+.table-regular-season tbody tr.loser {
   position: relative;
 }
 
-/* .table tbody tr.loser::after {
+/* .table-regular-season tbody tr.loser::after {
   content: "X";
   position: absolute;
   font-weight: bold;
@@ -251,7 +251,7 @@ table {
   transform: translateY(-50%);
 } */
 
-.table button.comparison-btn {
+.table-regular-season button.comparison-btn {
   width: 20px;
   height: 20px;
   padding: 0;
@@ -494,7 +494,7 @@ table {
 .playoffs-table .playoffs-games .game-result-wrapper {
   /* display: flex; */
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
   grid-template-rows: 1fr 1fr;
   flex-grow: 1;
   align-items: center;
@@ -511,21 +511,26 @@ table {
 .game-result-wrapper .pair-id {
   grid-row: span 2;
   background-color: lightblue;
+  border-right: 1px solid black;
 }
 
-.game-result-wrapper span {
+.game-result-wrapper span,
+.game-result-wrapper .info-btn-wrapper {
   padding: 10px;
   white-space: nowrap;
-
   align-self: stretch;
+  justify-self: stretch;
 }
-.game-result-wrapper span:nth-child(-n+3):not(:first-child) {
+
+.game-result-wrapper .info-btn-wrapper button {
+  padding: 5px 13px;
+}
+
+.game-result-wrapper .info-btn-wrapper:first-of-type,
+.game-result-wrapper span:nth-child(-n+4):not(.pair-id) {
   border-bottom: 1px solid black;
 }
 
-.game-result-wrapper .team-title {
-  justify-self: stretch;
-}
 
 
 

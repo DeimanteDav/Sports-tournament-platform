@@ -12,6 +12,7 @@ import winnerElement from "../components/playoffs/winnerElement.js";
 import FootballTeam, { FootballTeamData } from "./Football/FootballTeam.js";
 import BasketballTeam, { BasketballTeamData } from "./Basketball/BasketballTeam.js";
 
+
 export interface playoffsInteface {
     _playoffsTeams: TeamsType,
     _teamsAmount: number,
@@ -539,7 +540,6 @@ export default class Playoffs extends League  {
                 }
             }
     
-            console.log(pairGames);
             if (bestOutOf && pairData.teams.some(team => team.wins >= bestOutOf)) {
                 pairData.winnerId = pairData.teams.reduce((prev, current) => {
                     return (prev && prev.wins > current.wins) ? prev : current
@@ -559,7 +559,7 @@ export default class Playoffs extends League  {
             const nextPairGameElements = [...document.querySelectorAll(`.game[data-pair-id="${pairData.nextId}"] `)]
     
             if (!nextPairGameElements) throw new Error('no next pair game els')
-                console.log(this.playoffsTeams);
+
             if (gamesAmount >= 2 && nextPair) {
                 nextPair.games.forEach((game, i) => {
                     const nextPairElement = nextPairGameElements[i]
@@ -573,8 +573,6 @@ export default class Playoffs extends League  {
                             game.played = false
                             const winnningTeam = this.playoffsTeams.find(team => team.teamId === pairData.winnerId)!
                             
-                            console.log(winnningTeam, this.playoffsTeams,  pairData.winnerId);
-
                             const winnerData = {team: winnningTeam.team, id: winnningTeam.teamId}
     
                             const nextPairTeamExists = nextPair.teams.find(team => team.id === winnningTeam.teamId)
@@ -723,70 +721,32 @@ export default class Playoffs extends League  {
                 gameNumberEl.classList.add('pair-id')
                 gameNumberEl.textContent = `${pairId}.`
 
-                // const infoButton = document.createElement('')
-    
-                // const resultTable = document.createElement('table')
-                // const tHead = document.createElement('thead')
-                // const headRow = document.createElement('tr')
-                // const emptyHeadCell = document.createElement('th')
-                // emptyHeadCell.setAttribute('colspan', '2')
-    
-                // const tBody = document.createElement('tbody')
-    
-                // pair.games.forEach((game, i) => {
-                //     const headCell = document.createElement('th')
-                //     headCell.textContent = `${i+1}`
-                //     headCell.setAttribute('scope', 'col')
-                //     headRow.append(headCell)
-    
-                //     if (sportId === SPORTS.football.id) {
-                //         const footballGame = game as FootballGame
-                //         if (footballGame.extraTime) {
-                //             const extraTimeEl = document.createElement('th')
-                //             extraTimeEl.textContent = 'Extra'
-                //             extraTimeEl.setAttribute('scope', 'col')
-                //             headRow.append(extraTimeEl)
-                //         }
-                        
-                //         if (footballGame) {
-                //             const shootOutEl = document.createElement('th')
-                //             shootOutEl.textContent = 'P'
-                //             shootOutEl.setAttribute('scope', 'col')
-                //             headRow.append(shootOutEl)
-                //         }
-                //     } else if (sportId === SPORTS.basketball.id) {
-                //         const basketballGame = game as BasketballGame
-                //         if (basketballGame) {
-                //             basketballGame.overtime.forEach(_ => {
-                //                 const overtimeEl = document.createElement('th')
-                //                 overtimeEl.textContent = 'OT'
-                //                 overtimeEl.setAttribute('scope', 'col')
-                //                 headRow.append(overtimeEl)
-                //             })
-                //         }
-                //     }
-    
-                // })
-    
-                // const pairIdEl = document.createElement('th')
-                // pairIdEl.classList.add('pair-id')
-                // pairIdEl.textContent = pair.id + '.'
-                // pairIdEl.setAttribute('rowSpan', '3')
-    
+
                 for (let i = 0; i < pair.teams.length; i++) {
                     const teamData = pair.teams[i];
-                    // const bodyRow = document.createElement('tr')
-                    // const teamDataEl = document.createElement('div')
+
+                    const infoWrapper = document.createElement('div')
+                    infoWrapper.classList.add('info-btn-wrapper')
+                    const infoButton = document.createElement('button')
+                    infoButton.textContent = 'i'
+                    infoButton.type = 'button'
+                    infoButton.classList.add('btn', 'btn-secondary')
+                    infoButton.dataset.container = 'body'
+                    infoButton.dataset.bsToggle = 'tooltip'
+                    infoButton.dataset.bsPlacement = 'top'
+                    const content = teamData.scores.map(score => `${score.playedIn} ${score.score || '-'}`).join(', ')
+                    infoButton.dataset.bsTitle = content || ''
+                    infoWrapper.append(infoButton)
+                    
+                    new bootstrap.Tooltip(infoButton)
+
                     const teamEl = document.createElement('span')
                     teamEl.classList.add('team-title')
-                    // teamEl.style.padding = '0 10px'
-                    // teamEl.setAttribute('scope', 'row')
                     teamEl.textContent = teamData.team ? teamData.team : `${pair.prevIds[i]} winner`
                  
                     const totalScoreEl = document.createElement('span')
     
                     totalScoreEl.textContent = roundsData[round].bestOutOf ? teamData.wins.toString() : teamData.totalScore.toString()
-                    // totalScoreEl.style.padding = '0 10px'
                     totalScoreEl.style.fontWeight = 'bold'
     
                     for (let j = 0; j < teamData.scores.length; j++) {
@@ -799,20 +759,8 @@ export default class Playoffs extends League  {
                         } else {
                             gameResultEl.textContent = gameData.playedIn + ' ' + (gameData.score !== null ? gameData.score : '-')
                         }
-    
-                        // bodyRow.append(gameResultEl)
                     }
-
-                    // teamDataEl.append(teamEl, totalScoreEl)
-                    gameResultWrapper.append(teamEl, totalScoreEl)
-    
-                    // bodyRow.prepend(teamEl)
-                    // bodyRow.append(totalScoreEl)
-                    // gameResultWrapper.append(teamEl, totalScoreEl)
-                    // if (i === 0) {
-                    //     bodyRow.prepend(pairIdEl)
-                    // }
-                    // tBody.append(bodyRow)
+                    gameResultWrapper.append(infoWrapper, teamEl, totalScoreEl)
                 }   
                 
                 if (index === 0) {
@@ -828,9 +776,6 @@ export default class Playoffs extends League  {
                     gridWrapper.classList.add('final')
                 }
     
-                // headRow.prepend(emptyHeadCell)
-                // tHead.append(headRow)
-                // resultTable.append(tHead, tBody)
                 gameResultWrapper.prepend(gameNumberEl)
                 gridWrapper.append(gameResultWrapper)
                 table.append(gridWrapper)
@@ -869,6 +814,12 @@ export default class Playoffs extends League  {
             }
         })
 
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     document.querySelectorAll('[data-bs-toggle="popover"]').forEach((popoverElement) => {
+        //         new Popover(popoverElement);
+        //     });
+        // });
+
         tableWrapper.append(headerEl, table)
     }
 
@@ -876,6 +827,7 @@ export default class Playoffs extends League  {
         const team1Index = pairId % 2 === 0 ? 0 : 1
         const team2Index = pairId % 2 === 0 ? 1 : 0
     
+        console.log(teams);
         if (index % 2 === 0) {
             label[team2Index].textContent = winnerData ? winnerData.team : ''
             teams[team2Index].team = winnerData ? winnerData.team : ''
