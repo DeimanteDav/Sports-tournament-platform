@@ -12,7 +12,6 @@ import winnerElement from "../components/playoffs/winnerElement.js";
 import FootballTeam, { FootballTeamData } from "./Football/FootballTeam.js";
 import BasketballTeam, { BasketballTeamData } from "./Basketball/BasketballTeam.js";
 
-
 export interface playoffsInteface {
     _playoffsTeams: TeamsType,
     _teamsAmount: number,
@@ -727,6 +726,7 @@ export default class Playoffs extends League  {
 
                     const infoWrapper = document.createElement('div')
                     infoWrapper.classList.add('info-btn-wrapper')
+
                     const infoButton = document.createElement('button')
                     infoButton.textContent = 'i'
                     infoButton.type = 'button'
@@ -737,8 +737,7 @@ export default class Playoffs extends League  {
                     const content = teamData.scores.map(score => `${score.playedIn} ${score.score || '-'}`).join(', ')
                     infoButton.dataset.bsTitle = content || ''
                     infoWrapper.append(infoButton)
-                    
-                    new bootstrap.Tooltip(infoButton)
+                    const tooltip = new bootstrap.Tooltip(infoButton)
 
                     const teamEl = document.createElement('span')
                     teamEl.classList.add('team-title')

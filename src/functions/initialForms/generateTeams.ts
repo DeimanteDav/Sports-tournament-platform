@@ -9,44 +9,41 @@ function generateTeams(container: Container, gameTypes: {playoffs?: Playoffs | n
 
     const {playoffs, regularSeason} = gameTypes
 
-
-    if (regularSeason) {
-        const totalGames = regularSeason?.roundsAmount ? (teamNames.length-1)* regularSeason?.roundsAmount : (teamNames.length-1)
-
-
-        const leagueTeams = teamNames.map((name, i) => {
-            return {team: name, id: i+1, totalGames: totalGames, minPlace: teamNames.length}
-        })
-
-        regularSeason.leagueTeams = leagueTeams
-        console.log(regularSeason, 'initial');
-        const games = generateGames(regularSeason)
-        regularSeason.games = games
-        regularSeason.gamesAmount = totalGames
-
+    if (regularSeason || playoffs) {
         titleWrapper(container)
+        
+        if (regularSeason) {
+            const totalGames = regularSeason?.roundsAmount ? (teamNames.length-1)* regularSeason?.roundsAmount : (teamNames.length-1)
+    
+    
+            const leagueTeams = teamNames.map((name, i) => {
+                return {team: name, id: i+1, totalGames: totalGames, minPlace: teamNames.length}
+            })
+    
+            regularSeason.leagueTeams = leagueTeams
+            const games = generateGames(regularSeason)
+            regularSeason.games = games
+            regularSeason.gamesAmount = totalGames
+    
+    
+            if (playoffs) {
+                regularSeason.renderHtml(container, playoffs)
+                const allTeams = teamNames.map((name, i) => {
+                    return {team: name, id: i+1, totalGames: playoffs?.teamsAmount, minPlace: teamNames.length}
+                })
+        
+                playoffs.leagueTeams = allTeams
 
-        if (playoffs) {
-            regularSeason.renderHtml(container, playoffs)
-        } else {
-            regularSeason.renderHtml(container)
-        }
-    } 
-    if (playoffs) {
-        const allTeams = teamNames.map((name, i) => {
-            return {team: name, id: i+1, totalGames: playoffs?.teamsAmount, minPlace: teamNames.length}
-        })
-
-        playoffs.leagueTeams = allTeams
-        const playoffTeams = allTeams.slice(0, playoffs.teamsAmount)
-
-        playoffs.playoffsTeams = playoffTeams
-
-        titleWrapper(container)
-
-        playoffs.renderHtml(container)
-        console.log('suveikia', playoffs);
+                const playoffTeams = allTeams.slice(0, playoffs.teamsAmount)
+                playoffs.playoffsTeams = playoffTeams
+        
+                playoffs.renderHtml(container)
+            } else {
+                regularSeason.renderHtml(container)
+            }
+        } 
     }
+   
 }
 
 export default generateTeams
