@@ -11,6 +11,7 @@ import setPlayoffPairTeams from "../functions/playoffs/setPlayoffPairTeams.js";
 import winnerElement from "../components/playoffs/winnerElement.js";
 import FootballTeam, { FootballTeamData } from "./Football/FootballTeam.js";
 import BasketballTeam, { BasketballTeamData } from "./Basketball/BasketballTeam.js";
+import { accordionNew } from "../components/accordionNew.js";
 
 export interface playoffsInteface {
     _playoffsTeams: TeamsType,
@@ -138,7 +139,7 @@ export default class Playoffs extends League  {
             form = oldForm
         } else {
             form = document.createElement('div')
-            form.classList.add('playoffs-form')
+            form.classList.add('playoffs-form', 'accordion-parent')
             container.append(form)
         }
     
@@ -284,7 +285,9 @@ export default class Playoffs extends League  {
                 })
             }
 
-            accordion(form, round, groupedGames)
+            // accordion(form, round, groupedGames)
+            const text = round
+            accordionNew(form, round, text, groupedGames)
 
         })
         this.renderTable(container, sortedData)
