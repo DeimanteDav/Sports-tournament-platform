@@ -146,10 +146,6 @@ function createGameElement(prevGame: FootballGame | BasketballGame | null, game:
         
         input.value = team.goals !== null ? team.goals.toString() : ''
 
-        if (game.teams.some(team => !team.team || !team.id) || (prevGame && !prevGame.playedAll)) {
-            input.setAttribute('disabled', 'true')
-        }
-
     
         teamWrapper.append(label, input)
         

@@ -4,7 +4,6 @@ import BasketballGame from "./Basketball/BasketballGame.js";
 import FootballGame from "./Football/FootballGame.js";
 import PlayoffsPair from "./PlayoffsPair.js";
 import League from "./League.js";
-import accordion from "../components/accordion.js";
 import Game from "./Game.js";
 import overtimeGameHandler from "../functions/overtimeGameHandler.js";
 import setPlayoffPairTeams from "../functions/playoffs/setPlayoffPairTeams.js";
