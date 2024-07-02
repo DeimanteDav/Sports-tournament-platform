@@ -31,9 +31,16 @@
 
 }
 
+
 .container .title-wrapper {
   margin: 30px 0 80px;
   text-align: center;
+}
+.container .title-wrapper #reset-btn {
+  font-size: 13px;
+  padding: 3px 10px;
+  background-color: rgb(252, 75, 75);
+  color: #fff;
 }
 
 .container button:not(.accordion) {
@@ -62,14 +69,23 @@
   transition-duration: 0.1s;
 }
 
+.container .form-wrapper {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+
+}
+
 .container .form {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   border-radius: 4px;
 
+  min-width: 400px;
   gap: 20px;
-  padding: 20px;
+  padding: 30px;
   margin: auto;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
@@ -119,7 +135,11 @@
   flex-direction: column;
   gap: 15px;
   padding: 20px 40px;
-
+}
+.container .form .games-info .selection-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .container .form .form-control .title {
@@ -168,8 +188,17 @@
   list-style: none;
   justify-content: space-evenly;
   padding: 0;
+  margin: 80px 0px;
 }
 
+.tabs-wrapper li {
+  cursor: pointer;
+  transition: all 0.2s ease-in;
+  border-bottom: 3px solid transparent;
+}
+.tabs-wrapper .active {
+  border-bottom-color: var(--blue);
+}
 
 #games-form {
   max-width: 1200px;
@@ -325,7 +354,7 @@ table {
 
 }
 
-.active, .accordion:hover {
+.accordion.active, .accordion:hover {
   background-color: #ccc;
 }
 
@@ -688,6 +717,7 @@ table {
   .playoffs-table .playoffs-games .grid-wrapper.final::before {
     content: none;
   }
+
   .playoffs-table .playoffs-games .grid-wrapper.final .game-result-wrapper::after {
     content: '';
     position: absolute;

@@ -33,8 +33,6 @@ function generateGames(regularSeasonData: RegularSeason) {
         }
     }
 
-    // RegularSeason.setGames(games)
-    console.log(games);
     return games
 }
 

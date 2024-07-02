@@ -2,6 +2,8 @@ import { Container } from "../../types.js"
 import teamNamesForm from "./teamNamesForm.js"
 
 function teamsAmountForm(container: Container) {
+    const formWrapper = document.createElement('div')
+    formWrapper.classList.add('form-wrapper')
     const form = document.createElement('form')
     form.classList.add('form')
 
@@ -21,7 +23,8 @@ function teamsAmountForm(container: Container) {
     submitBtn.textContent = 'OK'
 
     form.append(wrapper, submitBtn)
-    container.append(form)
+    formWrapper.append(form)
+    container.append(formWrapper)
 
     input.addEventListener('input', (e) => {
         if ([...form.classList].includes('error')) {
@@ -33,7 +36,7 @@ function teamsAmountForm(container: Container) {
         e.preventDefault()
         if (e.target) {
             const amount = (e.target as HTMLFormElement).amount.value
-            form.remove()
+            formWrapper.remove()
 
             teamNamesForm(container, Number(amount))
         } else {

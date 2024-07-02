@@ -1,16 +1,14 @@
 import { SPORTS } from "../config.js";
-import { TeamsType, PlayoffsPairInterface, GamesType } from "../types.js";
+import { TeamsType, PlayoffsPairInterface, GamesType, legDataInterface } from "../types.js";
 import BasketballGame from "./Basketball/BasketballGame.js";
 import FootballGame from "./Football/FootballGame.js";
 import PlayoffsPair from "./PlayoffsPair.js";
 import League from "./League.js";
 import Game from "./Game.js";
-import overtimeGameHandler from "../functions/overtimeGameHandler.js";
 import setPlayoffPairTeams from "../functions/playoffs/setPlayoffPairTeams.js";
 import winnerElement from "../components/playoffs/winnerElement.js";
 import FootballTeam, { FootballTeamData } from "./Football/FootballTeam.js";
 import BasketballTeam, { BasketballTeamData } from "./Basketball/BasketballTeam.js";
-import { accordionNew } from "../components/accordionNew.js";
 
 export interface playoffsInteface {
     _playoffsTeams: TeamsType,
@@ -36,6 +34,7 @@ export default class Playoffs extends League  {
     private _teamsAmount: number
     private _roundsData: roundsDataInterface
     private _pairsData: pairsDataInterface
+    private _fightForThird: boolean
 
     get playoffsTeams(): TeamsType {
         if (this._playoffsTeams) {
@@ -102,13 +101,26 @@ export default class Playoffs extends League  {
         localStorage.setItem('playoffs-data', JSON.stringify(updatedData))
     }
 
+    
+    get fightForThird() {
+        return this._fightForThird
+    }
 
-    constructor(playoffsTeams?: TeamsType, teamsAmount?: number, roundsData?: roundsDataInterface, pairsData?: pairsDataInterface) {
+    set fightForThird(data) {
+        this._fightForThird = data
+        const updatedData = {...this, _fightForThird: this._fightForThird}
+            
+        localStorage.setItem('playoffs-data', JSON.stringify(updatedData))
+    }
+
+
+    constructor(playoffsTeams?: TeamsType, teamsAmount?: number, roundsData?: roundsDataInterface, pairsData?: pairsDataInterface, fightForThird: boolean = false) {
         super()
         this._playoffsTeams = playoffsTeams ? playoffsTeams : []
         this._teamsAmount = teamsAmount ? teamsAmount : 0
         this._roundsData = roundsData ? roundsData : {}
         this._pairsData = pairsData ? pairsData : {}
+        this._fightForThird = fightForThird
     }
 
     static getData() {
@@ -252,21 +264,11 @@ export default class Playoffs extends League  {
             
             this.pairsData = this.pairsData
             
-            const groupedGames: {leg: number, games: (BasketballGame | FootballGame)[], extraData?: string}[] = []
-
+            const groupedGames: legDataInterface[] = []
             this.pairsData[round].forEach((pair, i) => {
-                pair.games.forEach(game => {
-                    const group = groupedGames.find(group => group.leg === game.leg)
-
-                    if (group) {
-                        group.games.push(game)
-                    } else {
-                        groupedGames.push({leg: game.leg, games: [game]})
-                    }
-                })
+                this.groupGamesByLeg(pair.games, groupedGames)
             })
     
-
             if (bestOutOf) {
                 this.pairsData[round].forEach((round, i) => {
                     const prevGames: boolean[] = []
@@ -288,11 +290,13 @@ export default class Playoffs extends League  {
                 })
             }
 
-            // accordion(form, round, groupedGames)
-            const text = round
-            accordionNew(form, round, text, groupedGames)
-
+            const text = round 
+            this.renderAccordion(form, round, text, groupedGames)
         })
+
+        // if (this.fightForThird) {
+        //     // this.renderAccordion(form, '', 'Fight for 3rd Place', )
+        // }
 
         playoffsWrapper.append(title, form)
 
@@ -404,7 +408,7 @@ export default class Playoffs extends League  {
             } 
     
             if (overtimeId && this.sportType.id === SPORTS.basketball.id) {
-                overtimeGameHandler(currentGame, gameWrapper, gameEl, gameTeams, overtimeId, this.sportType.id)
+                this.overtimeGameHandler(gameWrapper, currentGame, gameEl, gameTeams, overtimeId)
             }
     
             this.updateGameData(gameWrapper, currentGameInputs, currentGame)

@@ -1,5 +1,4 @@
 function sportTitle(wrapper: HTMLElement) {
-    // FIXME: SPORT
     const sport = JSON.parse(localStorage.getItem('sport-type') || '')
 
     const title = document.createElement('h1')

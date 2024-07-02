@@ -4,6 +4,8 @@ import teamsAmountForm from "./teamsAmountForm.js"
 function sportTypeForm(container: HTMLDivElement) {
     localStorage.clear()
 
+    const formWrapper = document.createElement('div')
+    formWrapper.classList.add('form-wrapper')
     const form = document.createElement('form')
     form.classList.add('form')
 
@@ -28,7 +30,8 @@ function sportTypeForm(container: HTMLDivElement) {
 
     buttonsWrapper.append(basketBallBtn, footballBtn)
     form.append(text, buttonsWrapper, submitBtn)
-    container.append(form)
+    formWrapper.append(form)
+    container.append(formWrapper)
 
     let selectedSport: null | Object = null
 
@@ -51,7 +54,7 @@ function sportTypeForm(container: HTMLDivElement) {
         e.preventDefault()
         if (selectedSport) {
             form.classList.remove('error')
-            form.remove()
+            formWrapper.remove()
 
             localStorage.setItem('sport-type', JSON.stringify(selectedSport))
 

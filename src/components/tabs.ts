@@ -27,16 +27,25 @@ export default function tabs(container: HTMLDivElement, regularSeasonData: Regul
     ]
 
 
-    items.forEach(item => {
+    items.forEach((item, i) => {
         const {text, func} = item
 
         const listItem = document.createElement('li')
+        listItem.classList.add('tab-item')
         listItem.textContent = text
+
+        if (i === 0) {
+            listItem.classList.add('active')
+        }
 
         listItem.addEventListener('click', () => {
             const wrappers = document.querySelectorAll('.season-wrapper')
             wrappers.forEach(wrapper => wrapper.remove())
 
+            const listItems = document.querySelectorAll('.tab-item')
+
+            listItems.forEach(item => item.classList.remove('active'))
+            listItem.classList.add('active')
             func()
         })
 
