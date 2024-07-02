@@ -127,7 +127,12 @@ export default class Playoffs extends League  {
 
     renderHtml(container: HTMLDivElement, params: {leagueTableUpdated: boolean} = {leagueTableUpdated: false}) {
         const {leagueTableUpdated} = params
-    
+        
+        const playoffsWrapper = document.createElement('div')
+        playoffsWrapper.classList.add('season-wrapper')
+        const title = document.createElement('h2')
+        title.textContent = 'Playoffs'
+
         const ClassGame = this.sportType.id === SPORTS.football.id ? FootballGame : BasketballGame
     
         const oldForm: HTMLElement | null = document.querySelector('.playoffs-form')
@@ -139,7 +144,6 @@ export default class Playoffs extends League  {
         } else {
             form = document.createElement('div')
             form.classList.add('playoffs-form', 'accordion-parent')
-            container.append(form)
         }
     
     
@@ -289,13 +293,16 @@ export default class Playoffs extends League  {
             accordionNew(form, round, text, groupedGames)
 
         })
-        this.renderTable(container, sortedData)
-    
+
+        playoffsWrapper.append(title, form)
+
+        this.renderTable(playoffsWrapper, sortedData)
+        container.append(playoffsWrapper)
     
     
         const winnerId = localStorage.getItem('winner-id')
         if (winnerId) {
-            winnerElement(container, +winnerId, this.playoffsTeams)
+            winnerElement(playoffsWrapper, +winnerId, this.playoffsTeams)
         }
         form.addEventListener('change', (e) => {
             const target = e.target as HTMLInputElement
@@ -642,7 +649,6 @@ export default class Playoffs extends League  {
 
     private renderTable(container: HTMLDivElement, roundsData: { [k: string]: { gamesAmount: number, knockouts: number | null, bestOutOf?: number | null } }) {
         const oldTableWrapper = document.querySelector('.playoffs-table')
-        const sportId = this.sportType.id
 
         if (oldTableWrapper) {
             oldTableWrapper.remove()

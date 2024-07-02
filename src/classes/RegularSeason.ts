@@ -177,6 +177,11 @@ export default class RegularSeason extends League {
     }
 
     renderHtml(container: HTMLDivElement, playoffsData?: Playoffs) {
+        const regulaSeasonWrapper = document.createElement('div')
+        regulaSeasonWrapper.classList.add('season-wrapper')
+        const title = document.createElement('h2')
+        title.textContent = 'Regular Season'
+
         const gamesForm = document.createElement('form')
         gamesForm.id = 'games-form'
 
@@ -321,9 +326,10 @@ export default class RegularSeason extends League {
             })
         })
     
-        container.append(gamesForm, generateScoresBtn, changeTableBtn)
-    
-        this.renderTable(container)
+
+        regulaSeasonWrapper.append(title, gamesForm, generateScoresBtn, changeTableBtn)
+        container.append(regulaSeasonWrapper)
+        this.renderTable(regulaSeasonWrapper)
     }
 
     private renderTable(container: HTMLDivElement) {
