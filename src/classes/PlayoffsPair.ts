@@ -11,10 +11,10 @@ export default class PlyoffsPair {
     public teams: PlayoffsTeam[] | [] = []
     winnerId: number | null = null
 
-    constructor(id: number, games: (FootballGame | BasketballGame)[], prevIds: number[], nextId: number) {
+    constructor(id: number, games: (FootballGame | BasketballGame)[], prevIds?: number[], nextId?: number) {
         this.id = id
         this.games = games
-        this.prevIds = prevIds
-        this.nextId = nextId
+        this.prevIds = prevIds || []
+        this.nextId = nextId || 0
     }
 }
