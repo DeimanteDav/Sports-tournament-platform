@@ -146,6 +146,7 @@ export default class Playoffs extends League  {
         title.textContent = 'Playoffs'
 
         const ClassGame = this.sportType.id === SPORTS.football.id ? FootballGame : BasketballGame
+        const ClassTeam = this.sportType.id === SPORTS.football.id ? FootballTeam : BasketballTeam
     
         const oldForm: HTMLElement | null = document.querySelector('.playoffs-form')
         let form: HTMLElement
@@ -228,12 +229,14 @@ export default class Playoffs extends League  {
                             
                             if (index === 0 && teams) {
                                 if (leg % 2 === 0) {
-                                    game = new ClassGame(gameId, leg, round, teams[1], teams[0], pairId)
+                                    game = new ClassGame(teams[1], teams[0], gameId, leg, round, pairId)
                                 } else {
-                                    game = new ClassGame(gameId, leg, round, teams[0], teams[1], pairId)
+                                    game = new ClassGame(teams[0], teams[1], gameId, leg, round, pairId)
                                 }
                             } else {
-                                game = new ClassGame(gameId, leg, round, null, null, pairId)
+                                const newTeam = new ClassTeam({team: '', id: 0, totalGames: 0, minPlace: 0 }) as FootballTeam & BasketballTeam
+
+                                game = new ClassGame(newTeam, newTeam, gameId, leg, round, pairId)
                             }
     
                             pairData.games.push(game)
@@ -245,12 +248,14 @@ export default class Playoffs extends League  {
     
                             if (index === 0 && teams) {
                                 if (leg % 2 === 0) {
-                                    game = new ClassGame(gameId, leg, round, teams[1], teams[0], pairId)
+                                    game = new ClassGame(teams[1], teams[0], gameId, leg, round, pairId)
                                 } else {
-                                    game = new ClassGame(gameId, leg, round, teams[0], teams[1], pairId)
+                                    game = new ClassGame(teams[0], teams[1], gameId, leg, round, pairId)
                                 }
                             } else {
-                                game = new ClassGame(gameId, leg, round, null, null, pairId)
+                                const newTeam = new ClassTeam({team: '', id: 0, totalGames: 0, minPlace: 0 }) as FootballTeam & BasketballTeam
+
+                                game = new ClassGame(newTeam, newTeam, gameId, leg, round, pairId)
                             }
                             pairData.games.push(game)
                         }
@@ -372,7 +377,7 @@ export default class Playoffs extends League  {
                     this.updateGameData(gameWrapper, extraTimeInputs, extraTimeGame)
     
                     if (extraTimeGame.teams.every(team => extraTimeGame.teams[0].goals === team.goals) && extraTimeGame.played) {
-                        const newGame = new Game(lastGame.id, lastGame.leg, lastGame.round, null, gameTeams[0], gameTeams[1])
+                        const newGame = new Game(gameTeams[0], gameTeams[1], lastGame.id, lastGame.leg, lastGame.round, null)
                         
                         footballLastGame.shootout = newGame
     
@@ -421,7 +426,7 @@ export default class Playoffs extends League  {
                 const footballLastGame = currentGame as FootballGame
 
                 if (pairGames.every(game => game.playedAll) && pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
-                    const newGame = new Game(lastGame.id, lastGame.leg, lastGame.round, null, gameTeams[0], gameTeams[1])
+                    const newGame = new Game(gameTeams[0], gameTeams[1], lastGame.id, lastGame.leg, lastGame.round, null)
                 
                     footballLastGame.extraTime = newGame
                     footballLastGame.playedAll = false
@@ -459,7 +464,7 @@ export default class Playoffs extends League  {
                     const equalGameGoals = basketballGame.teams.every(team => basketballGame.teams[0].goals === team.goals)
     
                     if (equalGameGoals && basketballGame.playedAll) {
-                        const overtimeGame = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round, null, gameTeams[0], gameTeams[1])
+                        const overtimeGame = new Game(gameTeams[0], gameTeams[1], basketballGame.overtime.length+1, currentGame.leg, currentGame.round, null)
     
                         basketballGame.overtime.push(overtimeGame)
                         basketballGame.playedAll = false
@@ -491,7 +496,7 @@ export default class Playoffs extends League  {
                 } else if (knockouts) {
                     const lastBasketballGame = lastGame as BasketballGame
                     if (pairGames.every(game => game.playedAll) && pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
-                        const overtimeGame = new Game(lastBasketballGame.overtime.length+1, currentGame.leg, currentGame.round, null, gameTeams[0], gameTeams[1])
+                        const overtimeGame = new Game(gameTeams[0], gameTeams[1], lastBasketballGame.overtime.length+1, currentGame.leg, currentGame.round, null)
     
                         lastBasketballGame.overtime.push(overtimeGame)
     
@@ -595,20 +600,20 @@ export default class Playoffs extends League  {
                     console.log(roundWinners);
                     console.log(roundLosers);
 
-                    const roundLosersTeams = this.playoffsTeams.filter(team => team.teamId === roundLosers[0].id || team.teamId === roundLosers[1].id)
+                    const roundLosersTeams = this.playoffsTeams.filter(team => team.teamId === roundLosers[0].id || team.teamId === roundLosers[1].id) as (FootballTeam & BasketballTeam)[]
 
-                    console.log(roundLosersTeams);
 
                     const fightForThirdPairData = new PlayoffsPair(pairId+1, [])
 
                     if (roundLosersTeams) {
-                        const fightForThirdGame = new ClassGame(Math.random(), +currentGame.leg, +currentGame.round, roundLosersTeams[0], roundLosersTeams[1], pairId+1)
+                        const fightForThirdGame = new ClassGame(roundLosersTeams[0], roundLosersTeams[1], Math.random(), +currentGame.leg, +currentGame.round, pairId+1)
 
                         fightForThirdPairData.games.push(fightForThirdGame)
+
+                        fightForThirdPairData.teams = setPlayoffPairTeams(this.sportType.id, fightForThirdPairData.games)
                     }
 
-                    // pairData.teams = setPlayoffPairTeams(this.sportType.id, pairData.games)
-
+                    this.pairsData[currentRound].push(fightForThirdPairData)
                 }
             }
     

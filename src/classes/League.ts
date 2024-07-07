@@ -113,7 +113,7 @@ export default abstract class League {
         const equalOvertimeGoals = basketballOvertime.teams.every(team => basketballOvertime.teams[0].goals === team.goals)
 
         if (equalOvertimeGoals && basketballOvertime.played) {
-            const basketballOvertime = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round, null, gameTeams[0], gameTeams[1])
+            const basketballOvertime = new Game(gameTeams[0], gameTeams[1], basketballGame.overtime.length+1, currentGame.leg, currentGame.round, null)
     
             overtimeInputs.forEach((input, i) => {
                 const overtimeInput = document.createElement('input')
