@@ -2,6 +2,8 @@ import { ANIMAL_NAMES } from "../../config.js"
 import { Container } from "../../types.js"
 import tournamentType from "./tournamentType.js"
 function teamNamesForm(container: Container, teamsAmount: number) {
+    const formWrapper = document.createElement('div')
+    formWrapper.classList.add('form-wrapper')
     const form = document.createElement('form')
     form.classList.add('form')
 
@@ -65,7 +67,8 @@ function teamNamesForm(container: Container, teamsAmount: number) {
 
 
     form.append(text, generateWrapper, namesWrapper, submitBtn)
-    container.append(form)
+    formWrapper.append(form)
+    container.append(formWrapper)
 
     generateNamesBtn.addEventListener('click', (e) => {
         const optionValue = select.value
@@ -103,7 +106,7 @@ function teamNamesForm(container: Container, teamsAmount: number) {
         }
 
         if (uniqueNames.size === teamNames.length) {
-            form.remove()
+            formWrapper.remove()
             tournamentType(container, teamsAmount)
             localStorage.setItem('team-names', JSON.stringify(teamNames))
         } else {

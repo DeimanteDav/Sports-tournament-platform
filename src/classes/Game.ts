@@ -8,8 +8,9 @@ export default class Game {
   round: number | string
   playedAll: boolean = false
   pairId?: number | null
+  fightForThird: boolean = false
   
-  constructor(id: number, leg: number, round: number | string, pairId?: number | null, homeT?: Team | null, awayT?: Team | null) {
+  constructor(homeT: Team, awayT: Team, id: number, leg: number, round: number | string, pairId?: number | null) {
     this.teams = [
       {
         team: homeT ? homeT.team : '',

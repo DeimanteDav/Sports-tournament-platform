@@ -9,7 +9,7 @@ function titleWrapper(container: Container) {
     sportTitle(titleWrapper)
     resetDataBtn(container, titleWrapper)
 
-    container.append(titleWrapper)
+    container.prepend(titleWrapper)
 }
 
 export default titleWrapper

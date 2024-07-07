@@ -1,9 +1,10 @@
 import BasketballGame from "../../classes/Basketball/BasketballGame.js";
+import BasketballTeam from "../../classes/Basketball/BasketballTeam.js";
 import FootballGame from "../../classes/Football/FootballGame.js";
+import FootballTeam from "../../classes/Football/FootballTeam.js";
 import RegularSeason from "../../classes/RegularSeason.js";
 import { SPORTS } from "../../config.js";
 
-// FIXME: teams
 function generateGames(regularSeasonData: RegularSeason) {
     let games = []
     let gameId = 0
@@ -13,10 +14,10 @@ function generateGames(regularSeasonData: RegularSeason) {
     for (let i = 0; i < regularSeasonData.roundsAmount; i++) {
         console.log(regularSeasonData, regularSeasonData.leagueTeams)
         for (let j = 0; j < regularSeasonData.leagueTeams.length; j++) {
-            const homeTeam = regularSeasonData.leagueTeams[j];
+            const homeTeam = regularSeasonData.leagueTeams[j] as FootballTeam & BasketballTeam
 
             for (let m = j + 1; m < regularSeasonData.leagueTeams.length; m++) {
-                const awayTeam = regularSeasonData.leagueTeams[m];
+                const awayTeam = regularSeasonData.leagueTeams[m] as FootballTeam & BasketballTeam
                 gameId+=1
 
                 let round = i+1
@@ -24,17 +25,15 @@ function generateGames(regularSeasonData: RegularSeason) {
 
                 let game
                 if ((i % 2) === 0) {
-                    game = new ClassGame(gameId, leg, round, homeTeam, awayTeam)
+                    game = new ClassGame(homeTeam, awayTeam, gameId, leg, round)
                 } else {
-                    game = new ClassGame(gameId, leg, round, awayTeam, homeTeam)
+                    game = new ClassGame(awayTeam, homeTeam, gameId, leg, round)
                 }
                 games.push(game)
             }
         }
     }
 
-    // RegularSeason.setGames(games)
-    console.log(games);
     return games
 }
 

@@ -26,18 +26,10 @@ export interface PlayoffsPairInterface {
     nextId: number
     teams: PlayoffsTeam[] | []
     winnerId: number | null
+    fightForThird: boolean
 }
 
-export interface BasketballSportPoints {
-    winPoints: number
-    lossPoints: number
-}
 
-interface FootballSportPoints {
-    winPoints: number
-    lossPoints: number
-    drawPoints: number
-}
 
 export interface SportDataInterface {
     name: string
@@ -48,4 +40,8 @@ export interface SportDataInterface {
         drawPoints?: number
         technicalLossPoints?: number
     }
+}
+
+export interface legDataInterface {
+    leg: number, games: (BasketballGame | FootballGame)[], extraData?: string
 }

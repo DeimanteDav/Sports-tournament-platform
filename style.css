@@ -12,21 +12,35 @@
 }
 
 .container {
-  display: flex;
+  /* display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 40px;
-  padding: 20px 0;
+  justify-content: flex-start; */
+  /* gap: 40px;
+  padding: 20px 0; */
+
   min-height: 100vh;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 .container * {
   font-family: sans-serif;
 
 }
 
+
 .container .title-wrapper {
+  margin: 30px 0 80px;
   text-align: center;
+}
+.container .title-wrapper #reset-btn {
+  font-size: 13px;
+  padding: 3px 10px;
+  background-color: rgb(252, 75, 75);
+  color: #fff;
 }
 
 .container button:not(.accordion) {
@@ -55,14 +69,23 @@
   transition-duration: 0.1s;
 }
 
+.container .form-wrapper {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+
+}
+
 .container .form {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   border-radius: 4px;
 
+  min-width: 400px;
   gap: 20px;
-  padding: 20px;
+  padding: 30px;
   margin: auto;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
@@ -75,6 +98,7 @@
   display: flex;
   gap: 10px;
   margin: 10px 0;
+  align-items: center;
 }
 
 .container .form .btn-wrapper button:disabled {
@@ -95,6 +119,7 @@
 
 .container .form .form-control {
   width: 100%;
+  border: none;
 }
 .container .form .form-control:not(:last-of-type)::after {
   content: '';
@@ -110,7 +135,11 @@
   flex-direction: column;
   gap: 15px;
   padding: 20px 40px;
-
+}
+.container .form .games-info .selection-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .container .form .form-control .title {
@@ -144,13 +173,37 @@
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
+.season-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  /* padding: 20px 0; */
+  margin: 50px 0;
+}
+
+.tabs-wrapper ul {
+  display: flex;
+  list-style: none;
+  justify-content: space-evenly;
+  padding: 0;
+  margin: 80px 0px;
+}
+
+.tabs-wrapper li {
+  cursor: pointer;
+  transition: all 0.2s ease-in;
+  border-bottom: 3px solid transparent;
+}
+.tabs-wrapper .active {
+  border-bottom-color: var(--blue);
+}
 
 #games-form {
   max-width: 1200px;
   width: 100%;
 }
-
-
 
 .game-wrapper {
   display: flex;
@@ -195,36 +248,36 @@ table {
   border-collapse: collapse;
 }
 
-.table {
+.table-regular-season {
   min-width: 400px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-.table thead tr {
+.table-regular-season thead tr {
   background-color: var(--blue);
   color: var(--text-color);
   text-align: left;
 }
 
-.table th,
-.table td {
+.table-regular-season th,
+.table-regular-season td {
   padding: 12px 15px;
   white-space: nowrap;
 }
 
-.table tbody tr {
+.table-regular-season tbody tr {
   border: 1px solid var(--border-color);
 }
 
-.table tbody tr:hover {
+.table-regular-season tbody tr:hover {
   background-color: var(--table-hover-color);
 }
 
-.table tbody tr.winner {
+.table-regular-season tbody tr.winner {
   position: relative;
 }
 
-.table tbody tr.winner::after {
+.table-regular-season tbody tr.winner::after {
   content: "";
   position: absolute;
   background-image: url("https://icons.veryicon.com/png/o/business/business-style-icon/trophy-18.png");
@@ -236,11 +289,11 @@ table {
   transform: translateY(-50%);
 }
 
-.table tbody tr.loser {
+.table-regular-season tbody tr.loser {
   position: relative;
 }
 
-/* .table tbody tr.loser::after {
+/* .table-regular-season tbody tr.loser::after {
   content: "X";
   position: absolute;
   font-weight: bold;
@@ -251,7 +304,7 @@ table {
   transform: translateY(-50%);
 } */
 
-.table button.comparison-btn {
+.table-regular-season button.comparison-btn {
   width: 20px;
   height: 20px;
   padding: 0;
@@ -301,7 +354,7 @@ table {
 
 }
 
-.active, .accordion:hover {
+.accordion.active, .accordion:hover {
   background-color: #ccc;
 }
 
@@ -309,18 +362,8 @@ table {
   display: none;
   padding: 0 18px;
   overflow: hidden;
-  /* transition: all 0.25s; */
-  /* animation: fadeInOut 0.6s ease-in-out;  */
-
 }
 
-.panel.games {
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  flex: 1;
-  padding: 20px;
-  gap: 15px;
-}
 
 .accordion:after {
   content: '\02795';
@@ -330,9 +373,101 @@ table {
   margin-left: 5px;
 }
 
-.active:after {
+.accordion.active:after {
   content: "\2796";
 }
+
+.accordion-parent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+
+  width: 100%;
+}
+
+.accordion-item {
+  width: 100%;
+  padding: 0 0;
+  margin: 0;
+  border-bottom: 1px #d1d1cf dashed;
+  background-color: white;
+  overflow: hidden;
+}
+
+.accordion-item.inner:last-of-type,
+.accordion-item.inner:last-of-type .display {
+  border-bottom: none;
+}
+
+.accordion-tab-wrapper {
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+}
+
+.accordion-item .accordion-title {
+  padding-bottom: 15px;
+  padding-right: 5%;
+  margin: 0;
+  padding-top: 1rem;
+  padding-left: 1rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.accordion-item .accordion-mark {
+  display: inline-block;
+  color: darkblue;
+  padding-bottom: 15px;
+  padding-right: 8px;
+  margin: 0;
+  padding-top: 1rem;
+  padding-left: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 25px;
+  font-size: 18px;
+  transition: transform .2s ease-in-out;
+}
+
+.accordion-item .display,
+.accordion-item.inner .accordion-item.display {
+  padding: 0 3rem;
+  max-height: 0px;
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+.accordion-item.inner .accordion-item.display {
+  padding: 0;
+}
+
+.accordion-item.active .display,
+.accordion-item.inner.active .accordion-item.display {
+  max-height: 500px;
+  transition: max-height 1s ease;
+  overflow: hidden;
+}
+
+.accordion-item.active > .accordion-tab-wrapper .accordion-mark{
+	transform: rotate(90deg) translate(-0.2rem, -0.3rem);
+  transition: transform .2s ease-in-out;
+}
+
+
+.accordion-item.inner .games,
+.panel.games {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  flex: 1;
+  padding: 20px;
+  gap: 15px;
+}
+
 
 
 .modern-table th:nth-child(2),
@@ -436,12 +571,6 @@ table {
 }
 
 
-.playoffs-form {
-  max-width: 1200px;
-  width: 100%;
-  margin-top: 60px;
-}
-
 .playoffs-form .game-wrapper {
   flex-direction: row;
   justify-content: center;
@@ -449,7 +578,7 @@ table {
   border-radius: 2px;
   position: relative;
   min-height: 60px;
-  min-width: 90px;
+  min-width: 120px;
 }
 
 .playoffs-table {
@@ -475,11 +604,13 @@ table {
 }
 
 .playoffs-table .playoffs-games {
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   gap: 50px;
   align-items: center;
   width: 100%;
+  margin-bottom: 250px;
 }
 
 .playoffs-table .playoffs-games .grid-wrapper {
@@ -489,30 +620,58 @@ table {
   align-items: center;
   height: 100%;
   width: 100%;
+  flex-grow: 1;
 }
+
 
 .playoffs-table .playoffs-games .game-result-wrapper {
-  display: flex;
-  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  justify-items: center;
   position: relative;
   border: 1px solid black;
-  border-radius: 5px;
-  padding: 10px;
+  border-radius: 3px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 250px;
 }
 
-.game-result-wrapper th,
-.game-result-wrapper td {
-  padding: 5px;
+
+.playoffs-table .playoffs-games .grid-wrapper.fight-for-third {
+  flex-direction: column;
+  position: absolute;
+  top: 110%;
+  height: auto;
+  width: auto;
+  right: 0;
+}
+
+.game-result-wrapper .pair-id {
+  grid-row: span 2;
+  background-color: lightblue;
+  border-right: 1px solid black;
+}
+
+.game-result-wrapper span,
+.game-result-wrapper .info-btn-wrapper {
+  padding: 10px;
   white-space: nowrap;
+  align-self: stretch;
+  justify-self: stretch;
+}
+
+.game-result-wrapper .info-btn-wrapper button {
+  padding: 3px 10px;
+}
+
+.game-result-wrapper .info-btn-wrapper:first-of-type,
+.game-result-wrapper span:nth-child(-n+4):not(.pair-id) {
+  border-bottom: 1px solid black;
 }
 
 
-
-.playoffs-table .playoffs-games .grid-wrapper:not(:last-of-type) .game-result-wrapper:after {
+.playoffs-table .playoffs-games .grid-wrapper:not(:last-of-type):not(.fight-for-third) .game-result-wrapper:after {
   content: '';
   position: absolute;
   width: 25px;
@@ -523,7 +682,7 @@ table {
 }
 
 
-.playoffs-table .playoffs-games .grid-wrapper:not(.first-row)::before {
+.playoffs-table .playoffs-games .grid-wrapper:not(.first-row):not(.fight-for-third)::before {
   content: '';
   position: absolute;
   height: calc(25px + 50%);
@@ -533,7 +692,7 @@ table {
   transform: translateX(-2px); 
 }
 
-.playoffs-table .playoffs-games .grid-wrapper:not(.first-row) .game-result-wrapper::before {
+.playoffs-table .playoffs-games .grid-wrapper:not(.first-row):not(.fight-for-third) .game-result-wrapper::before {
   content: '';
   position: absolute;
   width: 25px;
@@ -569,6 +728,7 @@ table {
   .playoffs-table .playoffs-games .grid-wrapper.final::before {
     content: none;
   }
+
   .playoffs-table .playoffs-games .grid-wrapper.final .game-result-wrapper::after {
     content: '';
     position: absolute;

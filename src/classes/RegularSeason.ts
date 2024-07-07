@@ -1,7 +1,6 @@
-import accordion from "../components/accordion.js"
 import { SPORTS } from "../config.js"
 import getModernTableHeadItems from "../functions/league/getModernTableHeadItems.js"
-import { GameType, GamesType, TeamType, TeamsType } from "../types.js"
+import { GameType, GamesType, TeamType, TeamsType, legDataInterface } from "../types.js"
 import BasketballGame from "./Basketball/BasketballGame.js"
 import BasketballTeam from "./Basketball/BasketballTeam.js"
 import FootballGame from "./Football/FootballGame.js"
@@ -10,13 +9,6 @@ import Game from "./Game.js"
 import League from "./League.js"
 import Playoffs from "./Playoffs.js"
 
-// interface RegularSeasonInterface {
-//     _teams: TeamsType
-//     _gamesAmount: number
-//     _roundsAmount: number
-//     _games: GamesType
-//     _relegation?: number | null
-// }
 
 interface ComparisonTeamInterface {
     team: string
@@ -84,15 +76,16 @@ export default class RegularSeason extends League {
     set games(games) {
         this._games = games
         const updatedData = {...this, _games: this._games}
-
         localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
     }
     
     get relegation() {
-        if (!Number(this._relegation)) {
+        if (!isNaN(this._relegation)) {
             return this._relegation
+        } else {
+
+            this.relegation = 0
         }
-        this.relegation = 0
 
         throw new Error('no relegation')
     }
@@ -104,12 +97,13 @@ export default class RegularSeason extends League {
         localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
     }
 
-    constructor(gamesAmount?: number, roundsAmount?: number, games?: GamesType, relegation?: number | null) {
+    constructor(gamesAmount?: number, roundsAmount?: number, relegation?: number | null, games?: GamesType) {
         super()
         this._gamesAmount = gamesAmount ? gamesAmount : 0
         this._roundsAmount = roundsAmount ? roundsAmount : 0
-        this._games = games ? games : []
         this._relegation = relegation ? relegation : 0
+        this._games = games ? games : []
+
     }
 
     static getData() {
@@ -122,81 +116,31 @@ export default class RegularSeason extends League {
         return null
     }
 
-    // static setTeams(teams: TeamsType) {
-    //     const oldData = RegularSeason.getData(true)
-
-    //     if (!oldData) throw new Error('no data')
-
-    //     const updatedData = {...oldData, teams}
-
-    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    // }
-    
-    // static setRoundsAmount(roundsAmount: number) {
-    //     const oldData = RegularSeason.getData(true)
-
-    //     if (!oldData) throw new Error('no data')
-
-    //     const updatedData = {...oldData, roundsAmount}
-
-    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    // }
-
-    // static setRelegation(relegation: number) {
-    //     const oldData = RegularSeason.getData(true)
-
-    //     if (!oldData) throw new Error('no data')
-
-    //     const updatedData = {...oldData, relegation}
-    
-    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    // }
-
-    // static setGames(games: DataType['games']) {
-    //     const oldData = RegularSeason.getData(true)
-
-    //     if (!oldData) throw new Error('no data')
-
-    //     const updatedData = {...oldData, games}
-    
-    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    // }
-
-    // static setGamesAmount(gamesAmount: number) {
-    //     const oldData = RegularSeason.getData()
-
-    //     if (!oldData) throw new Error('no data')
-
-    //     const updatedData = {...oldData, gamesAmount}
-    
-    //     localStorage.setItem('regular-season-data', JSON.stringify(updatedData))
-    // }
 
     static removeData() {
         localStorage.removeItem('regular-season-data')
     }
 
+
     renderHtml(container: HTMLDivElement, playoffsData?: Playoffs) {
+        const regulaSeasonWrapper = document.createElement('div')
+        regulaSeasonWrapper.classList.add('season-wrapper')
+        const title = document.createElement('h2')
+        title.textContent = 'Regular Season'
+
         const gamesForm = document.createElement('form')
         gamesForm.id = 'games-form'
 
         for (let i = 0; i < this.roundsAmount; i++) {
-            const groupedGames: {leg: number, games: (BasketballGame | FootballGame)[], extraData?: string}[] = []
+            const groupedGames: legDataInterface[] = []
 
             let round = i+1
             const roundGames = this.games.filter(game => game.round === round)
+            this.groupGamesByLeg(roundGames, groupedGames)
 
-            roundGames.forEach((game, i) => {
-                const group = groupedGames.find(group => group.leg === game.leg)
+            const text = `${round} Round`
+            this.renderAccordion(gamesForm, round, text, groupedGames, {inner: false, disable: false})
 
-                if (group) {
-                    group.games.push(game)
-                } else {
-                    groupedGames.push({leg: game.leg, games: [game]})
-                }
-            })
-
-            accordion(gamesForm, round, groupedGames)
         }
 
         gamesForm.addEventListener('change', (e) => {
@@ -321,9 +265,10 @@ export default class RegularSeason extends League {
             })
         })
     
-        container.append(gamesForm, generateScoresBtn, changeTableBtn)
-    
-        this.renderTable(container)
+
+        regulaSeasonWrapper.append(title, gamesForm, generateScoresBtn, changeTableBtn)
+        container.append(regulaSeasonWrapper)
+        this.renderTable(regulaSeasonWrapper)
     }
 
     private renderTable(container: HTMLDivElement) {
@@ -372,7 +317,7 @@ export default class RegularSeason extends League {
         const {winPoints, drawPoints, lossPoints} = this.sportType.points
 
         const table = document.createElement('table')
-        table.classList.add('table', 'old-table')
+        table.classList.add('table-regular-season', 'old-table')
         comparisonTable && (table.id = 'comparison-table')
 
         const expandAllBtn = document.createElement('button')
@@ -488,7 +433,6 @@ export default class RegularSeason extends League {
                         innerCell.classList.add('empty-cell')
                     } else {
                         const inbetweenGames = this.getInbetweenTeamsGames([team, otherTeam], {allGames: true})
-                        console.log(inbetweenGames, inbetweenGames[m]);
                         
                         if (inbetweenGames[m]) {
                             const gameTeam = inbetweenGames[m].teams.find(gTeam => gTeam.id === team.teamId)
@@ -609,9 +553,8 @@ export default class RegularSeason extends League {
         const {comparisonBtn, position, comparisonTable} = params
 
         const table = document.createElement('table')
-        table.classList.add('table', 'modern-table')
+        table.classList.add('table-regular-season', 'modern-table')
         comparisonTable && (table.id = 'comparison-table')
-
 
         const conditions = localStorage.getItem('conditions') && JSON.parse(localStorage.getItem('conditions') || '')
 
@@ -703,7 +646,6 @@ export default class RegularSeason extends League {
             localStorage.setItem('comparing-teams', JSON.stringify(comparingTeams))
             
             const oldTable = document.getElementById('comparison-table')
-            console.log(oldTable);
             oldTable && oldTable.remove()
             
             if (comparingTeams.length > 0) {
@@ -721,8 +663,6 @@ export default class RegularSeason extends League {
         const tableType = localStorage.getItem('table-type')
     
         const teamsGamesDataObject = this.compareGamesData(teams)
-
-        console.log(teamsGamesDataObject);
         if (!teamsGamesDataObject) {
             throw new Error('no teams games data obj  in comparison table')
         }

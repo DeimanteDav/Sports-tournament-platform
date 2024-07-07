@@ -8,7 +8,7 @@ function setPlayoffPairTeams(sportId: number, pairGames: GamesType) {
 
     const teamsData: PlayoffsTeam[] = []
 
-    pairTeams.forEach(team => {
+    pairTeams.forEach((team, i) => {
         const scores: { playedIn: string, score: number | null }[] = []
         let teamScoresSum = 0
         let oppTeamScoresSum = 0
@@ -78,6 +78,12 @@ function setPlayoffPairTeams(sportId: number, pairGames: GamesType) {
                         }
                     }
                 }
+            } else {
+                let playedIn: string = 'H'
+                if (i === 1) {
+                    playedIn = 'A'
+                }
+                scores.push({playedIn, score: null})
             }
 
             teamScoresSum += gameScores
