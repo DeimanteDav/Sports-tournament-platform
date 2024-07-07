@@ -26,6 +26,7 @@ export interface PlayoffsPairInterface {
     nextId: number
     teams: PlayoffsTeam[] | []
     winnerId: number | null
+    fightForThird: boolean
 }
 
 

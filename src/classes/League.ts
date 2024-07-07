@@ -267,11 +267,11 @@ export default abstract class League {
             const legData = legsData[0]
             const prevLegData = legsData[1]
             const legGames = legData.games
-            data.classList.add('games')
+            data.classList.add('games', round.toString())
 
             legGames?.forEach((game, i) => {
                 const prevGame = prevLegData?.games[i] || null
-                data.append(this.createGameWrappers(prevGame, game, round, disable))
+                data.append(this.createGameWrapper(prevGame, game, round, disable))
             })
         }
 
@@ -301,7 +301,7 @@ export default abstract class League {
     }
 
 
-    private createGameWrappers(prevGame: GameType | null, game: GameType, round: number | string, disable: boolean = true): HTMLDivElement {
+    createGameWrapper(prevGame: GameType | null, game: GameType, round: number | string, disable: boolean = true): HTMLDivElement {
         const gameWrapper = document.createElement('div')
         gameWrapper.classList.add('game-wrapper')
 
@@ -322,6 +322,12 @@ export default abstract class League {
 
             idsWrapper.append(pairIdElement)
         }
+
+        if (game.fightForThird) {
+            gameWrapper.classList.add('fight-for-third')
+            gameWrapper.dataset.fightForThird = 'true'
+        }
+
         gameWrapper.append(idsWrapper)
 
         const gameEl = this.createGameElement(prevGame, game, round, disable)
@@ -423,5 +429,12 @@ export default abstract class League {
         }
 
         return gameEl
+    }
+
+    getAccordionGamesWrapper(round: string) {
+        const wrapper = document.getElementsByClassName(`games ${round}`)
+
+        return wrapper[0]
+
     }
 }

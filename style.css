@@ -604,11 +604,13 @@ table {
 }
 
 .playoffs-table .playoffs-games {
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   gap: 50px;
   align-items: center;
   width: 100%;
+  margin-bottom: 250px;
 }
 
 .playoffs-table .playoffs-games .grid-wrapper {
@@ -621,6 +623,7 @@ table {
   flex-grow: 1;
 }
 
+
 .playoffs-table .playoffs-games .game-result-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr 1fr;
@@ -632,6 +635,16 @@ table {
   border-radius: 3px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   max-width: 250px;
+}
+
+
+.playoffs-table .playoffs-games .grid-wrapper.fight-for-third {
+  flex-direction: column;
+  position: absolute;
+  top: 110%;
+  height: auto;
+  width: auto;
+  right: 0;
 }
 
 .game-result-wrapper .pair-id {
@@ -658,10 +671,7 @@ table {
 }
 
 
-
-
-
-.playoffs-table .playoffs-games .grid-wrapper:not(:last-of-type) .game-result-wrapper:after {
+.playoffs-table .playoffs-games .grid-wrapper:not(:last-of-type):not(.fight-for-third) .game-result-wrapper:after {
   content: '';
   position: absolute;
   width: 25px;
@@ -672,7 +682,7 @@ table {
 }
 
 
-.playoffs-table .playoffs-games .grid-wrapper:not(.first-row)::before {
+.playoffs-table .playoffs-games .grid-wrapper:not(.first-row):not(.fight-for-third)::before {
   content: '';
   position: absolute;
   height: calc(25px + 50%);
@@ -682,7 +692,7 @@ table {
   transform: translateX(-2px); 
 }
 
-.playoffs-table .playoffs-games .grid-wrapper:not(.first-row) .game-result-wrapper::before {
+.playoffs-table .playoffs-games .grid-wrapper:not(.first-row):not(.fight-for-third) .game-result-wrapper::before {
   content: '';
   position: absolute;
   width: 25px;

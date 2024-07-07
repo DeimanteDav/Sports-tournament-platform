@@ -10,6 +10,7 @@ export default class PlyoffsPair {
     nextId: number
     public teams: PlayoffsTeam[] | [] = []
     winnerId: number | null = null
+    fightForThird: boolean = false
 
     constructor(id: number, games: (FootballGame | BasketballGame)[], prevIds?: number[], nextId?: number) {
         this.id = id
