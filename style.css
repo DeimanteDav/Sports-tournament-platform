@@ -645,6 +645,7 @@ table {
   height: auto;
   width: auto;
   right: 0;
+  margin-bottom: 20px;
 }
 
 .game-result-wrapper .pair-id {
@@ -725,7 +726,7 @@ table {
     transform: translateX(-25px);
   }
 
-  .playoffs-table .playoffs-games .grid-wrapper.final::before {
+  .playoffs-table .playoffs-games .grid-wrapper.final:not(.fight-for-third)::before {
     content: none;
   }
 

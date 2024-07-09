@@ -283,7 +283,6 @@ export default class Playoffs extends League {
                         if (prevGame) prevGames.push(prevGame.playedAll)
 
                         if (j + 1 > bestOutOf && !prevGames.includes(true)) {
-                            console.log(prevGames);
                             const groupsIfNeeded = groupedGames.filter(group => group.leg === game.leg && game)
 
                             groupsIfNeeded.forEach(group => {
@@ -749,7 +748,6 @@ export default class Playoffs extends League {
                 colsAmount = Object.keys(this.pairsData).length
                 rowsAmount = Object.values(this.pairsData)[0].length
             }
-            console.log('before', colsAmount, rowsAmount);
 
             if (Object.values(this.pairsData)[0].some(pair => pair.fightForThird)) {
                 rowsAmount--
@@ -784,7 +782,7 @@ export default class Playoffs extends League {
 
             let rowIndex = 1
             let leftRowIndex = 1
-            let rowSpan
+            let rowSpan: number
 
             wideScreen.addEventListener('change', (e) => {
                 rowIndex = 1
@@ -877,10 +875,10 @@ export default class Playoffs extends League {
 
                 const repositionResultWrapper = (e: MediaQueryList | MediaQueryListEvent) => {
                     if (![...gridWrapper.classList].includes('fight-for-third')) {
+                  
+
                         if (e.matches) {
                             rowSpan = rowsAmount * 2 / gamesAmount
-    
-    
                             if (gamesAmount > 1 && gamesAmount / 2 < positionInRound) {
                                 gridWrapper.style.gridColumn = (colsAmount - (index)).toString()
     
@@ -911,20 +909,12 @@ export default class Playoffs extends League {
             }
         })
 
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     document.querySelectorAll('[data-bs-toggle="popover"]').forEach((popoverElement) => {
-        //         new Popover(popoverElement);
-        //     });
-        // });
-
         tableWrapper.append(headerEl, table)
     }
 
     setNextPairElements(teams: { team: string, id: number | null, goals: number | null, home: boolean, away: boolean }[], pairId: number, index: number, label: HTMLLabelElement[], winnerData?: { team: string, id: number }) {
         const team1Index = pairId % 2 === 0 ? 0 : 1
         const team2Index = pairId % 2 === 0 ? 1 : 0
-
-        console.log(teams);
         if (index % 2 === 0) {
             label[team2Index].textContent = winnerData ? winnerData.team : ''
             teams[team2Index].team = winnerData ? winnerData.team : ''
