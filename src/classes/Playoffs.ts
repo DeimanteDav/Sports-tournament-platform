@@ -439,7 +439,6 @@ export default class Playoffs extends League {
 
                         input.after(extraTimeInput)
                     })
-
                 } else {
                     footballLastGame.extraTime = null
                     footballLastGame.shootout = null
@@ -494,6 +493,7 @@ export default class Playoffs extends League {
                     }
                 } else if (knockouts) {
                     const lastBasketballGame = lastGame as BasketballGame
+
                     if (pairGames.every(game => game.playedAll) && pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
                         const overtimeGame = new Game(gameTeams[0], gameTeams[1], lastBasketballGame.overtime.length + 1, currentGame.leg, currentGame.round, null)
 
@@ -586,9 +586,7 @@ export default class Playoffs extends League {
             }
 
             if (currentRound === '1/2') {
-                const roundGamesPlayed = this.pairsData[currentRound].filter(data => !data.fightForThird).every(data => {
-                    return data.games.every(game => game.playedAll)
-                })
+                const roundGamesPlayed = this.pairsData[currentRound].every(data => data.games.every(game => game.playedAll))
 
                 const roundWinners = this.pairsData[currentRound].map(pairData => pairData.winnerId)
 
@@ -596,15 +594,15 @@ export default class Playoffs extends League {
 
                 const roundLosersTeams = this.playoffsTeams.filter(team => team.teamId === roundLosers[0].id || team.teamId === roundLosers[1].id) as (FootballTeam & BasketballTeam)[]
 
-                const oldFightForThirdPair = this.pairsData[currentRound].find(data => data.fightForThird)
+                const oldFightForThirdPair = this.pairsData['final'].find(data => data.fightForThird)
 
                 const differentTeams = (oldFightForThirdPair && roundLosersTeams.length > 0) ? (oldFightForThirdPair.teams[0].id !== roundLosersTeams[0].teamId || oldFightForThirdPair.teams[1].id !== roundLosersTeams[1].teamId) : true
 
 
                 if (!roundGamesPlayed || differentTeams) {
-                    this.pairsData[currentRound] = this._pairsData[currentRound].filter(data => !data.fightForThird)
+                    this.pairsData['final'] = this._pairsData['final'].filter(data => !data.fightForThird)
 
-                    const accordionWrapper = this.getAccordionGamesWrapper(currentRound)
+                    const accordionWrapper = this.getAccordionGamesWrapper('final')
 
                     const gemeWrappers = [...accordionWrapper.children] as HTMLDivElement[]
 
@@ -618,7 +616,7 @@ export default class Playoffs extends League {
                 if (roundGamesPlayed && differentTeams) {
                     const fightForThirdPairData = new PlayoffsPair(pairId + 1, [])
 
-                    const fightForThirdGame = new ClassGame(roundLosersTeams[0], roundLosersTeams[1], Math.random(), +currentGame.leg, +currentGame.round)
+                    const fightForThirdGame = new ClassGame(roundLosersTeams[0], roundLosersTeams[1], Math.random(), 1, 'final')
                     fightForThirdGame.fightForThird = true
 
                     fightForThirdPairData.games.push(fightForThirdGame)
@@ -626,11 +624,11 @@ export default class Playoffs extends League {
                     fightForThirdPairData.teams = setPlayoffPairTeams(this.sportType.id, fightForThirdPairData.games)
                     fightForThirdPairData.fightForThird = true
 
-                    const accordionWrapper = this.getAccordionGamesWrapper(currentRound)
+                    const accordionWrapper = this.getAccordionGamesWrapper('final')
 
-                    accordionWrapper.append(this.createGameWrapper(null, fightForThirdGame, currentRound, false))
+                    accordionWrapper.append(this.createGameWrapper(null, fightForThirdGame, 'final', false))
 
-                    this.pairsData[currentRound].push(fightForThirdPairData)
+                    this.pairsData['final'].push(fightForThirdPairData)
                 }
             }
 
