@@ -283,7 +283,6 @@ export default class Playoffs extends League {
                         if (prevGame) prevGames.push(prevGame.playedAll)
 
                         if (j + 1 > bestOutOf && !prevGames.includes(true)) {
-                            console.log(prevGames);
                             const groupsIfNeeded = groupedGames.filter(group => group.leg === game.leg && game)
 
                             groupsIfNeeded.forEach(group => {
@@ -440,7 +439,6 @@ export default class Playoffs extends League {
 
                         input.after(extraTimeInput)
                     })
-
                 } else {
                     footballLastGame.extraTime = null
                     footballLastGame.shootout = null
@@ -495,6 +493,7 @@ export default class Playoffs extends League {
                     }
                 } else if (knockouts) {
                     const lastBasketballGame = lastGame as BasketballGame
+
                     if (pairGames.every(game => game.playedAll) && pairData.teams[0].totalScore === pairData.teams[1].totalScore) {
                         const overtimeGame = new Game(gameTeams[0], gameTeams[1], lastBasketballGame.overtime.length + 1, currentGame.leg, currentGame.round, null)
 
@@ -587,9 +586,7 @@ export default class Playoffs extends League {
             }
 
             if (currentRound === '1/2') {
-                const roundGamesPlayed = this.pairsData[currentRound].filter(data => !data.fightForThird).every(data => {
-                    return data.games.every(game => game.playedAll)
-                })
+                const roundGamesPlayed = this.pairsData[currentRound].every(data => data.games.every(game => game.playedAll))
 
                 const roundWinners = this.pairsData[currentRound].map(pairData => pairData.winnerId)
 
@@ -597,15 +594,15 @@ export default class Playoffs extends League {
 
                 const roundLosersTeams = this.playoffsTeams.filter(team => team.teamId === roundLosers[0].id || team.teamId === roundLosers[1].id) as (FootballTeam & BasketballTeam)[]
 
-                const oldFightForThirdPair = this.pairsData[currentRound].find(data => data.fightForThird)
+                const oldFightForThirdPair = this.pairsData['final'].find(data => data.fightForThird)
 
                 const differentTeams = (oldFightForThirdPair && roundLosersTeams.length > 0) ? (oldFightForThirdPair.teams[0].id !== roundLosersTeams[0].teamId || oldFightForThirdPair.teams[1].id !== roundLosersTeams[1].teamId) : true
 
 
                 if (!roundGamesPlayed || differentTeams) {
-                    this.pairsData[currentRound] = this._pairsData[currentRound].filter(data => !data.fightForThird)
+                    this.pairsData['final'] = this._pairsData['final'].filter(data => !data.fightForThird)
 
-                    const accordionWrapper = this.getAccordionGamesWrapper(currentRound)
+                    const accordionWrapper = this.getAccordionGamesWrapper('final')
 
                     const gemeWrappers = [...accordionWrapper.children] as HTMLDivElement[]
 
@@ -619,7 +616,7 @@ export default class Playoffs extends League {
                 if (roundGamesPlayed && differentTeams) {
                     const fightForThirdPairData = new PlayoffsPair(pairId + 1, [])
 
-                    const fightForThirdGame = new ClassGame(roundLosersTeams[0], roundLosersTeams[1], Math.random(), +currentGame.leg, +currentGame.round)
+                    const fightForThirdGame = new ClassGame(roundLosersTeams[0], roundLosersTeams[1], Math.random(), 1, 'final')
                     fightForThirdGame.fightForThird = true
 
                     fightForThirdPairData.games.push(fightForThirdGame)
@@ -627,11 +624,11 @@ export default class Playoffs extends League {
                     fightForThirdPairData.teams = setPlayoffPairTeams(this.sportType.id, fightForThirdPairData.games)
                     fightForThirdPairData.fightForThird = true
 
-                    const accordionWrapper = this.getAccordionGamesWrapper(currentRound)
+                    const accordionWrapper = this.getAccordionGamesWrapper('final')
 
-                    accordionWrapper.append(this.createGameWrapper(null, fightForThirdGame, currentRound, false))
+                    accordionWrapper.append(this.createGameWrapper(null, fightForThirdGame, 'final', false))
 
-                    this.pairsData[currentRound].push(fightForThirdPairData)
+                    this.pairsData['final'].push(fightForThirdPairData)
                 }
             }
 
@@ -749,7 +746,6 @@ export default class Playoffs extends League {
                 colsAmount = Object.keys(this.pairsData).length
                 rowsAmount = Object.values(this.pairsData)[0].length
             }
-            console.log('before', colsAmount, rowsAmount);
 
             if (Object.values(this.pairsData)[0].some(pair => pair.fightForThird)) {
                 rowsAmount--
@@ -784,7 +780,7 @@ export default class Playoffs extends League {
 
             let rowIndex = 1
             let leftRowIndex = 1
-            let rowSpan
+            let rowSpan: number
 
             wideScreen.addEventListener('change', (e) => {
                 rowIndex = 1
@@ -877,10 +873,10 @@ export default class Playoffs extends League {
 
                 const repositionResultWrapper = (e: MediaQueryList | MediaQueryListEvent) => {
                     if (![...gridWrapper.classList].includes('fight-for-third')) {
+                  
+
                         if (e.matches) {
                             rowSpan = rowsAmount * 2 / gamesAmount
-    
-    
                             if (gamesAmount > 1 && gamesAmount / 2 < positionInRound) {
                                 gridWrapper.style.gridColumn = (colsAmount - (index)).toString()
     
@@ -911,20 +907,12 @@ export default class Playoffs extends League {
             }
         })
 
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     document.querySelectorAll('[data-bs-toggle="popover"]').forEach((popoverElement) => {
-        //         new Popover(popoverElement);
-        //     });
-        // });
-
         tableWrapper.append(headerEl, table)
     }
 
     setNextPairElements(teams: { team: string, id: number | null, goals: number | null, home: boolean, away: boolean }[], pairId: number, index: number, label: HTMLLabelElement[], winnerData?: { team: string, id: number }) {
         const team1Index = pairId % 2 === 0 ? 0 : 1
         const team2Index = pairId % 2 === 0 ? 1 : 0
-
-        console.log(teams);
         if (index % 2 === 0) {
             label[team2Index].textContent = winnerData ? winnerData.team : ''
             teams[team2Index].team = winnerData ? winnerData.team : ''

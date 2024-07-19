@@ -181,7 +181,7 @@ export default class RegularSeason extends League {
                 const equalGameGoals = currentGame.teams.every(team => currentGame.teams[0].goals === team.goals)
     
                 if (equalGameGoals && currentGame.playedAll) {
-                    const overtimeGame = new Game(basketballGame.overtime.length+1, currentGame.leg, currentGame.round, null, gameTeams[0], gameTeams[1])
+                    const overtimeGame = new Game(gameTeams[0], gameTeams[1], basketballGame.overtime.length+1, currentGame.leg, currentGame.round, null)
     
                     basketballGame.overtime.push(overtimeGame)
                     gameEl.parentElement && gameEl.parentElement.classList.remove('played')
@@ -272,7 +272,7 @@ export default class RegularSeason extends League {
     }
 
     private renderTable(container: HTMLDivElement) {
-        const {leagueTeams: teams, games, sportType} = this
+        const {leagueTeams: teams, games} = this
 
         const sortedTeams = this.sortTeams(teams, {compareBetweenGames: true}) as TeamsType
 
@@ -373,7 +373,6 @@ export default class RegularSeason extends League {
             const teamTitleEl = document.createElement('th')
             teamTitleEl.setAttribute('scope', 'row')
             teamTitleEl.textContent = team.team     
-    
     
             if (team.maxPlace === 1 && team.minPlace === 1) {
                 row.classList.add('winner')
@@ -574,18 +573,21 @@ export default class RegularSeason extends League {
         })
         tableHead.append(tHeadRow)
 
-        // TODO: ??
-        let conditionsInfoWrapper
-        if (conditions) {
-            conditionsInfoWrapper = document.createElement('div')
-            conditionsInfoWrapper.classList.add('conditions-info-wrapper')
+        // let conditionsInfoWrapper
+        // if (conditions) {
+        //     conditionsInfoWrapper = document.createElement('div')
+        //     conditionsInfoWrapper.classList.add('conditions-info-wrapper')
 
-            wrapper.append(conditionsInfoWrapper)
-        }
+        //     wrapper.append(conditionsInfoWrapper)
+        // }
         
         for (let i = 0; i < teams.length; i++) {
             const team = teams[i];
             const row = document.createElement('tr');
+
+            if (team.minPlace === 1 && team.maxPlace === 1) {
+                row.classList.add('winner')
+            }
 
             headItems && headItems.forEach((item, j) => {
                 const cell = document.createElement('td');
@@ -1086,11 +1088,11 @@ export default class RegularSeason extends League {
 
                 const canSucceed = otherTeam.maxPotentialPoints > team.points
                 const equalPoints = otherTeam.maxPotentialPoints === team.points
-
+                console.log(team.gamesLeft, team.team);
                 if (team.gamesLeft === 0) {
                     team.minPlace = team.currentPlace
                     team.maxPlace = team.currentPlace
-                } else if (canSucceed ) {
+                } else if (canSucceed) {
                     team.minPlace += 1
                     otherTeam.maxPlace -= 1
                 } else if (equalPoints) {
@@ -1111,7 +1113,7 @@ export default class RegularSeason extends League {
                         team.minPlace += 1
                         otherTeam.maxPlace -=1
                     } else {
-                        // team.minPlace
+                        team.minPlace -=1
                     }
                 }
             }   
