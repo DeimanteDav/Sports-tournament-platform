@@ -671,7 +671,7 @@ table {
 }
 
 
-.playoffs-table .playoffs-games .grid-wrapper:not(:last-of-type):not(.fight-for-third) .game-result-wrapper:after {
+.playoffs-table .playoffs-games .grid-wrapper:not(.final):not(.fight-for-third) .game-result-wrapper:after {
   content: '';
   position: absolute;
   width: 25px;

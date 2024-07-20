@@ -776,7 +776,7 @@ export default class Playoffs extends League {
         resizeHandler(wideScreen)
 
         Object.entries(this.pairsData).forEach(([round, roundPairs], index) => {
-            const gamesAmount = roundPairs.length
+            const gamesAmount = this._roundsData[round].gamesAmount
 
             let rowIndex = 1
             let leftRowIndex = 1
@@ -857,13 +857,13 @@ export default class Playoffs extends League {
                 if (index === 0) {
                     gridWrapper.classList.add('first-row')
                 }
-
+                console.log(gamesAmount, pair);
 
                 if (gamesAmount > 1) {
                     if (gamesAmount / 2 < positionInRound) {
                         gridWrapper.classList.add('right')
                     }
-                } else {
+                } else if (!pair.fightForThird) {
                     gridWrapper.classList.add('final')
                 }
 
@@ -873,7 +873,6 @@ export default class Playoffs extends League {
 
                 const repositionResultWrapper = (e: MediaQueryList | MediaQueryListEvent) => {
                     if (![...gridWrapper.classList].includes('fight-for-third')) {
-                  
 
                         if (e.matches) {
                             rowSpan = rowsAmount * 2 / gamesAmount
