@@ -184,7 +184,7 @@ export default class Playoffs extends League {
 
         roundsDataConverted.forEach(([round, data], index) => {
             const { gamesAmount, knockouts, bestOutOf } = data
-
+console.log(data);
             if (!this.pairsData[round] || leagueTableUpdated) {
                 this.pairsData[round] = []
 
@@ -220,7 +220,6 @@ export default class Playoffs extends League {
                     const pairData = new PlayoffsPair(pairId, [], prevGamesIds, nextGameId)
 
                     const teams = index === 0 && round1TeamPairs[i]
-
 
                     if (knockouts) {
                         for (let leg = 1; leg <= knockouts; leg++) {
@@ -261,8 +260,15 @@ export default class Playoffs extends League {
                         }
                     }
 
+                    
                     this.pairsData[round].push(pairData)
 
+                    if (round === 'fightForThird') {
+                        this.pairsData[round][0].fightForThird = true
+                        const round2Ids = this.pairsData['1/2'].map(pair => pair.id)
+                        this.pairsData[round][0].prevIds = round2Ids
+                    }
+     
                     pairData.teams = setPlayoffPairTeams(this.sportType.id, pairData.games)
                 }
             }
@@ -298,10 +304,6 @@ export default class Playoffs extends League {
             this.renderAccordion(form, round, text, groupedGames)
         })
 
-        // if (this.fightForThird) {
-        //     // this.renderAccordion(form, '', 'Fight for 3rd Place', )
-        // }
-
         playoffsWrapper.append(title, form)
 
         this.renderTable(playoffsWrapper, sortedData)
@@ -309,6 +311,7 @@ export default class Playoffs extends League {
 
 
         const winnerId = localStorage.getItem('winner-id')
+        console.log(winnerId, 'winner id');
         if (winnerId) {
             winnerElement(playoffsWrapper, +winnerId, this.playoffsTeams)
         }
@@ -585,61 +588,101 @@ export default class Playoffs extends League {
                 pairData.winnerId = null
             }
 
-            if (currentRound === '1/2') {
+            if (currentRound === '1/2' && this.roundsData['fightForThird']) {
                 const roundGamesPlayed = this.pairsData[currentRound].every(data => data.games.every(game => game.playedAll))
 
-                const roundWinners = this.pairsData[currentRound].map(pairData => pairData.winnerId)
+                const fightForThirdPair = this.pairsData['fightForThird'][0]
 
-                const roundLosers = this.pairsData[currentRound].map(pairData => pairData.teams.filter(team => team.id !== roundWinners[0] && team.id !== roundWinners[1])[0])
+                const accordionWrapper = this.getAccordionGamesWrapper('fightForThird')
 
-                const roundLosersTeams = this.playoffsTeams.filter(team => team.teamId === roundLosers[0].id || team.teamId === roundLosers[1].id) as (FootballTeam & BasketballTeam)[]
-
-                const oldFightForThirdPair = this.pairsData['final'].find(data => data.fightForThird)
-
-                const differentTeams = (oldFightForThirdPair && roundLosersTeams.length > 0) ? (oldFightForThirdPair.teams[0].id !== roundLosersTeams[0].teamId || oldFightForThirdPair.teams[1].id !== roundLosersTeams[1].teamId) : true
+                console.log(accordionWrapper);
+                
+                const gemeWrappers = [...accordionWrapper.children] as HTMLDivElement[]
 
 
-                if (!roundGamesPlayed || differentTeams) {
-                    this.pairsData['final'] = this._pairsData['final'].filter(data => !data.fightForThird)
+                gemeWrappers.forEach((wrapper, index) => {
+                    const game = fightForThirdPair.games[index]
 
-                    const accordionWrapper = this.getAccordionGamesWrapper('final')
+                    if (roundGamesPlayed) {
+                        wrapper.querySelectorAll<HTMLInputElement>('.result-input').forEach((input) => {
 
-                    const gemeWrappers = [...accordionWrapper.children] as HTMLDivElement[]
+                            const pairLoser = pairData.teams.find(team => team.id !== pairData.winnerId)
 
-                    gemeWrappers.forEach(item => {
-                        if (item.dataset.fightForThird) {
-                            item.remove()
-                        }
-                    });
-                }
+                            const loserData = pairLoser && pairLoser.id && { team: pairLoser.team, id: pairLoser.id }
 
-                if (roundGamesPlayed && differentTeams) {
-                    const fightForThirdPairData = new PlayoffsPair(pairId + 1, [])
+                            const labels = [...wrapper.querySelectorAll<HTMLLabelElement>('label')]
 
-                    const fightForThirdGame = new ClassGame(roundLosersTeams[0], roundLosersTeams[1], Math.random(), 1, 'final')
-                    fightForThirdGame.fightForThird = true
+                            if (loserData) {
+                                const nextPairTeamExists = fightForThirdPair.teams.find(team => team.id === loserData.id)
 
-                    fightForThirdPairData.games.push(fightForThirdGame)
+                                if (!nextPairTeamExists) {
 
-                    fightForThirdPairData.teams = setPlayoffPairTeams(this.sportType.id, fightForThirdPairData.games)
-                    fightForThirdPairData.fightForThird = true
+                                    if (input.dataset.overtime || input.dataset.extraTime || input.dataset.shootout) {
+                                        input.remove()
+                                    }
+                                    input.value = ''
+                                    game.played = false
+                                    game.playedAll = false
 
-                    const accordionWrapper = this.getAccordionGamesWrapper('final')
+                                    wrapper.classList.remove('played')
+                                    
+                                    this.setNextPairElements(game.teams, pairId, index, labels, loserData)
+                                }
+                            }
+                        })
+                    } else {
+                        wrapper.classList.remove('played')
 
-                    accordionWrapper.append(this.createGameWrapper(null, fightForThirdGame, 'final', false))
+                        wrapper.querySelectorAll<HTMLInputElement>('.result-input').forEach(input => {
+                            const labels = [...wrapper.querySelectorAll<HTMLLabelElement>('label')]
 
-                    this.pairsData['final'].push(fightForThirdPairData)
-                }
+                            if (input.dataset.overtime || input.dataset.extraTime || input.dataset.shootout) {
+                                input.remove()
+                            }
+
+                            input.value = ''
+                            game.played = false
+                            game.playedAll = false
+
+                            this.setNextPairElements(game.teams, pairId, index, labels)
+                            
+                            wrapper.querySelectorAll<HTMLInputElement>('label').forEach(label => label.textContent = null)
+                        })
+                    }
+                })
+
+                    fightForThirdPair.teams = setPlayoffPairTeams(this.sportType.id, fightForThirdPair.games)
+
+
+                // if (roundGamesPlayed && differentTeams) {
+                //     const fightForThirdPairData = new PlayoffsPair(pairId + 1, [])
+
+                //     const fightForThirdGame = new ClassGame(roundLosersTeams[0], roundLosersTeams[1], Math.random(), 1, 'finals')
+                //     fightForThirdGame.fightForThird = true
+
+                //     fightForThirdPairData.games.push(fightForThirdGame)
+
+                //     fightForThirdPairData.teams = setPlayoffPairTeams(this.sportType.id, fightForThirdPairData.games)
+                //     fightForThirdPairData.fightForThird = true
+
+                //     const accordionWrapper = this.getAccordionGamesWrapper('finals')
+
+                //     accordionWrapper.append(this.createGameWrapper(null, fightForThirdGame, 'finals', false))
+
+                //     this.pairsData['finals'].push(fightForThirdPairData)
+                // }
             }
 
-            const nextRound = gamesAmount === 2 ? 'final' : `1/${gamesAmount / 2}`
-            const nextPair = gamesAmount >= 2 && this.pairsData[nextRound].find(pair => pair.id === pairData.nextId)
+            const nextRound = currentRound !== 'fightForThird' &&  (gamesAmount === 2 ? 'finals' : `1/${gamesAmount / 2}`)
+
+            const nextPair = (gamesAmount >= 2 && nextRound) && this.pairsData[nextRound].find(pair => pair.id === pairData.nextId)
 
             const nextPairGameElements = [...document.querySelectorAll(`.game[data-pair-id="${pairData.nextId}"] `)]
 
             if (!nextPairGameElements) throw new Error('no next pair game els')
+                console.log(nextPair);
 
-            if (gamesAmount >= 2 && nextPair) {
+            if (nextPair) {
                 nextPair.games.forEach((game, i) => {
                     const nextPairElement = nextPairGameElements[i]
                     const nextPairGameWraper = nextPairElement?.parentElement?.parentElement
@@ -650,6 +693,7 @@ export default class Playoffs extends League {
                     nextPairInputs.forEach((input, index) => {
                         if (pairData.winnerId) {
                             game.played = false
+
                             const winnningTeam = this.playoffsTeams.find(team => team.teamId === pairData.winnerId)!
 
                             const winnerData = { team: winnningTeam.team, id: winnningTeam.teamId }
@@ -668,7 +712,6 @@ export default class Playoffs extends League {
 
 
                                 this.setNextPairElements(game.teams, pairId, i, nextPairLabel, winnerData)
-
                             }
                         } else {
                             if (input.dataset.overtime || input.dataset.extraTime || input.dataset.shootout) {
@@ -701,13 +744,11 @@ export default class Playoffs extends League {
                 })
             }
 
+            this.renderTable(playoffsWrapper, sortedData)
 
-            this.renderTable(container, sortedData)
+            if (currentRound === 'finals' && pairGames.every(game => game.playedAll) && pairData.winnerId) {
 
-            if (currentRound === 'final' && pairGames.every(game => game.playedAll) && pairData.winnerId) {
-
-                winnerElement(container, pairData.winnerId, this.playoffsTeams)
-
+                winnerElement(playoffsWrapper, pairData.winnerId, this.playoffsTeams)
                 localStorage.setItem('winner-id', pairData.winnerId.toString())
 
             } else {
@@ -742,14 +783,19 @@ export default class Playoffs extends League {
             if (e.matches) {
                 colsAmount = Object.keys(this.pairsData).length * 2 - 1
                 rowsAmount = Object.values(this.pairsData)[0].length / 2
+
+                if (this.roundsData.fightForThird) {
+                    colsAmount-=2
+                }
             } else {
                 colsAmount = Object.keys(this.pairsData).length
                 rowsAmount = Object.values(this.pairsData)[0].length
+    
+                if (this.roundsData.fightForThird) {
+                    colsAmount--
+                }
             }
-
-            if (Object.values(this.pairsData)[0].some(pair => pair.fightForThird)) {
-                rowsAmount--
-            }
+            console.log(Object.keys(this.pairsData).length * 2 - 1, Object.keys(this.pairsData));
 
             table.style.gridTemplateColumns = `repeat(${colsAmount}, 1fr)`
             table.style.gridTemplateRows = `repeat(${rowsAmount}, 1fr)`
@@ -757,13 +803,15 @@ export default class Playoffs extends League {
             headerEl.innerHTML = ''
 
             Object.entries(roundsData).forEach(([round]) => {
-                const headerItem = document.createElement('li')
-                headerItem.textContent = round
-                headerEl.append(headerItem)
+                if (round !== 'fightForThird') {
+                    const headerItem = document.createElement('li')
+                    headerItem.textContent = round
+                    headerEl.append(headerItem)
+                }
             })
             if (e.matches) {
                 Object.entries(roundsData).reverse().forEach(([round]) => {
-                    if (round !== 'final') {
+                    if (round !== 'finals' && round !== 'fightForThird') {
                         const anotherHeader = document.createElement('li')
                         anotherHeader.textContent = round
                         headerEl.append(anotherHeader)
@@ -776,7 +824,7 @@ export default class Playoffs extends League {
         resizeHandler(wideScreen)
 
         Object.entries(this.pairsData).forEach(([round, roundPairs], index) => {
-            const gamesAmount = roundPairs.length
+            const gamesAmount = this._roundsData[round].gamesAmount
 
             let rowIndex = 1
             let leftRowIndex = 1
@@ -857,14 +905,14 @@ export default class Playoffs extends League {
                 if (index === 0) {
                     gridWrapper.classList.add('first-row')
                 }
-
+                console.log(gamesAmount, pair);
 
                 if (gamesAmount > 1) {
                     if (gamesAmount / 2 < positionInRound) {
                         gridWrapper.classList.add('right')
                     }
-                } else {
-                    gridWrapper.classList.add('final')
+                } else if (!pair.fightForThird) {
+                    gridWrapper.classList.add('finals')
                 }
 
                 gameResultWrapper.prepend(gameNumberEl)
@@ -873,7 +921,6 @@ export default class Playoffs extends League {
 
                 const repositionResultWrapper = (e: MediaQueryList | MediaQueryListEvent) => {
                     if (![...gridWrapper.classList].includes('fight-for-third')) {
-                  
 
                         if (e.matches) {
                             rowSpan = rowsAmount * 2 / gamesAmount

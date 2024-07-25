@@ -207,15 +207,22 @@
 
 .game-wrapper {
   display: flex;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
   gap: 5px;
+
   padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  position: relative;
+  min-height: 60px;
+  min-width: 120px;
 }
 
+
 .game-wrapper.played {
-  background-color: #f7f7f7;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--blue);
 }
 
 .game-wrapper .team {
@@ -230,10 +237,6 @@
 
 .team input {
   width: 50px;
-}
-
-#games-wrapper .game-wrapper.played:hover {
-  background-color: #e0e0e0;
 }
 
 .table-wrapper {
@@ -341,41 +344,6 @@ table {
   border-bottom: 2px solid yellow;
 }
 
-
-.accordion {
-  background-color: #eee;
-  color: #444;
-  cursor: pointer;
-  padding: 18px;
-  width: 100%;
-  text-align: left;
-  border: none;
-  outline: none;
-
-}
-
-.accordion.active, .accordion:hover {
-  background-color: #ccc;
-}
-
-.panel {
-  display: none;
-  padding: 0 18px;
-  overflow: hidden;
-}
-
-
-.accordion:after {
-  content: '\02795';
-  font-size: 13px;
-  color: #777;
-  float: right;
-  margin-left: 5px;
-}
-
-.accordion.active:after {
-  content: "\2796";
-}
 
 .accordion-parent {
   display: flex;
@@ -570,21 +538,6 @@ table {
   padding: 4px;
 }
 
-
-.playoffs-form .game-wrapper {
-  flex-direction: row;
-  justify-content: center;
-  border: 1px solid var(--blue);
-  border-radius: 2px;
-  position: relative;
-  min-height: 60px;
-  min-width: 120px;
-}
-
-.playoffs-table {
-  margin: 40px 0;
-}
-
 .playoffs-table .playoffs-header {
   display: flex;
   flex-direction: row;
@@ -598,9 +551,7 @@ table {
   flex-grow: 1;
   text-align: center;
   list-style: none;
-  padding: 20px;
-
-  
+  padding: 20px;  
 }
 
 .playoffs-table .playoffs-games {
@@ -619,8 +570,6 @@ table {
   justify-content: center;
   align-items: center;
   height: 100%;
-  width: 100%;
-  flex-grow: 1;
 }
 
 
@@ -644,7 +593,7 @@ table {
   height: auto;
   width: auto;
   right: 0;
-  margin-bottom: 20px;
+  margin: 30px 0;
 }
 
 .game-result-wrapper .pair-id {
@@ -671,7 +620,7 @@ table {
 }
 
 
-.playoffs-table .playoffs-games .grid-wrapper:not(:last-of-type):not(.fight-for-third) .game-result-wrapper:after {
+.playoffs-table .playoffs-games .grid-wrapper:not(.finals):not(.fight-for-third) .game-result-wrapper:after {
   content: '';
   position: absolute;
   width: 25px;
@@ -704,11 +653,23 @@ table {
 
 
 .game-result-wrapper .teams-wrapper div {
-  /* display: flex;
-  align-items: center; */
   gap: 10px;  
   margin: 4px;
 }
+
+.winner-container {
+  background-color: #fff;
+  padding: 20px 30px;
+  border-color: var(--border-color);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.winner-container .winner {
+  font-size: 20px;
+  font-weight: bold;
+}
+
 
 .game-result-wrapper .teams-wrapper p {
   margin: 0;
@@ -725,11 +686,11 @@ table {
     transform: translateX(-25px);
   }
 
-  .playoffs-table .playoffs-games .grid-wrapper.final:not(.fight-for-third)::before {
+  .playoffs-table .playoffs-games .grid-wrapper.finals:not(.fight-for-third)::before {
     content: none;
   }
 
-  .playoffs-table .playoffs-games .grid-wrapper.final .game-result-wrapper::after {
+  .playoffs-table .playoffs-games .grid-wrapper.finals .game-result-wrapper::after {
     content: '';
     position: absolute;
     width: 25px;

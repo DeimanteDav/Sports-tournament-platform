@@ -245,7 +245,7 @@ export default abstract class League {
         item.classList.add('accordion-item')
         item.classList.add('display')
 
-        if (inner) {
+        if (inner || legsData.length === 1) {
             itemWrapper.classList.add('inner')
         }
         const data = document.createElement('div')
@@ -257,7 +257,7 @@ export default abstract class League {
         itemWrapper.append(tabWrapper, item)
         wrapper.append(itemWrapper)
 
-        if (!inner) {
+        if (!inner && legsData.length > 1) {
             legsData.forEach((legData, i) => {
                 const legTitle = legData.leg + (legData.extraData ? ' ' + legData.extraData : '')
 
