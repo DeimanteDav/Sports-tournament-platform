@@ -311,6 +311,7 @@ console.log(data);
 
 
         const winnerId = localStorage.getItem('winner-id')
+        console.log(winnerId, 'winner id');
         if (winnerId) {
             winnerElement(playoffsWrapper, +winnerId, this.playoffsTeams)
         }
@@ -743,11 +744,11 @@ console.log(data);
                 })
             }
 
-            this.renderTable(container, sortedData)
+            this.renderTable(playoffsWrapper, sortedData)
 
             if (currentRound === 'finals' && pairGames.every(game => game.playedAll) && pairData.winnerId) {
 
-                winnerElement(container, pairData.winnerId, this.playoffsTeams)
+                winnerElement(playoffsWrapper, pairData.winnerId, this.playoffsTeams)
                 localStorage.setItem('winner-id', pairData.winnerId.toString())
 
             } else {
