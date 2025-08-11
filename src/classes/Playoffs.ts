@@ -877,7 +877,7 @@ console.log(data);
                     const content = teamData.scores.map(score => `${score.playedIn} ${score.score || '-'}`).join(', ')
                     infoButton.dataset.bsTitle = content || ''
                     infoWrapper.append(infoButton)
-                    const tooltip = new bootstrap.Tooltip(infoButton)
+                    // const tooltip = new bootstrap.Tooltip(infoButton)
 
                     const teamEl = document.createElement('span')
                     teamEl.classList.add('team-title')
